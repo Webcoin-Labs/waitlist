@@ -1,0 +1,116 @@
+// Standalone waitlist microsite schema — points at the SAME Neon database as
+// the main Webcoin Labs app. Only defines the tables this app touches; the
+// main app's tables (User, Startup, etc.) already exist in the same DB and
+// are simply not modeled here.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WaitlistRole {
+  FOUNDER
+  BUILDER
+  INVESTOR
+  ADVISOR
+}
+
+enum WaitlistStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  INVITED
+  APPROVED
+  BLOCKED
+}
+
+enum ArcCardStatus {
+  LOCKED
+  ELIGIBLE_SOON
+  ELIGIBLE
+  INVITED
+  CLAIMED
+}
+
+enum FounderPassStatus {
+  LOCKED
+  ELIGIBLE_SOON
+  ELIGIBLE
+  INVITED
+  CLAIMED
+}
+
+enum FounderPassTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+enum FounderPassTrack {
+  ARC
+  BASE
+  FARCASTER
+  SOLANA
+  POLYGON
+  OPTIMISM
+  OTHER
+}
+
+enum WebXpReason {
+  SIGNUP
+  REFERRAL
+  ADMIN_ADJUSTMENT
+}
+
+model WaitlistEntry {
+  id                    String            @id @default(cuid())
+  email                 String            @unique
+  name                  String?
+  role                  WaitlistRole      @default(FOUNDER)
+  status                WaitlistStatus    @default(PENDING_VERIFICATION)
+  referralCode          String            @unique
+  referredById          String?
+  referredBy            WaitlistEntry?    @relation("WaitlistReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals             WaitlistEntry[]   @relation("WaitlistReferrals")
+  webXp                 Int               @default(0)
+  verifiedReferralCount Int               @default(0)
+  emailVerifiedAt       DateTime?
+  verificationToken     String?           @unique
+  verificationExpiresAt DateTime?
+  arcCardStatus         ArcCardStatus     @default(LOCKED)
+  founderPassStatus     FounderPassStatus @default(LOCKED)
+  founderPassTier       FounderPassTier?
+  founderPassTrack      FounderPassTrack?
+  source                String?
+  utmSource             String?
+  utmMedium             String?
+  utmCampaign           String?
+  ipHash                String?
+  userAgentHash         String?
+  ledgerEntries         WebXpLedger[]     @relation("EntryLedger")
+  referralLedger        WebXpLedger[]     @relation("SourceLedger")
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@index([status, webXp])
+  @@index([referredById])
+}
+
+model WebXpLedger {
+  id              String         @id @default(cuid())
+  waitlistEntryId String
+  entry           WaitlistEntry  @relation("EntryLedger", fields: [waitlistEntryId], references: [id], onDelete: Cascade)
+  amount          Int
+  reason          WebXpReason
+  sourceEntryId   String?
+  source          WaitlistEntry? @relation("SourceLedger", fields: [sourceEntryId], references: [id], onDelete: SetNull)
+  createdAt       DateTime       @default(now())
+
+  @@unique([waitlistEntryId, reason, sourceEntryId])
+  @@index([waitlistEntryId])
+}

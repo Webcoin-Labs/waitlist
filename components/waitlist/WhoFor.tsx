@@ -1,0 +1,372 @@
+"use client";
+
+import { motion } from "framer-motion";
+import type { ReactNode } from "react";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  CircleDot,
+  Compass,
+  FileText,
+  Github,
+  Handshake,
+  IdCard,
+  Network,
+  PieChart,
+  Rocket,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
+import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
+
+type PreviewKind = "founder" | "builder" | "deck" | "tokenomics" | "investor" | "advisor" | "pass" | "network";
+
+const CAPABILITIES: Array<{
+  icon: LucideIcon;
+  title: string;
+  body: string;
+  chips: string[];
+  accent: string;
+  kind: PreviewKind;
+  span: string;
+}> = [
+  {
+    icon: Rocket,
+    title: "Founder Sprint",
+    body: "Startup profile, pitch deck support, advisor access, and investor intros — everything to go from idea to investor-ready.",
+    chips: ["Pitch Deck", "Investor Intro", "Advisor Access"],
+    accent: "#7c3aed",
+    kind: "founder",
+    span: "lg:col-span-2",
+  },
+  {
+    icon: Github,
+    title: "Builder Proof",
+    body: "Show your projects and GitHub work directly to founders who need serious builders — no cold pitch required.",
+    chips: ["GitHub", "Projects", "Builder Access"],
+    accent: "#0e7490",
+    kind: "builder",
+    span: "lg:col-span-2",
+  },
+  {
+    icon: FileText,
+    title: "Pitch Deck Review",
+    body: "Upload your deck and get a clearer, investor-ready narrative with section-by-section feedback.",
+    chips: ["Deck Score", "Narrative"],
+    accent: "#2563eb",
+    kind: "deck",
+    span: "lg:col-span-1",
+  },
+  {
+    icon: PieChart,
+    title: "Tokenomics Support",
+    body: "Model allocation, vesting, and scenarios with export-ready structures.",
+    chips: ["Allocations", "Vesting"],
+    accent: "#059669",
+    kind: "tokenomics",
+    span: "lg:col-span-1",
+  },
+  {
+    icon: Handshake,
+    title: "Investor Introductions",
+    body: "Verified founders can request relevant investor intros instead of cold DMs and scattered outreach.",
+    chips: ["Warm Intro", "Verified Founder"],
+    accent: "#b45309",
+    kind: "investor",
+    span: "lg:col-span-1",
+  },
+  {
+    icon: Compass,
+    title: "Advisor Discovery",
+    body: "Find advisors for product, fundraising, GTM, and community — matched to what you actually need.",
+    chips: ["Advisors", "Strategy"],
+    accent: "#db2777",
+    kind: "advisor",
+    span: "lg:col-span-1",
+  },
+  {
+    icon: IdCard,
+    title: "Founder Pass Access",
+    body: "Unlock ecosystem-linked founder credentials for selected Arc and Base builders.",
+    chips: ["Founder Pass", "Arc", "Base", "Eligibility"],
+    accent: "#7c3aed",
+    kind: "pass",
+    span: "lg:col-span-2",
+  },
+  {
+    icon: Network,
+    title: "Private Network",
+    body: "A focused community of founders, builders, investors, and advisors building serious projects.",
+    chips: ["Community", "Proof"],
+    accent: "#0e7490",
+    kind: "network",
+    span: "lg:col-span-2",
+  },
+];
+
+function PreviewShell({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div
+      className="mt-5 overflow-hidden rounded-2xl border p-3 transition-all duration-300 group-hover:-translate-y-0.5"
+      style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}
+    >
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: COLORS.textFaint }}>
+          inside Webcoin Labs
+        </span>
+        <span className="text-[10px] font-semibold" style={{ color: COLORS.textMuted }}>
+          {label}
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
+  if (kind === "builder") {
+    return (
+      <PreviewShell label="proof layer">
+        <div className="grid gap-2">
+          {["github.com/founder-tools", "startup profile linked", "available for Arc projects"].map((line, i) => (
+            <div key={line} className="flex items-center gap-2 text-[11px]" style={{ color: COLORS.textSecondary }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: i === 0 ? accent : COLORS.textFaint }} />
+              <span className="truncate">{line}</span>
+            </div>
+          ))}
+        </div>
+      </PreviewShell>
+    );
+  }
+
+  if (kind === "deck") {
+    return (
+      <PreviewShell label="readiness">
+        <div className="flex items-end gap-1.5">
+          {[34, 58, 76, 64, 88].map((height, i) => (
+            <span key={height} className="flex-1 rounded-t-lg" style={{ height: 42, backgroundColor: COLORS.border }}>
+              <motion.span
+                className="block rounded-t-lg"
+                style={{ background: i === 4 ? GRAD.brand : COLORS.borderStrong }}
+                initial={{ height: "14%" }}
+                whileInView={{ height: `${height}%` }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.04, ease: EASE }}
+              />
+            </span>
+          ))}
+        </div>
+        <div className="mt-3 grid gap-1.5 text-[11px]" style={{ color: COLORS.textSecondary }}>
+          <span>Narrative gaps marked for review</span>
+          <span>Investor-ready sections prepared</span>
+        </div>
+      </PreviewShell>
+    );
+  }
+
+  if (kind === "tokenomics") {
+    return (
+      <PreviewShell label="model view">
+        <div className="grid gap-2">
+          {[
+            ["Team", "42%"],
+            ["Community", "68%"],
+            ["Treasury", "54%"],
+          ].map(([name, width]) => (
+            <div key={name}>
+              <div className="mb-1 flex justify-between text-[10px]" style={{ color: COLORS.textMuted }}>
+                <span>{name}</span>
+                <span>allocation lane</span>
+              </div>
+              <span className="block h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: COLORS.border }}>
+                <span className="block h-full rounded-full" style={{ width, background: `linear-gradient(90deg, ${accent}, ${accent}88)` }} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </PreviewShell>
+    );
+  }
+
+  if (kind === "investor") {
+    return (
+      <PreviewShell label="intro request">
+        <div className="grid gap-2 text-[11px]">
+          <div className="flex items-center justify-between gap-3">
+            <span style={{ color: COLORS.textSecondary }}>Relevant investor list</span>
+            <span style={{ color: accent }}>Reviewing</span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <span style={{ color: COLORS.textSecondary }}>Warm intro request</span>
+            <span style={{ color: COLORS.green }}>Drafted</span>
+          </div>
+        </div>
+      </PreviewShell>
+    );
+  }
+
+  if (kind === "advisor") {
+    return (
+      <PreviewShell label="discovery">
+        <div className="flex flex-wrap gap-1.5">
+          {["Product", "Fundraising", "GTM", "Community"].map((tag) => (
+            <span key={tag} className="rounded-full border px-2 py-1 text-[10px]" style={{ borderColor: COLORS.border, color: COLORS.textSecondary }}>
+              {tag}
+            </span>
+          ))}
+        </div>
+      </PreviewShell>
+    );
+  }
+
+  if (kind === "pass") {
+    return (
+      <PreviewShell label="eligibility">
+        <div className="rounded-xl border p-3" style={{ borderColor: "rgba(124,58,237,0.24)", backgroundColor: "rgba(124,58,237,0.06)" }}>
+          <div className="flex items-center justify-between">
+            <span className="text-[12px] font-semibold" style={{ color: COLORS.text }}>
+              Founder Pass
+            </span>
+            <ShieldCheck className="h-4 w-4" style={{ color: accent }} />
+          </div>
+          <p className="mt-1 text-[11px]" style={{ color: COLORS.textSecondary }}>
+            Arc and Base beta eligibility after proof review.
+          </p>
+        </div>
+      </PreviewShell>
+    );
+  }
+
+  if (kind === "network") {
+    return (
+      <PreviewShell label="private graph">
+        <div className="relative h-20 overflow-hidden rounded-xl" style={{ background: "radial-gradient(circle at 30% 50%, rgba(14,116,144,0.1), transparent 48%), radial-gradient(circle at 74% 45%, rgba(124,58,237,0.1), transparent 52%)" }}>
+          {[
+            ["12%", "24%"],
+            ["36%", "56%"],
+            ["61%", "28%"],
+            ["82%", "62%"],
+          ].map(([left, top], i) => (
+            <span
+              key={`${left}-${top}`}
+              className="absolute h-2.5 w-2.5 rounded-full"
+              style={{ left, top, backgroundColor: [accent, COLORS.accent, COLORS.green, COLORS.amber][i] }}
+            />
+          ))}
+          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 300 80" fill="none" aria-hidden>
+            <path d="M42 28 C 95 28, 98 58, 130 50 S 190 22, 225 30 S 255 62, 272 54" stroke={COLORS.borderStrong} strokeWidth="1.4" />
+          </svg>
+        </div>
+      </PreviewShell>
+    );
+  }
+
+  return (
+    <PreviewShell label="workspace">
+      <div className="grid gap-2">
+        {["Startup profile", "Pitch deck", "Intro request"].map((line, i) => (
+          <div key={line} className="flex items-center gap-2 rounded-lg px-2 py-1.5" style={{ backgroundColor: "#fff" }}>
+            {i === 2 ? <CircleDot className="h-3.5 w-3.5" style={{ color: accent }} /> : <CheckCircle2 className="h-3.5 w-3.5" style={{ color: COLORS.green }} />}
+            <span className="text-[11px]" style={{ color: COLORS.textSecondary }}>
+              {line}
+            </span>
+          </div>
+        ))}
+      </div>
+    </PreviewShell>
+  );
+}
+
+function CapabilityCard({ item, index }: { item: (typeof CAPABILITIES)[number]; index: number }) {
+  const Icon = item.icon;
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.52, delay: (index % 4) * 0.05, ease: EASE }}
+      whileHover={{ y: -4 }}
+      className={`group relative min-h-[300px] overflow-hidden rounded-3xl border p-5 ${item.span}`}
+      style={{
+        borderColor: COLORS.border,
+        backgroundColor: "#fff",
+        boxShadow: "0 20px 50px -36px rgba(11,10,18,0.14)",
+      }}
+    >
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px opacity-70"
+        style={{ background: `linear-gradient(90deg, transparent, ${item.accent}, transparent)` }}
+      />
+
+      <div className="relative flex items-start justify-between gap-4">
+        <span
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
+          style={{ backgroundColor: `${item.accent}14`, color: item.accent }}
+        >
+          <Icon className="h-5 w-5" strokeWidth={1.9} />
+        </span>
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ color: COLORS.textMuted }}>
+          Open preview <ArrowUpRight className="h-3 w-3" />
+        </span>
+      </div>
+
+      <div className="relative mt-6">
+        <h3 className="text-[20px] font-bold tracking-tight" style={{ color: COLORS.text }}>
+          {item.title}
+        </h3>
+        <p className="mt-2.5 text-[13.5px] leading-6" style={{ color: COLORS.textSecondary }}>
+          {item.body}
+        </p>
+      </div>
+
+      <div className="relative mt-5 flex flex-wrap gap-2">
+        {item.chips.map((chip) => (
+          <span
+            key={chip}
+            className="rounded-full border px-2.5 py-1 text-[11px] font-medium"
+            style={{ borderColor: COLORS.border, backgroundColor: COLORS.bg, color: COLORS.textSecondary }}
+          >
+            {chip}
+          </span>
+        ))}
+      </div>
+
+      <div className="relative">
+        <Preview kind={item.kind} accent={item.accent} />
+      </div>
+    </motion.article>
+  );
+}
+
+export function WhoFor() {
+  return (
+    <section id="about" className="relative py-24" style={{ backgroundColor: COLORS.bg }}>
+      <div className="container relative mx-auto max-w-6xl px-6">
+        <div className="max-w-2xl">
+          <span
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+            style={{ borderColor: COLORS.border, color: COLORS.accentDeep, backgroundColor: "#fff" }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.accent }} />
+            About Webcoin Labs
+          </span>
+          <h2 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight md:text-[3rem]" style={{ color: COLORS.text }}>
+            Built for founders and builders who are serious.
+          </h2>
+          <p className="mt-4 max-w-xl text-[16px] leading-7" style={{ color: COLORS.textSecondary }}>
+            Founder tools, builder proof, investor introductions, advisor discovery, pitch deck review, tokenomics
+            support, and private ecosystem access — in one place.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {CAPABILITIES.map((item, index) => (
+            <CapabilityCard key={item.title} item={item} index={index} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

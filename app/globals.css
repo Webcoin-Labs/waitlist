@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: #f8f7fb;
+  color: #0b0a12;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(124, 58, 237, 0.18);
+  color: #0b0a12;
+}
+
+@keyframes wl-shine {
+  0% { transform: translateX(-40%) rotate(18deg); }
+  100% { transform: translateX(140%) rotate(18deg); }
+}
+
+@keyframes wl-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.wl-marquee-track {
+  animation: wl-marquee 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wl-marquee-track { animation: none; }
+}
