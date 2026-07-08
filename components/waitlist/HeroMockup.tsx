@@ -67,7 +67,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Builder Access", icon: Users },
   { label: "Intros", icon: Network },
   { label: "WebXP", icon: Activity },
-  { label: "Founder Pass", icon: IdCard },
+  { label: "Builder Pass", icon: IdCard },
 ] as const;
 
 function useLoadingPercent(reduce: boolean | null) {
@@ -288,7 +288,7 @@ function FounderPassWidget() {
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-[10.5px] font-bold" style={{ color: COLORS.darkText }}>
-            Founder Pass
+            Builder Pass
           </p>
           <p className="mt-1 text-[9.5px]" style={{ color: COLORS.darkTextSecondary }}>
             Beta eligibility review
@@ -308,16 +308,16 @@ function FounderPassWidget() {
       >
         <div className="flex items-center justify-between">
           <span className="text-[8.5px] font-black uppercase tracking-[0.16em]" style={{ color: "#fbbf24" }}>
-            Founder Pass
+            Builder Pass
           </span>
           <Lock className="h-3 w-3" style={{ color: COLORS.darkTextMuted }} />
         </div>
         <div className="mt-3 grid grid-cols-2 gap-1.5">
-          <span className="rounded-md px-1.5 py-1 text-center text-[8.5px] font-bold" style={{ backgroundColor: "rgba(245,158,11,0.12)", color: "#fde68a" }}>
-            Arc
+          <span className="flex items-center justify-center rounded-md px-1.5 py-1.5" style={{ backgroundColor: "rgba(245,158,11,0.12)" }}>
+            <img src="/logo/Arc_Logo_White.svg" alt="Arc" className="h-3 w-auto max-w-full object-contain" />
           </span>
-          <span className="rounded-md px-1.5 py-1 text-center text-[8.5px] font-bold" style={{ backgroundColor: "rgba(59,130,246,0.13)", color: "#bfdbfe" }}>
-            Base
+          <span className="flex items-center justify-center rounded-md px-1.5 py-1.5" style={{ backgroundColor: "rgba(59,130,246,0.13)" }}>
+            <img src="/logo/Base_lockup_white.svg" alt="Base" className="h-3 w-auto max-w-full object-contain" />
           </span>
         </div>
       </div>
@@ -358,11 +358,11 @@ function FloatingFounderPassPreview({ reduce }: { reduce: boolean | null }) {
             Webcoin Labs
           </p>
           <p className="mt-1 text-[17px] font-black tracking-tight" style={{ color: COLORS.darkText }}>
-            Founder Pass
+            Builder Pass
           </p>
         </div>
         <span className="rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.08em]" style={{ borderColor: "rgba(167,139,250,0.28)", backgroundColor: "rgba(167,139,250,0.16)", color: "#ddd6fe" }}>
-          Claimable
+          Eligible
         </span>
       </div>
 
@@ -394,7 +394,7 @@ function FloatingFounderPassPreview({ reduce }: { reduce: boolean | null }) {
           </div>
           <div className="col-span-2 flex items-center justify-between rounded-xl border px-2.5 py-2" style={{ borderColor: "rgba(255,255,255,0.1)", backgroundColor: "rgba(255,255,255,0.055)" }}>
             <span className="text-[9.5px] font-bold" style={{ color: COLORS.darkText }}>
-              Claim exclusive founder access
+              Check Builder Pass eligibility
             </span>
             <IdCard className="h-3.5 w-3.5" style={{ color: "#fbbf24" }} />
           </div>
@@ -409,7 +409,7 @@ function SystemPanel({ percent }: { percent: number }) {
   const rows = [
     ["Founder tools", ready ? "ready" : "loading"],
     ["WebXP", "+100"],
-    ["Founder Pass", "eligibility pending"],
+    ["Builder Pass", "eligibility pending"],
     ["Referral rank", "verify to reveal"],
   ] as const;
 

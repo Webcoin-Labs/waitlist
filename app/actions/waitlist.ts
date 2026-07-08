@@ -10,6 +10,8 @@ import {
   type FounderPassStatus,
   type FounderPassTier,
   type FounderPassTrack,
+  type WaitlistTaskType,
+  type WebXpReason,
 } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/prisma";
@@ -26,11 +28,14 @@ import {
   accessTier,
   type Rankable,
 } from "@/lib/waitlist/xp";
+import { getDisplayNameFromEmail } from "@/lib/notifications/displayName";
+import { WAITLIST_TASK_REWARDS, buildXShareText, buildXShareUrl } from "@/lib/waitlist/share";
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+const FOUNDER_PASS_ELIGIBILITY_TASK_OPEN = process.env.FOUNDER_PASS_ELIGIBILITY_TASK_OPEN === "true";
 
 function baseUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+  return (process.env.WAITLIST_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 }
 
 function hashValue(value: string | null | undefined): string | null {
@@ -43,12 +48,59 @@ function newToken() {
   return randomBytes(32).toString("hex");
 }
 
+// Private key for /status + task-completion actions. Never derived from or
+// equal to referralCode — referralCode is meant to be shared publicly, so
+// using it to gate PII/state-changing actions would let anyone with a
+// person's referral link view their email or forge XP claims on their behalf.
+function newStatusToken() {
+  return randomBytes(24).toString("base64url");
+}
+
 function newReferralCode() {
   return randomBytes(6).toString("base64url").replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
 }
 
 function referralLinkFor(code: string) {
   return `${baseUrl()}/?ref=${code}`;
+}
+
+/** Lazily assigns a statusToken to entries created before the field existed. */
+async function backfillStatusToken(id: string): Promise<string> {
+  const token = newStatusToken();
+  const updated = await db.waitlistEntry.updateMany({
+    where: { id, statusToken: null },
+    data: { statusToken: token },
+  });
+  if (updated.count === 1) return token;
+  // Lost the race (or already backfilled) — read back whatever is there now.
+  const current = await db.waitlistEntry.findUnique({ where: { id }, select: { statusToken: true } });
+  return current?.statusToken ?? token;
+}
+
+function statusLinkFor(code: string) {
+  void code;
+  return "/status";
+}
+
+function titleCase(s: string) {
+  return s.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function displayNameFor(entry: { name: string | null; email: string }) {
+  return entry.name?.trim() || getDisplayNameFromEmail(entry.email) || "Founder";
+}
+
+function anonymizedLeaderboardName(entry: { name: string | null; role: WaitlistRole }, rank: number) {
+  const parts = entry.name?.trim().split(/\s+/).filter(Boolean) ?? [];
+  if (parts.length >= 2) return `${parts[0]} ${parts[1][0]?.toUpperCase()}.`;
+  return `${entry.role === "BUILDER" ? "Builder" : "Founder"} #${String(rank).padStart(3, "0")}`;
+}
+
+function isMissingTaskTable(error: unknown) {
+  return (
+    (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") ||
+    (error instanceof Error && error.message.includes("WaitlistTaskCompletion"))
+  );
 }
 
 async function requestMeta() {
@@ -73,7 +125,7 @@ const joinSchema = z.object({
 });
 
 export type JoinWaitlistResult =
-  | { success: true; email: string; alreadyVerified: boolean; referralCode?: string }
+  | { success: true; email: string; alreadyVerified: boolean; statusToken?: string }
   | { success: false; error: string };
 
 // VCs must use a firm/work email, not a free personal inbox.
@@ -139,17 +191,19 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
   if (existing) {
     if (existing.status === "BLOCKED") return { success: true, email, alreadyVerified: false };
     if (existing.emailVerifiedAt) {
-      return { success: true, email, alreadyVerified: true, referralCode: existing.referralCode };
+      // Backfill statusToken for entries created before this field existed.
+      const statusToken = existing.statusToken ?? (await backfillStatusToken(existing.id));
+      return { success: true, email, alreadyVerified: true, statusToken };
     }
     await db.waitlistEntry.update({
       where: { id: existing.id },
       data: { verificationToken: token, verificationExpiresAt: expires, name: name ?? existing.name, role },
     });
-    await sendVerification(email, token);
+    await sendVerification(email, token, name ?? existing.name, role);
     return { success: true, email, alreadyVerified: false };
   }
 
-  let created: { referralCode: string } | null = null;
+  let created: { referralCode: string; statusToken: string | null } | null = null;
   for (let attempt = 0; attempt < 5 && !created; attempt += 1) {
     const referralCode = newReferralCode();
     try {
@@ -159,6 +213,7 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
           name,
           role: role as WaitlistRole,
           referralCode,
+          statusToken: newStatusToken(),
           referredById,
           verificationToken: token,
           verificationExpiresAt: expires,
@@ -169,7 +224,7 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
           ipHash: meta.ipHash,
           userAgentHash: meta.userAgentHash,
         },
-        select: { referralCode: true },
+        select: { referralCode: true, statusToken: true },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -182,13 +237,13 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
   }
   if (!created) return { success: false, error: "Could not create your entry. Please retry." };
 
-  await sendVerification(email, token);
+  await sendVerification(email, token, name, role);
   return { success: true, email, alreadyVerified: false };
 }
 
-async function sendVerification(email: string, token: string) {
+async function sendVerification(email: string, token: string, name?: string | null, role?: WaitlistRole) {
   const verifyLink = `${baseUrl()}/verify?token=${token}`;
-  const result = await dispatchWaitlistVerificationEmail({ toEmail: email, verifyLink });
+  const result = await dispatchWaitlistVerificationEmail({ toEmail: email, verifyLink, name, role });
   if (!result.delivered) {
     logger.error({ scope: "waitlist.sendVerification", message: "Verification email not delivered.", data: { email, error: result.error } });
   }
@@ -211,7 +266,7 @@ export async function resendWaitlistVerification(email: string): Promise<{ succe
       where: { id: entry.id },
       data: { verificationToken: token, verificationExpiresAt: new Date(Date.now() + TOKEN_TTL_MS) },
     });
-    await sendVerification(normalized, token);
+    await sendVerification(normalized, token, entry.name, entry.role);
   }
   return { success: true };
 }
@@ -219,7 +274,7 @@ export async function resendWaitlistVerification(email: string): Promise<{ succe
 // ── verify (awards XP) ───────────────────────────────────────────────────────
 
 export type VerifyResult =
-  | { success: true; referralCode: string; alreadyVerified: boolean }
+  | { success: true; statusToken: string; alreadyVerified: boolean }
   | { success: false; error: string; email?: string };
 
 export async function verifyWaitlistEmail(token: string): Promise<VerifyResult> {
@@ -228,7 +283,10 @@ export async function verifyWaitlistEmail(token: string): Promise<VerifyResult> 
   const entry = await db.waitlistEntry.findUnique({ where: { verificationToken: token } });
   if (!entry) return { success: false, error: "This verification link is invalid or has already been used." };
   if (entry.status === "BLOCKED") return { success: false, error: "This entry is not eligible." };
-  if (entry.emailVerifiedAt) return { success: true, referralCode: entry.referralCode, alreadyVerified: true };
+  if (entry.emailVerifiedAt) {
+    const statusToken = entry.statusToken ?? (await backfillStatusToken(entry.id));
+    return { success: true, statusToken, alreadyVerified: true };
+  }
   if (entry.verificationExpiresAt && entry.verificationExpiresAt.getTime() < Date.now()) {
     return { success: false, error: "This verification link has expired. Request a new one.", email: entry.email };
   }
@@ -274,8 +332,8 @@ export async function verifyWaitlistEmail(token: string): Promise<VerifyResult> 
     }
   });
 
-  revalidatePath("/admin");
-  return { success: true, referralCode: entry.referralCode, alreadyVerified: false };
+  const statusToken = entry.statusToken ?? (await backfillStatusToken(entry.id));
+  return { success: true, statusToken, alreadyVerified: false };
 }
 
 // ── status (own record only) ─────────────────────────────────────────────────
@@ -284,6 +342,7 @@ export type WaitlistStatusView = {
   found: boolean;
   email?: string;
   name?: string | null;
+  displayName?: string;
   role?: WaitlistRole;
   status?: WaitlistStatus;
   verified: boolean;
@@ -296,33 +355,192 @@ export type WaitlistStatusView = {
   founderPassTier: FounderPassTier | null;
   founderPassTrack: FounderPassTrack | null;
   referralCode: string;
+  statusToken: string;
   referralLink: string;
+  xShareText: string;
+  xShareUrl: string;
+  leaderboard: WaitlistLeaderboardRow[];
+  taskStates: WaitlistTaskState[];
+  networkStats: {
+    verifiedMembers: number;
+    verifiedReferrals: number;
+    countriesLabel: string;
+    buildersFounders: number;
+  };
 };
 
-export async function getWaitlistStatus(referralCode: string): Promise<WaitlistStatusView | null> {
-  const entry = await db.waitlistEntry.findUnique({ where: { referralCode } });
+export type WaitlistLeaderboardRow = {
+  rank: number;
+  label: string;
+  webXp: number;
+  verifiedReferralCount: number;
+  isCurrent: boolean;
+};
+
+export type WaitlistTaskState = {
+  taskType: WaitlistTaskType;
+  status: "LOCKED" | "AVAILABLE" | "IN_PROGRESS" | "COMPLETED" | "CLAIMED";
+  xpAwarded: number;
+  progress: number;
+  goal: number;
+};
+
+function taskView({
+  taskType,
+  completion,
+  progress,
+  goal,
+  available,
+}: {
+  taskType: WaitlistTaskType;
+  completion?: { status: string; xpAwarded: number } | null;
+  progress: number;
+  goal: number;
+  available: boolean;
+}): WaitlistTaskState {
+  if (completion?.xpAwarded) {
+    return { taskType, status: "CLAIMED", xpAwarded: completion.xpAwarded, progress: goal, goal };
+  }
+  if (completion?.status === "PENDING_CONFIRMATION" || completion?.status === "OPENED") {
+    return { taskType, status: "IN_PROGRESS", xpAwarded: 0, progress, goal };
+  }
+  if (progress >= goal) return { taskType, status: "COMPLETED", xpAwarded: 0, progress: goal, goal };
+  return { taskType, status: available ? "AVAILABLE" : "LOCKED", xpAwarded: 0, progress, goal };
+}
+
+async function awardTaskXp(
+  tx: Prisma.TransactionClient,
+  waitlistEntryId: string,
+  taskType: WaitlistTaskType,
+  reason: WebXpReason,
+  amount: number,
+  metadata?: Prisma.InputJsonValue,
+) {
+  const now = new Date();
+  await tx.waitlistTaskCompletion.upsert({
+    where: { waitlistEntryId_taskType: { waitlistEntryId, taskType } },
+    create: {
+      waitlistEntryId,
+      taskType,
+      status: "COMPLETED",
+      xpAwarded: 0,
+      metadata,
+      completedAt: now,
+    },
+    update: {},
+  });
+
+  const claimed = await tx.waitlistTaskCompletion.updateMany({
+    where: { waitlistEntryId, taskType, xpAwarded: 0 },
+    data: {
+      status: "CLAIMED",
+      xpAwarded: amount,
+      metadata,
+      completedAt: now,
+      confirmedAt: now,
+    },
+  });
+
+  if (claimed.count !== 1) return false;
+
+  await tx.webXpLedger.create({
+    data: { waitlistEntryId, amount, reason, sourceEntryId: null },
+  });
+  await tx.waitlistEntry.update({
+    where: { id: waitlistEntryId },
+    data: { webXp: { increment: amount } },
+  });
+  return true;
+}
+
+async function syncAutomaticTaskAwards(entry: { id: string; status: WaitlistStatus; emailVerifiedAt: Date | null; verifiedReferralCount: number }) {
+  if (!entry.emailVerifiedAt || entry.status === "BLOCKED" || entry.verifiedReferralCount < 3) return;
+
+  try {
+    await db.$transaction(async (tx) => {
+      await awardTaskXp(
+        tx,
+        entry.id,
+        "THREE_VERIFIED_REFERRALS",
+        "THREE_VERIFIED_REFERRALS",
+        WAITLIST_TASK_REWARDS.THREE_VERIFIED_REFERRALS,
+        { verifiedReferralCount: entry.verifiedReferralCount },
+      );
+    });
+  } catch (error) {
+    if (!isMissingTaskTable(error)) throw error;
+  }
+}
+
+async function getTaskCompletionsForStatus(waitlistEntryId: string) {
+  try {
+    return await db.waitlistTaskCompletion.findMany({ where: { waitlistEntryId } });
+  } catch (error) {
+    if (isMissingTaskTable(error)) return [];
+    throw error;
+  }
+}
+
+export async function getWaitlistStatus(statusToken: string): Promise<WaitlistStatusView | null> {
+  if (!statusToken || statusToken.length < 16) return null;
+
+  const meta = await requestMeta();
+  const limiter = await rateLimitAsync(rateLimitKey(meta.ipHash ?? statusToken, "waitlist-status"), 30, 60_000);
+  if (!limiter.ok) return null;
+
+  let entry = await db.waitlistEntry.findUnique({ where: { statusToken } });
+  if (!entry) return null;
+
+  await syncAutomaticTaskAwards(entry);
+  entry = await db.waitlistEntry.findUnique({ where: { statusToken } });
   if (!entry) return null;
 
   const verified = Boolean(entry.emailVerifiedAt);
   let rank: number | null = null;
   let rankedTotal = 0;
+  let leaderboard: WaitlistLeaderboardRow[] = [];
+  let verifiedReferrals = 0;
+  let buildersFounders = 0;
 
   if (verified && (RANKED_STATUSES as readonly string[]).includes(entry.status)) {
     const ranked = await db.waitlistEntry.findMany({
       where: { status: { in: RANKED_STATUSES as unknown as WaitlistStatus[] } },
-      select: { id: true, webXp: true, verifiedReferralCount: true, emailVerifiedAt: true },
+      select: { id: true, name: true, role: true, webXp: true, verifiedReferralCount: true, emailVerifiedAt: true },
       take: 10_000,
     });
     rankedTotal = ranked.length;
-    const sorted = ([...ranked] as (Rankable & { id: string })[]).sort(compareRank);
+    verifiedReferrals = ranked.reduce((sum, item) => sum + item.verifiedReferralCount, 0);
+    buildersFounders = ranked.filter((item) => item.role === "FOUNDER" || item.role === "BUILDER").length;
+    const sorted = ([...ranked] as (Rankable & { id: string; name: string | null; role: WaitlistRole })[]).sort(compareRank);
     const idx = sorted.findIndex((r) => r.id === entry.id);
     rank = idx >= 0 ? idx + 1 : null;
+    const interesting = new Map<number, (typeof sorted)[number]>();
+    sorted.slice(0, 5).forEach((item, i) => interesting.set(i, item));
+    if (idx >= 0) {
+      for (let i = Math.max(0, idx - 1); i <= Math.min(sorted.length - 1, idx + 1); i += 1) {
+        interesting.set(i, sorted[i]);
+      }
+    }
+    leaderboard = [...interesting.entries()]
+      .sort(([a], [b]) => a - b)
+      .map(([i, item]) => ({
+        rank: i + 1,
+        label: item.id === entry.id ? "You" : anonymizedLeaderboardName(item, i + 1),
+        webXp: item.webXp,
+        verifiedReferralCount: item.verifiedReferralCount,
+        isCurrent: item.id === entry.id,
+      }));
   }
+
+  const taskCompletions = await getTaskCompletionsForStatus(entry.id);
+  const completions = new Map(taskCompletions.map((completion) => [completion.taskType, completion]));
+  const referralLink = referralLinkFor(entry.referralCode);
 
   return {
     found: true,
     email: entry.email,
     name: entry.name,
+    displayName: displayNameFor(entry),
     role: entry.role,
     status: entry.status,
     verified,
@@ -335,7 +553,40 @@ export async function getWaitlistStatus(referralCode: string): Promise<WaitlistS
     founderPassTier: entry.founderPassTier,
     founderPassTrack: entry.founderPassTrack,
     referralCode: entry.referralCode,
-    referralLink: referralLinkFor(entry.referralCode),
+    statusToken: entry.statusToken ?? (await backfillStatusToken(entry.id)),
+    referralLink,
+    xShareText: buildXShareText({ referralUrl: referralLink }),
+    xShareUrl: buildXShareUrl({ referralUrl: referralLink }),
+    leaderboard,
+    taskStates: [
+      taskView({
+        taskType: "X_SHARE",
+        completion: completions.get("X_SHARE"),
+        progress: completions.has("X_SHARE") ? 1 : 0,
+        goal: 1,
+        available: verified,
+      }),
+      taskView({
+        taskType: "THREE_VERIFIED_REFERRALS",
+        completion: completions.get("THREE_VERIFIED_REFERRALS"),
+        progress: entry.verifiedReferralCount,
+        goal: 3,
+        available: verified,
+      }),
+      taskView({
+        taskType: "FOUNDER_PASS_ELIGIBILITY_CHECK",
+        completion: completions.get("FOUNDER_PASS_ELIGIBILITY_CHECK"),
+        progress: completions.has("FOUNDER_PASS_ELIGIBILITY_CHECK") ? 1 : 0,
+        goal: 1,
+        available: verified,
+      }),
+    ],
+    networkStats: {
+      verifiedMembers: rankedTotal,
+      verifiedReferrals,
+      countriesLabel: "Global network activating",
+      buildersFounders,
+    },
   };
 }
 
@@ -349,8 +600,143 @@ export async function getPublicWaitlistStat(): Promise<{ verifiedCount: number; 
 
 // ── admin (token-gated, no shared session system) ───────────────────────────
 
+async function getVerifiedEntryForTask(statusToken: string) {
+  if (!statusToken || statusToken.length < 16) return null;
+  const entry = await db.waitlistEntry.findUnique({
+    where: { statusToken },
+    select: { id: true, referralCode: true, status: true, emailVerifiedAt: true, verifiedReferralCount: true },
+  });
+  if (!entry || !entry.emailVerifiedAt || entry.status === "BLOCKED") return null;
+  return entry;
+}
+
+export async function recordXShareOpened(statusToken: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const meta = await requestMeta();
+    const limiter = await rateLimitAsync(rateLimitKey(meta.ipHash ?? statusToken, "waitlist-task"), 20, 60_000);
+    if (!limiter.ok) return { success: false, error: "Too many requests. Please try again shortly." };
+
+    const entry = await getVerifiedEntryForTask(statusToken);
+    if (!entry) return { success: false, error: "Verify your email before completing tasks." };
+
+    const existing = await db.waitlistTaskCompletion.findUnique({
+      where: { waitlistEntryId_taskType: { waitlistEntryId: entry.id, taskType: "X_SHARE" } },
+      select: { xpAwarded: true },
+    });
+    if (existing?.xpAwarded) return { success: true };
+
+    const referralUrl = referralLinkFor(entry.referralCode);
+    const metadata = { referralUrl, xShareUrl: buildXShareUrl({ referralUrl }) };
+    await db.waitlistTaskCompletion.upsert({
+      where: { waitlistEntryId_taskType: { waitlistEntryId: entry.id, taskType: "X_SHARE" } },
+      create: {
+        waitlistEntryId: entry.id,
+        taskType: "X_SHARE",
+        status: "PENDING_CONFIRMATION",
+        xpAwarded: 0,
+        openedAt: new Date(),
+        metadata,
+      },
+      update: {
+        status: "PENDING_CONFIRMATION",
+        openedAt: new Date(),
+        metadata,
+      },
+    });
+    revalidatePath(statusLinkFor(entry.referralCode));
+    return { success: true };
+  } catch (error) {
+    logger.error({ scope: "waitlist.recordXShareOpened", message: "Failed to record X share open.", data: { error } });
+    return { success: false, error: "Could not update the task. Please retry." };
+  }
+}
+
+export async function confirmXSharePosted(statusToken: string): Promise<{ success: boolean; awarded: boolean; error?: string }> {
+  try {
+    const meta = await requestMeta();
+    const limiter = await rateLimitAsync(rateLimitKey(meta.ipHash ?? statusToken, "waitlist-task"), 20, 60_000);
+    if (!limiter.ok) return { success: false, awarded: false, error: "Too many requests. Please try again shortly." };
+
+    const entry = await getVerifiedEntryForTask(statusToken);
+    if (!entry) return { success: false, awarded: false, error: "Verify your email before completing tasks." };
+
+    const referralUrl = referralLinkFor(entry.referralCode);
+    const awarded = await db.$transaction((tx) =>
+      awardTaskXp(tx, entry.id, "X_SHARE", "X_SHARE_TASK", WAITLIST_TASK_REWARDS.X_SHARE, {
+        referralUrl,
+        confirmedByUser: true,
+        reviewNote: "User confirmed posting through X web intent.",
+      }),
+    );
+    revalidatePath(statusLinkFor(entry.referralCode));
+    return { success: true, awarded };
+  } catch (error) {
+    logger.error({ scope: "waitlist.confirmXSharePosted", message: "Failed to confirm X share.", data: { error } });
+    return { success: false, awarded: false, error: "Could not claim that task. Please retry." };
+  }
+}
+
+const founderPassEligibilitySchema = z.object({
+  statusToken: z.string().trim().min(16),
+  track: z.enum(["ARC", "BASE", "BOTH", "NOT_YET"]),
+});
+
+export async function submitFounderPassEligibility(input: {
+  statusToken: string;
+  track: "ARC" | "BASE" | "BOTH" | "NOT_YET";
+}): Promise<{ success: boolean; awarded: boolean; error?: string }> {
+  if (!FOUNDER_PASS_ELIGIBILITY_TASK_OPEN) {
+    return { success: false, awarded: false, error: "Founder Pass eligibility checks are coming soon." };
+  }
+
+  const parsed = founderPassEligibilitySchema.safeParse(input);
+  if (!parsed.success) return { success: false, awarded: false, error: "Choose an eligibility option." };
+
+  try {
+    const meta = await requestMeta();
+    const limiter = await rateLimitAsync(rateLimitKey(meta.ipHash ?? parsed.data.statusToken, "waitlist-task"), 20, 60_000);
+    if (!limiter.ok) return { success: false, awarded: false, error: "Too many requests. Please try again shortly." };
+
+    const entry = await getVerifiedEntryForTask(parsed.data.statusToken);
+    if (!entry) return { success: false, awarded: false, error: "Verify your email before completing tasks." };
+
+    const track = parsed.data.track === "NOT_YET" ? null : (parsed.data.track as FounderPassTrack);
+    const awarded = await db.$transaction(async (tx) => {
+      await tx.waitlistEntry.update({
+        where: { id: entry.id },
+        data: {
+          founderPassTrack: track,
+          founderPassStatus: parsed.data.track === "NOT_YET" ? "ELIGIBLE_SOON" : "ELIGIBLE",
+        },
+      });
+      return awardTaskXp(
+        tx,
+        entry.id,
+        "FOUNDER_PASS_ELIGIBILITY_CHECK",
+        "FOUNDER_PASS_ELIGIBILITY_CHECK",
+        WAITLIST_TASK_REWARDS.FOUNDER_PASS_ELIGIBILITY_CHECK,
+        { submittedTrack: parsed.data.track },
+      );
+    });
+
+    revalidatePath(statusLinkFor(entry.referralCode));
+    return { success: true, awarded };
+  } catch (error) {
+    logger.error({ scope: "waitlist.submitFounderPassEligibility", message: "Failed to submit Founder Pass eligibility.", data: { error } });
+    return { success: false, awarded: false, error: "Could not save eligibility. Please retry." };
+  }
+}
+
 async function assertAdmin() {
   if (!(await isAdminSession())) throw new Error("Unauthorized.");
+}
+
+// Never echoes raw error messages to the client — Prisma errors can include
+// table/column names. "Unauthorized." is the one safe, intentional message.
+function safeAdminError(e: unknown, scope: string): string {
+  if (e instanceof Error && e.message === "Unauthorized.") return e.message;
+  logger.error({ scope, message: "Admin action failed.", data: { error: e instanceof Error ? e.message : String(e) } });
+  return "Failed. Please retry.";
 }
 
 export async function adminSetWaitlistStatus(id: string, status: WaitlistStatus): Promise<{ success: boolean; error?: string }> {
@@ -360,7 +746,7 @@ export async function adminSetWaitlistStatus(id: string, status: WaitlistStatus)
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : "Failed." };
+    return { success: false, error: safeAdminError(e, "waitlist.adminSetWaitlistStatus") };
   }
 }
 
@@ -371,7 +757,7 @@ export async function adminSetFounderPassStatus(id: string, founderPassStatus: F
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : "Failed." };
+    return { success: false, error: safeAdminError(e, "waitlist.adminSetFounderPassStatus") };
   }
 }
 
@@ -382,7 +768,7 @@ export async function adminSetFounderPassTier(id: string, founderPassTier: Found
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : "Failed." };
+    return { success: false, error: safeAdminError(e, "waitlist.adminSetFounderPassTier") };
   }
 }
 
@@ -393,7 +779,7 @@ export async function adminSetFounderPassTrack(id: string, founderPassTrack: Fou
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : "Failed." };
+    return { success: false, error: safeAdminError(e, "waitlist.adminSetFounderPassTrack") };
   }
 }
 
@@ -409,6 +795,6 @@ export async function adminAdjustWebXp(id: string, amount: number): Promise<{ su
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : "Failed." };
+    return { success: false, error: safeAdminError(e, "waitlist.adminAdjustWebXp") };
   }
 }

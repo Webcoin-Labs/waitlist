@@ -31,16 +31,20 @@ const FAQS = [
     a: "No. Referrals count only after the referred user verifies their email.",
   },
   {
-    q: "What is the Founder Pass?",
-    a: "Founder Pass is an in-app access credential for selected founders and builders. During beta, eligibility is focused on Arc and Base builders.",
+    q: "What is Builder Pass?",
+    a: "Builder Pass is a proof-based, in-app access credential for builders shipping on selected ecosystems. During beta it recognizes real execution across Arc and Base — mini apps, deployed contracts, GitHub projects, and ecosystem contributions.",
   },
   {
-    q: "What networks are eligible for Founder Pass beta?",
+    q: "Which networks are eligible for Builder Pass beta?",
     a: "Arc and Base are eligible during beta. More tracks are coming soon.",
   },
   {
-    q: "Does Founder Pass have monetary value?",
-    a: "No. Founder Pass is an access credential inside Webcoin Labs. It has no monetary value, no token value, no airdrop value, and does not represent ownership, investment, or financial rights.",
+    q: "What about Founder Pass?",
+    a: "Founder Pass will be invite-only after the Webcoin Labs beta launch. Waitlist members may become eligible for consideration based on profile quality, startup proof, and ecosystem activity.",
+  },
+  {
+    q: "Does Builder Pass have monetary value?",
+    a: "No. Builder Pass is an access credential inside Webcoin Labs. It has no monetary value, no token value, no airdrop value, and does not represent ownership, investment, or financial rights.",
   },
   {
     q: "Do I need a business email?",

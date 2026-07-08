@@ -18,7 +18,7 @@ const WEBCOIN_WAY = [
   "Builder access and advisor discovery",
   "Pitch deck and tokenomics review",
   "Investor introduction requests",
-  "WebXP rewards and Founder Pass eligibility",
+  "WebXP rewards and Builder Pass eligibility",
   "Structured dashboard",
 ];
 

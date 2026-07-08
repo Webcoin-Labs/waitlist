@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Info, Sparkles, Users } from "lucide-react";
+import { BarChart3, Flame, Gift, Info, LayoutDashboard, Lock, MailCheck, Share2 } from "lucide-react";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
 type WindowKey = "launch" | "after";
@@ -17,7 +17,6 @@ const WINDOWS: Record<
     join: string;
     referral: string;
     signal: string;
-    rail: string;
   }
 > = {
   launch: {
@@ -26,8 +25,7 @@ const WINDOWS: Record<
     badge: "Launch boost",
     join: "+100 WebXP",
     referral: "+20 WebXP",
-    signal: "Highest early-access signal",
-    rail: "72%",
+    signal: "Highest signal",
   },
   after: {
     label: "After 7 days",
@@ -35,23 +33,28 @@ const WINDOWS: Record<
     badge: "Still active",
     join: "+50 WebXP",
     referral: "+10 WebXP",
-    signal: "Ongoing waitlist signal",
-    rail: "44%",
+    signal: "Ongoing signal",
   },
 };
 
-const REWARD_COPY: Record<RewardKey, { label: string; body: string; icon: typeof Sparkles }> = {
+const REWARD_COPY: Record<RewardKey, { label: string; body: string; icon: typeof Gift }> = {
   join: {
     label: "Verified join reward",
     body: "Email verification activates WebXP, waitlist position, and the first dashboard signal.",
-    icon: Sparkles,
+    icon: Gift,
   },
   referral: {
     label: "Verified referral reward",
     body: "Referral XP unlocks only after the invited person verifies, keeping rank movement proof-based.",
-    icon: Users,
+    icon: Share2,
   },
 };
+
+const STEPS = [
+  { label: "Email verified", icon: MailCheck, state: "done" as const },
+  { label: "Rank signal", icon: BarChart3, state: "active" as const },
+  { label: "Dashboard access", icon: LayoutDashboard, state: "locked" as const },
+];
 
 export function WebXpSystem() {
   const [activeWindow, setActiveWindow] = useState<WindowKey>("launch");
@@ -106,10 +109,11 @@ export function WebXpSystem() {
             transition={{ duration: 0.55, ease: EASE }}
             className="relative overflow-hidden rounded-3xl p-6 md:p-7"
             style={{
-              background: "linear-gradient(145deg, #0b1024 0%, #171128 54%, #090910 100%)",
-              boxShadow: "0 34px 90px -38px rgba(17,24,39,0.7), inset 0 1px 0 rgba(255,255,255,0.08)",
+              backgroundColor: "#0a0a12",
+              boxShadow: "0 34px 90px -38px rgba(17,24,39,0.7), inset 0 1px 0 rgba(255,255,255,0.06)",
             }}
           >
+            <div aria-hidden className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full blur-3xl" style={{ backgroundColor: "rgba(124,58,237,0.22)" }} />
             <div aria-hidden className="absolute inset-x-6 top-0 h-px" style={{ backgroundImage: GRAD.brandWarm }} />
 
             <div className="relative flex flex-wrap items-start justify-between gap-4">
@@ -121,12 +125,13 @@ export function WebXpSystem() {
                   Reward engine preview.
                 </h3>
               </div>
-              <span className="rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ borderColor: COLORS.darkBorder, color: "#c4b5fd", backgroundColor: "rgba(124,58,237,0.14)" }}>
+              <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ borderColor: "rgba(251,146,60,0.3)", color: "#fdba74", backgroundColor: "rgba(251,146,60,0.08)" }}>
+                <Flame className="h-3 w-3" />
                 {window.signal}
               </span>
             </div>
 
-            <div className="relative mt-6 grid grid-cols-2 gap-2 rounded-2xl border p-1.5" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.035)" }}>
+            <div className="relative mt-6 grid grid-cols-2 gap-2 rounded-2xl border p-1.5" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.03)" }}>
               {(Object.keys(WINDOWS) as WindowKey[]).map((key) => {
                 const selected = activeWindow === key;
                 return (
@@ -144,8 +149,8 @@ export function WebXpSystem() {
                     {selected ? (
                       <motion.span
                         layoutId="webxp-window-bg"
-                        className="absolute inset-0 rounded-xl"
-                        style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.32), rgba(219,39,119,0.18))" }}
+                        className="absolute inset-0 rounded-xl border"
+                        style={{ backgroundColor: "rgba(124,58,237,0.16)", borderColor: "rgba(167,139,250,0.32)" }}
                         transition={{ duration: 0.32, ease: EASE }}
                       />
                     ) : null}
@@ -156,7 +161,7 @@ export function WebXpSystem() {
               })}
             </div>
 
-            <div className="relative mt-6 rounded-2xl border p-4" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.035)" }}>
+            <div className="relative mt-6 rounded-2xl border p-4" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.03)" }}>
               <div className="flex items-center justify-between gap-4 text-[11px] uppercase tracking-[0.14em]" style={{ color: COLORS.darkTextMuted }}>
                 <span>{window.label}</span>
                 <span className="rounded-full px-2.5 py-1 text-[10px] font-bold" style={{ backgroundImage: GRAD.brandWarm, color: "#0a0a10" }}>
@@ -167,40 +172,56 @@ export function WebXpSystem() {
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <RewardButton
                   active={activeReward === "join"}
-                  icon={Sparkles}
+                  icon={Gift}
                   amount={window.join}
                   label="for joining"
                   onClick={() => setActiveReward("join")}
                 />
                 <RewardButton
                   active={activeReward === "referral"}
-                  icon={Users}
+                  icon={Share2}
                   amount={window.referral}
                   label="per verified referral"
                   onClick={() => setActiveReward("referral")}
                 />
               </div>
 
-              <div className="mt-5">
-                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: COLORS.darkTextMuted }}>
-                  <span>Email verified</span>
-                  <span>Rank signal</span>
-                  <span>Dashboard access</span>
-                </div>
-                <div className="relative mt-3 h-2 overflow-hidden rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
-                  <motion.span
-                    className="absolute inset-y-0 left-0 rounded-full"
-                    style={{ background: "linear-gradient(90deg, #34d399, #8b5cf6, #db2777)" }}
-                    animate={{ width: window.rail }}
-                    transition={{ duration: 0.55, ease: EASE }}
-                  />
-                  <motion.span
-                    className="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full"
-                    style={{ backgroundColor: "#fff", boxShadow: "0 0 24px rgba(167,139,250,0.95)" }}
-                    animate={{ left: window.rail }}
-                    transition={{ duration: 0.55, ease: EASE }}
-                  />
-                </div>
+              <div className="mt-6 flex items-start">
+                {STEPS.map((step, i) => {
+                  const Icon = step.icon;
+                  const done = step.state === "done";
+                  const active = step.state === "active";
+                  const tone = done ? "#34d399" : active ? "#a78bfa" : COLORS.darkTextMuted;
+                  return (
+                    <div key={step.label} className="flex flex-1 items-start">
+                      <div className="flex flex-col items-center">
+                        <span
+                          className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border"
+                          style={{
+                            borderColor: done ? "rgba(52,211,153,0.5)" : active ? "rgba(167,139,250,0.5)" : COLORS.darkBorder,
+                            backgroundColor: done ? "rgba(52,211,153,0.14)" : active ? "rgba(167,139,250,0.14)" : "rgba(255,255,255,0.03)",
+                          }}
+                        >
+                          {active ? (
+                            <motion.span
+                              className="absolute inset-0 rounded-full"
+                              style={{ boxShadow: "0 0 0 2px rgba(167,139,250,0.35)" }}
+                              animate={{ scale: [1, 1.35, 1], opacity: [0.7, 0, 0.7] }}
+                              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                            />
+                          ) : null}
+                          {step.state === "locked" ? <Lock className="h-3.5 w-3.5" style={{ color: tone }} /> : <Icon className="h-3.5 w-3.5" style={{ color: tone }} />}
+                        </span>
+                        <span className="mt-2 max-w-[76px] text-center text-[9.5px] font-semibold leading-tight" style={{ color: tone }}>
+                          {step.label}
+                        </span>
+                      </div>
+                      {i < STEPS.length - 1 ? (
+                        <div className="mt-4 h-px flex-1" style={{ backgroundColor: done ? "rgba(52,211,153,0.4)" : COLORS.darkBorder }} />
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -211,31 +232,34 @@ export function WebXpSystem() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.24, ease: EASE }}
-                className="relative mt-4 grid gap-4 rounded-2xl border p-4 sm:grid-cols-[1fr_auto]"
-                style={{ borderColor: "rgba(167,139,250,0.2)", backgroundColor: "rgba(124,58,237,0.08)" }}
+                className="relative mt-4 overflow-hidden rounded-2xl border pl-4"
+                style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.03)" }}
               >
-                <div className="flex gap-3">
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ color: "#c4b5fd", backgroundColor: "rgba(124,58,237,0.18)" }}>
-                    <RewardIcon className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-[14px] font-bold" style={{ color: COLORS.darkText }}>
-                      {reward.label}
-                    </p>
-                    <p className="mt-1 max-w-md text-[12.5px] leading-5" style={{ color: COLORS.darkTextSecondary }}>
-                      {reward.body}
-                    </p>
+                <span className="absolute inset-y-0 left-0 w-1" style={{ backgroundImage: GRAD.brandWarm }} />
+                <div className="grid gap-4 p-4 pl-3 sm:grid-cols-[1fr_auto]">
+                  <div className="flex gap-3">
+                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ color: "#c4b5fd", backgroundColor: "rgba(124,58,237,0.16)" }}>
+                      <RewardIcon className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="text-[14px] font-bold" style={{ color: COLORS.darkText }}>
+                        {reward.label}
+                      </p>
+                      <p className="mt-1 max-w-md text-[12.5px] leading-5" style={{ color: COLORS.darkTextSecondary }}>
+                        {reward.body}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="grid content-center gap-1 text-[12px]" style={{ color: COLORS.darkTextSecondary }}>
-                  <span className="inline-flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4" style={{ color: "#34d399" }} />
-                    Verified only
-                  </span>
-                  <span className="inline-flex items-center gap-2">
-                    <ArrowRight className="h-4 w-4" style={{ color: "#c4b5fd" }} />
-                    Ledger-safe
-                  </span>
+                  <div className="grid content-center gap-1.5 text-[11.5px] font-semibold" style={{ color: COLORS.darkTextSecondary }}>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#34d399" }} />
+                      Verified only
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#a78bfa" }} />
+                      Ledger-safe
+                    </span>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -258,7 +282,7 @@ function RewardButton({
   onClick,
 }: {
   active: boolean;
-  icon: typeof Sparkles;
+  icon: typeof Gift;
   amount: string;
   label: string;
   onClick: () => void;

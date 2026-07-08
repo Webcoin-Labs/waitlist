@@ -33,11 +33,14 @@ describe("Founder Pass direction", () => {
     expect(source).toContain("Founder Pass");
   });
 
-  it("keeps the public waitlist form email-only", () => {
+  it("collects role via a post-email onboarding step, not upfront tabs", () => {
     const form = read("components/waitlist/WaitlistForm.tsx");
     expect(form).toContain('fd.set("email", email)');
+    // No old-style role tabs shown before/alongside the email input.
     expect(form).not.toContain("ROLE_OPTIONS");
-    expect(form).not.toContain('fd.set("role"');
+    // Role IS collected, but only after email, via the role-selection step.
+    expect(form).toContain('fd.set("role", role)');
+    expect(form).toContain('useState<"email" | "role">("email")');
   });
 
   it("shows Founder Pass in status and admin surfaces", () => {

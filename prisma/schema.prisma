@@ -54,6 +54,7 @@ enum FounderPassTier {
 enum FounderPassTrack {
   ARC
   BASE
+  BOTH
   FARCASTER
   SOLANA
   POLYGON
@@ -64,7 +65,23 @@ enum FounderPassTrack {
 enum WebXpReason {
   SIGNUP
   REFERRAL
+  X_SHARE_TASK
+  THREE_VERIFIED_REFERRALS
+  FOUNDER_PASS_ELIGIBILITY_CHECK
   ADMIN_ADJUSTMENT
+}
+
+enum WaitlistTaskType {
+  X_SHARE
+  THREE_VERIFIED_REFERRALS
+  FOUNDER_PASS_ELIGIBILITY_CHECK
+}
+
+enum WaitlistTaskStatus {
+  OPENED
+  PENDING_CONFIRMATION
+  COMPLETED
+  CLAIMED
 }
 
 model WaitlistEntry {
@@ -74,6 +91,9 @@ model WaitlistEntry {
   role                  WaitlistRole      @default(FOUNDER)
   status                WaitlistStatus    @default(PENDING_VERIFICATION)
   referralCode          String            @unique
+  // Private key for /status and task-completion actions — NEVER the same
+  // value as referralCode, since referralCode is meant to be shared publicly.
+  statusToken           String?           @unique
   referredById          String?
   referredBy            WaitlistEntry?    @relation("WaitlistReferrals", fields: [referredById], references: [id], onDelete: SetNull)
   referrals             WaitlistEntry[]   @relation("WaitlistReferrals")
@@ -94,6 +114,7 @@ model WaitlistEntry {
   userAgentHash         String?
   ledgerEntries         WebXpLedger[]     @relation("EntryLedger")
   referralLedger        WebXpLedger[]     @relation("SourceLedger")
+  taskCompletions       WaitlistTaskCompletion[]
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
 
@@ -112,5 +133,23 @@ model WebXpLedger {
   createdAt       DateTime       @default(now())
 
   @@unique([waitlistEntryId, reason, sourceEntryId])
+  @@index([waitlistEntryId])
+}
+
+model WaitlistTaskCompletion {
+  id              String             @id @default(cuid())
+  waitlistEntryId String
+  entry           WaitlistEntry      @relation(fields: [waitlistEntryId], references: [id], onDelete: Cascade)
+  taskType        WaitlistTaskType
+  status          WaitlistTaskStatus
+  xpAwarded       Int                @default(0)
+  metadata        Json?
+  openedAt        DateTime?
+  completedAt     DateTime?
+  confirmedAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@unique([waitlistEntryId, taskType])
   @@index([waitlistEntryId])
 }

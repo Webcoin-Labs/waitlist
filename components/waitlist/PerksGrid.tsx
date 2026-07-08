@@ -61,7 +61,7 @@ const PERKS: {
   {
     icon: Handshake,
     title: "Investor Intros",
-    body: "Warm introduction requests to relevant backers faster.",
+    body: "Request warm investor introductions and access a curated 1000+ venture capital directory for research and outreach.",
     signal: "progress",
     accent: "#db2777",
     soft: "#fdf2f8",
@@ -76,16 +76,16 @@ const PERKS: {
   },
   {
     icon: IdCard,
-    title: "Founder Pass Access",
-    body: "Arc and Base builders get exclusive early access.",
+    title: "Builder Pass Access",
+    body: "Arc and Base builders can become eligible for proof-based Builder Pass access.",
     signal: "pending",
     accent: "#7c3aed",
     soft: "#f1ecff",
   },
   {
     icon: Users,
-    title: "Private Network",
-    body: "Trusted founder network across ecosystems.",
+    title: "Influencer Directory",
+    body: "Access a curated 5000+ influencer and KOL directory for launch, marketing, and ecosystem distribution.",
     signal: "network",
     accent: "#4f46e5",
     soft: "#eef2ff",
@@ -319,7 +319,7 @@ function SignalPreview({ type, accent, active }: { type: Signal; accent: string;
         animate={{ opacity: active ? [0.65, 1, 0.65] : 1 }}
         transition={{ duration: 1.4, repeat: active ? Infinity : 0, ease: "easeInOut" }}
       >
-        Pending
+        Beta
       </motion.span>
       <Sparkles className="h-3.5 w-3.5" style={{ color: accent }} />
     </div>

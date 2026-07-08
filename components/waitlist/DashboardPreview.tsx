@@ -5,20 +5,24 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   ArrowUpRight,
   Bell,
-  Building2,
   CheckCircle2,
   ChevronRight,
-  CircleDollarSign,
   Clock3,
   FileText,
+  Fingerprint,
+  Gauge,
   Globe2,
   IdCard,
   LayoutDashboard,
+  ListOrdered,
   MessageSquare,
+  Route,
   Search,
-  ShieldCheck,
-  Sparkles,
+  Send,
+  TrendingUp,
   Trophy,
+  UserCheck,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
@@ -137,12 +141,18 @@ function MetricCard({
   value,
   note,
   tone,
+  pill,
+  pillFg = UI.green,
+  pillBg = "#ecfdf3",
 }: {
   icon: ComponentType<{ className?: string; style?: CSSProperties }>;
   label: string;
   value: ReactNode;
   note: string;
   tone: string;
+  pill?: string;
+  pillFg?: string;
+  pillBg?: string;
 }) {
   return (
     <div className="flex h-full flex-col rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
@@ -150,9 +160,11 @@ function MetricCard({
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl" style={{ color: tone, backgroundColor: `${tone}14` }}>
           <Icon className="h-5 w-5" />
         </span>
-        <span className="rounded-full px-2 py-1 text-[10px] font-semibold" style={{ color: UI.green, backgroundColor: "#ecfdf3" }}>
-          Live
-        </span>
+        {pill ? (
+          <span className="rounded-full px-2 py-1 text-[10px] font-semibold" style={{ color: pillFg, backgroundColor: pillBg }}>
+            {pill}
+          </span>
+        ) : null}
       </div>
       <p className="mt-3.5 text-[11px] font-semibold uppercase tracking-[0.13em]" style={{ color: UI.faint }}>
         {label}
@@ -162,6 +174,43 @@ function MetricCard({
       </div>
       <p className="mt-auto pt-1 text-[12px]" style={{ color: UI.muted }}>
         {note}
+      </p>
+    </div>
+  );
+}
+
+const DASHBOARD_NETWORKS = [
+  { name: "Arc", logo: "/logo/Arc_Logo_NavyGradient.svg", status: "Available", live: true },
+  { name: "Base", logo: "/logo/baselogoblackcolor.svg", status: "Available", live: true },
+  { name: "Solana", logo: "/logo/Solana%20(SOL).svg", status: "Soon", live: false },
+] as const;
+
+function NetworksCard() {
+  return (
+    <div className="flex h-full flex-col rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.13em]" style={{ color: UI.faint }}>
+          Networks
+        </p>
+        <Globe2 className="h-4 w-4" style={{ color: UI.violet }} />
+      </div>
+      <div className="mt-3 grid gap-2">
+        {DASHBOARD_NETWORKS.map((n) => (
+          <div
+            key={n.name}
+            className="flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2"
+            style={{ borderColor: UI.line, backgroundColor: UI.panelSoft }}
+          >
+            <img src={n.logo} alt={n.name} className="h-4 w-auto max-w-[72px] object-contain" />
+            <span className="flex shrink-0 items-center gap-1.5 text-[10px] font-semibold" style={{ color: n.live ? UI.green : UI.faint }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: n.live ? UI.green : UI.lineStrong }} />
+              {n.status}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-auto pt-2 text-[11px]" style={{ color: UI.muted }}>
+        Builder Pass beta lanes
       </p>
     </div>
   );
@@ -346,6 +395,16 @@ function GlobalNetworkPanel() {
         </div>
 
         <div className="grid content-center gap-3.5">
+          <div className="rounded-2xl p-4" style={{ backgroundColor: "#0f172a", color: "#fff" }}>
+            <p className="text-[20px] font-bold tracking-tight">Growing</p>
+            <p className="mt-1 text-[11px]" style={{ color: "#cbd5e1" }}>
+              Founder, builder, investor, and advisor graph.
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <img src="/logo/circle-logo-white.svg" alt="Arc" className="h-4 w-auto object-contain" />
+              <img src="/logo/Base_lockup_white.svg" alt="Base" className="h-3.5 w-auto object-contain" />
+            </div>
+          </div>
           {REGIONS.map((r) => (
             <div key={r.label} className="flex items-center justify-between gap-3 text-[13px]">
               <span className="flex items-center gap-2" style={{ color: UI.muted }}>
@@ -409,10 +468,10 @@ function FounderPassPreview() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[15px] font-bold" style={{ color: UI.ink }}>
-              Founder Pass eligibility
+              Builder Pass eligibility
             </p>
             <p className="mt-1 text-[12px]" style={{ color: UI.muted }}>
-              Founder Pass credential for builders launching on Arc.
+              Builder Pass credential for builders shipping on Arc and Base.
             </p>
           </div>
           <StatusPill tone="cyan">Eligible</StatusPill>
@@ -433,7 +492,7 @@ function FounderPassPreview() {
           ))}
         </div>
         <p className="mt-3 text-[11px]" style={{ color: UI.faint }}>
-          Tier depends on verified proof, launch quality, and ecosystem activity.
+          Tier depends on verified builder proof, contracts interacted, launch quality, GitHub activity, and ecosystem contribution.
         </p>
 
         <button
@@ -441,7 +500,7 @@ function FounderPassPreview() {
           className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-3 text-[13px] font-semibold"
           style={{ backgroundColor: UI.ink, color: "#fff" }}
         >
-          Check Founder Pass
+          Check Builder Pass
           <ArrowUpRight className="h-4 w-4" />
         </button>
       </section>
@@ -462,7 +521,7 @@ const NAV_COPY: Record<string, { eyebrow: string; title: string }> = {
   Overview: { eyebrow: "Command Center", title: "Good morning, Founder" },
   Network: { eyebrow: "Network", title: "Your founder network" },
   Introductions: { eyebrow: "Command Center", title: "Good morning, Founder" },
-  "Founder Pass": { eyebrow: "Founder Pass", title: "Founder Pass eligibility" },
+  "Builder Pass": { eyebrow: "Builder Pass", title: "Builder Pass eligibility" },
   Profile: { eyebrow: "Command Center", title: "Good morning, Founder" },
 };
 
@@ -484,10 +543,10 @@ export function DashboardPreview() {
         style={{ background: "radial-gradient(620px 320px at 50% 0%, rgba(124,58,237,0.14), transparent 60%)" }}
       />
 
-      <div className="container relative mx-auto max-w-[1440px] px-6 lg:px-10">
-        <div className="grid gap-12 lg:grid-cols-[400px_1fr] xl:gap-16">
-          {/* LEFT — word-art headline */}
-          <div className="lg:sticky lg:top-28">
+      <div className="container relative mx-auto max-w-7xl px-6">
+        {/* headline row — landscape layout, dashboard gets full width below */}
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
             <span
               className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
               style={{ borderColor: COLORS.border, color: COLORS.accent, backgroundColor: "#fff" }}
@@ -498,20 +557,21 @@ export function DashboardPreview() {
             <h2 className="mt-5 text-[2.15rem] font-bold leading-[1.18] tracking-tight" style={{ color: COLORS.text }}>
               See how <GradientText>Webcoin Labs</GradientText> works.
             </h2>
-            <p className="mt-4 max-w-[300px] text-[16px] leading-7" style={{ color: COLORS.textSecondary }}>
+            <p className="mt-2 text-[16px] leading-7" style={{ color: COLORS.textSecondary }}>
               Your founder operating system.
             </p>
-            <a
-              href="#join"
-              className="mt-7 inline-flex items-center rounded-full px-5 py-2.5 text-[13.5px] font-semibold transition-transform hover:-translate-y-0.5"
-              style={{ backgroundColor: COLORS.text, color: "#fff" }}
-            >
-              Explore the dashboard
-            </a>
           </div>
+          <a
+            href="#join"
+            className="inline-flex items-center rounded-full px-5 py-2.5 text-[13.5px] font-semibold transition-transform hover:-translate-y-0.5"
+            style={{ backgroundColor: COLORS.text, color: "#fff" }}
+          >
+            Explore the dashboard
+          </a>
+        </div>
 
-          {/* RIGHT — animated light mockup */}
-          <div ref={ref} className="relative">
+        {/* full-width landscape mockup */}
+        <div ref={ref} className="relative mt-10">
             <div
               aria-hidden
               className="pointer-events-none absolute -inset-6 rounded-[38px]"
@@ -533,7 +593,7 @@ export function DashboardPreview() {
             >
               <ChromeBar />
 
-              <div className="grid min-h-[660px] lg:grid-cols-[210px_minmax(0,1fr)]">
+              <div className="grid lg:grid-cols-[220px_minmax(0,1fr)]">
                 <aside className="hidden border-r p-4 lg:block" style={{ borderColor: UI.line, backgroundColor: "#ffffff" }}>
                   <div className="flex items-center gap-3">
                     <WebcoinGlyph />
@@ -552,7 +612,7 @@ export function DashboardPreview() {
                       { icon: LayoutDashboard, label: "Overview" },
                       { icon: Users, label: "Network" },
                       { icon: MessageSquare, label: "Introductions" },
-                      { icon: IdCard, label: "Founder Pass" },
+                      { icon: IdCard, label: "Builder Pass" },
                       { icon: FileText, label: "Profile" },
                     ].map((item) => (
                       <SidebarItem
@@ -606,8 +666,8 @@ export function DashboardPreview() {
                       <Bell className="h-4 w-4" />
                     </button>
                     <div className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3" style={{ borderColor: UI.line, backgroundColor: UI.panelSoft }}>
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold" style={{ color: "#fff", background: GRAD.brand }}>
-                        AR
+                      <span className="inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full" style={{ background: GRAD.brand }}>
+                        <img src="/logo/solrishuavatar.png" alt="Founder" className="h-full w-full object-cover" />
                       </span>
                       <span className="text-[12px] font-semibold" style={{ color: UI.ink }}>
                         Verified Founder
@@ -615,22 +675,23 @@ export function DashboardPreview() {
                     </div>
                   </header>
 
-                  <main className="grid gap-4 p-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+                  <main className="p-5">
                     <div className="grid gap-4">
                       {activeNav === "Network" ? (
                         <NetworkOverview />
-                      ) : activeNav === "Founder Pass" ? (
+                      ) : activeNav === "Builder Pass" ? (
                         <FounderPassPreview />
                       ) : (
                         <>
-                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <MetricCard icon={Sparkles} label="WebXP" value={<span className="tabular-nums">{xp}</span>} note="Launch boost active" tone={UI.violet} />
-                        <MetricCard icon={Trophy} label="Waitlist rank" value="#128" note="Top 4% this week" tone={UI.amber} />
-                        <MetricCard icon={Users} label="Referrals" value={<span className="tabular-nums">{referrals}</span>} note="Verified count" tone={UI.green} />
-                        <MetricCard icon={IdCard} label="Founder Pass" value={founderPassStatus} note="Eligibility review" tone={UI.cyan} />
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
+                        <MetricCard icon={Gauge} label="WebXP" value={<span className="tabular-nums">{xp}</span>} note="Launch boost active" tone={UI.violet} pill="Live" />
+                        <MetricCard icon={ListOrdered} label="Waitlist rank" value="#128" note="This week" tone={UI.amber} pill="Top 4%" pillFg={UI.amber} pillBg="#fff8eb" />
+                        <MetricCard icon={UserPlus} label="Referrals" value={<span className="tabular-nums">{referrals}</span>} note="Verified count" tone={UI.green} pill="+1 today" pillFg={UI.cyan} pillBg="#ecfeff" />
+                        <MetricCard icon={Fingerprint} label="Builder Pass" value={founderPassStatus} note="Eligibility review" tone={UI.cyan} pill="Beta" pillFg={UI.violet} pillBg="#f0efff" />
+                        <NetworksCard />
                       </div>
 
-                      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.85fr)]">
                         <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
                           <div className="flex items-center justify-between gap-3">
                             <div>
@@ -701,81 +762,27 @@ export function DashboardPreview() {
                             </div>
                           </div>
                         </section>
+
+                        <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
+                          <div className="flex items-center justify-between">
+                            <p className="text-[15px] font-bold" style={{ color: UI.ink }}>
+                              Activity
+                            </p>
+                            <ArrowUpRight className="h-4 w-4" style={{ color: UI.faint }} />
+                          </div>
+                          <div className="mt-4 grid gap-4">
+                            <ActivityItem icon={UserCheck} title="Referral verified" time="2 min ago" tone={UI.green} />
+                            <ActivityItem icon={TrendingUp} title="WebXP launch boost added" time="12 min ago" tone={UI.violet} />
+                            <ActivityItem icon={Send} title="Investor intro request queued" time="Today" tone={UI.cyan} />
+                            <ActivityItem icon={Route} title="Arc builder lane opened" time="Today" tone={UI.amber} />
+                          </div>
+                        </section>
                       </div>
 
-                      <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div>
-                            <p className="text-[15px] font-bold" style={{ color: UI.ink }}>
-                              Access workspace
-                            </p>
-                            <p className="text-[12px]" style={{ color: UI.muted }}>
-                              The next best actions for your early access account.
-                            </p>
-                          </div>
-                          <StatusPill tone="violet">Private beta</StatusPill>
-                        </div>
-
-                        <div className="mt-4 grid gap-3 md:grid-cols-3">
-                          {[
-                            { icon: FileText, title: "Complete profile", text: "Add proof, pitch, and preferred intro lanes.", tone: UI.violet },
-                            { icon: ShieldCheck, title: "Verify referrals", text: "Only verified referrals affect rank and access.", tone: UI.green },
-                            { icon: CircleDollarSign, title: "Investor fit", text: "Map sectors, stage, and warm intro targets.", tone: UI.cyan },
-                          ].map((item) => (
-                            <div key={item.title} className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panelSoft }}>
-                              <item.icon className="h-5 w-5" style={{ color: item.tone }} />
-                              <p className="mt-3 text-[13px] font-bold" style={{ color: UI.ink }}>
-                                {item.title}
-                              </p>
-                              <p className="mt-1 text-[12px] leading-5" style={{ color: UI.muted }}>
-                                {item.text}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
+                      <GlobalNetworkPanel />
                         </>
                       )}
                     </div>
-
-                    <aside className="grid content-start gap-4">
-                      <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-[15px] font-bold" style={{ color: UI.ink }}>
-                            Network reach
-                          </p>
-                          <Globe2 className="h-4 w-4" style={{ color: UI.violet }} />
-                        </div>
-                        <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#0f172a", color: "#fff" }}>
-                          <p className="text-[28px] font-bold tracking-tight">Growing</p>
-                          <p className="mt-1 text-[12px]" style={{ color: "#cbd5e1" }}>
-                            Founder, builder, investor, and advisor graph.
-                          </p>
-                          <div className="mt-4 flex -space-x-2">
-                            {["F", "B", "V", "A"].map((l, i) => (
-                              <span key={l} className="inline-flex h-8 w-8 items-center justify-center rounded-full border-2 text-[11px] font-bold" style={{ borderColor: "#0f172a", backgroundColor: ["#8b5cf6", "#06b6d4", "#12b76a", "#f79009"][i] }}>
-                                {l}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </section>
-
-                      <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
-                        <div className="flex items-center justify-between">
-                          <p className="text-[15px] font-bold" style={{ color: UI.ink }}>
-                            Activity
-                          </p>
-                          <ArrowUpRight className="h-4 w-4" style={{ color: UI.faint }} />
-                        </div>
-                        <div className="mt-4 grid gap-4">
-                          <ActivityItem icon={Users} title="Referral verified" time="2 min ago" tone={UI.green} />
-                          <ActivityItem icon={Sparkles} title="WebXP launch boost added" time="12 min ago" tone={UI.violet} />
-                          <ActivityItem icon={MessageSquare} title="Investor intro request queued" time="Today" tone={UI.cyan} />
-                          <ActivityItem icon={Building2} title="Arc builder lane opened" time="Today" tone={UI.amber} />
-                        </div>
-                      </section>
-                    </aside>
                   </main>
                 </div>
               </div>
@@ -784,11 +791,6 @@ export function DashboardPreview() {
             <p className="mt-4 text-center text-[11px]" style={{ color: COLORS.textFaint }}>
               Preview UI. Live numbers appear inside your dashboard after verification.
             </p>
-          </div>
-        </div>
-
-        <div className="mt-10">
-          <GlobalNetworkPanel />
         </div>
       </div>
     </section>

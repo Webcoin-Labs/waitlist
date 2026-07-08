@@ -8,6 +8,7 @@ import { DashboardPreview } from "@/components/waitlist/DashboardPreview";
 import { WhoFor } from "@/components/waitlist/WhoFor";
 import { BeforeAfter } from "@/components/waitlist/BeforeAfter";
 import { FounderPassSection } from "@/components/waitlist/FounderPassSection";
+import { FounderPassInviteSection } from "@/components/waitlist/FounderPassInviteSection";
 import { WebXpSystem } from "@/components/waitlist/WebXpSystem";
 import { PerksGrid } from "@/components/waitlist/PerksGrid";
 import { Faq } from "@/components/waitlist/Faq";
@@ -80,6 +81,7 @@ export default async function WaitlistLandingPage({
       <FounderPassEligibilityStrip />
       <PartnerStrip />
       <FounderPassSection />
+      <FounderPassInviteSection />
       <DashboardPreview />
       <PerksGrid />
       <WhoFor />

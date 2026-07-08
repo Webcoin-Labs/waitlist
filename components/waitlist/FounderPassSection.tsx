@@ -37,25 +37,26 @@ export function FounderPassSection() {
               style={{ borderColor: COLORS.borderAccent, color: COLORS.accentDeep, backgroundColor: "rgba(124,58,237,0.05)" }}
             >
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.accent }} />
-              Exclusive access
+              Builder Pass beta
             </span>
             <h2 className="mt-5 text-4xl font-bold tracking-tight md:text-[4.2rem] md:leading-[0.95]" style={{ color: COLORS.text }}>
-              Founder Pass.
+              Builder Pass.
             </h2>
             <p className="mt-3 text-2xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
-              Your builder credential.
+              Your verified builder credential.
             </p>
             <p className="mt-5 max-w-lg text-[15px] leading-7" style={{ color: COLORS.textSecondary }}>
-              Founder Pass is an exclusive credential for founders and builders launching on selected networks. It
-              unlocks early access, higher visibility, and premium network privileges.
+              Builder Pass is a proof-based access credential for builders shipping on selected ecosystems. It
+              recognizes real execution across Arc and Base — including mini apps, deployed contracts, GitHub
+              projects, and ecosystem contributions.
             </p>
             <p className="mt-3 max-w-lg text-[14px] leading-6" style={{ color: COLORS.textMuted }}>
-              Beta access is currently available for Arc and Base builders.
+              Builder Pass beta is currently available for builders shipping on Arc and Base.
             </p>
 
             <div className="mt-7 rounded-2xl border p-4" style={{ borderColor: COLORS.border, backgroundColor: "#fff" }}>
               <p className="text-[12px] font-bold uppercase tracking-[0.14em]" style={{ color: COLORS.textMuted }}>
-                Available in beta for Arc and Base
+                Available in beta for Arc and Base builders
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {TRACKS.map((track) => (
@@ -84,9 +85,8 @@ export function FounderPassSection() {
             </div>
 
             <p className="mt-6 text-[12px] leading-5" style={{ color: COLORS.textMuted }}>
-              Access is by application and subject to review. Founder Pass is an access credential inside Webcoin Labs.
-              It has no monetary value, no token value, no airdrop value, and does not represent ownership, investment,
-              or financial rights.
+              Builder Pass is an in-app access credential inside Webcoin Labs. It has no monetary value, no token
+              value, no airdrop value, and does not represent ownership, investment, or financial rights.
             </p>
           </div>
 
@@ -119,10 +119,10 @@ export function FounderPassSection() {
                 <div className="relative flex flex-col gap-7" style={{ transform: "translateZ(34px)" }}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <img src="/logo/webcoin-mark-light.webp" alt="Webcoin Labs" className="h-8 w-8 object-contain" />
+                      <img src="/logo/webcoin-mark-light.webp" alt="Webcoin Labs" className="h-14 w-14 object-contain" />
                     </div>
                     <p className="text-[22px] font-bold tracking-tight" style={{ color: COLORS.darkText }}>
-                      Founder Pass
+                      Builder Pass
                     </p>
                   </div>
 
@@ -133,16 +133,18 @@ export function FounderPassSection() {
                     >
                       <img
                         src="/logo/solrishuavatar.png"
-                        alt="Founder"
+                        alt="Builder"
                         className="h-full w-full rounded-full object-cover"
                         style={{ backgroundColor: COLORS.darkSurface }}
                       />
                     </div>
 
                     <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-3 text-[12.5px]">
-                      <PassField label="Founder" value="Solrishu" />
-                      <PassField label="Company" value="Webcoin Labs" />
-                      <PassField label="Application launched" value="Yes" check />
+                      <PassField label="Builder" value="Solrishu" />
+                      <PassField label="Project" value="Webcoin Labs" />
+                      <PassField label="Mini app" value="Launched" check />
+                      <PassField label="Contracts interacted" value="100+" />
+                      <PassField label="GitHub" value="Connected" check />
                       <div>
                         <p className="text-[10.5px] uppercase tracking-[0.12em]" style={{ color: COLORS.darkTextMuted }}>
                           Network
@@ -182,7 +184,8 @@ export function FounderPassSection() {
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" style={{ color: COLORS.accentDeep }} />
                 <p className="text-[13px] font-bold" style={{ color: COLORS.text }}>
-                  Tier depends on verified proof, launch quality, and ecosystem activity.
+                  Tier depends on verified builder proof, contracts interacted, launch quality, GitHub activity, and
+                  ecosystem contribution.
                 </p>
               </div>
               <div className="mt-4 grid grid-cols-5 gap-2">

@@ -8,7 +8,7 @@ import { GradientText } from "./Brand";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
 const BENEFITS = [
-  "Exclusive Founder Pass",
+  "Builder Pass access",
   "+100 WebXP first 7 days",
   "Founder tools",
   "Pitch deck and tokenomics review",

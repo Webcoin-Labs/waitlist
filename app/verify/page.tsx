@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { VerifyEmailPanel } from "@/components/waitlist/VerifyEmailPanel";
 import { verifyWaitlistEmail } from "@/app/actions/waitlist";
-import { COLORS } from "@/lib/waitlist/tokens";
+import { COLORS, GRAD } from "@/lib/waitlist/tokens";
 
 export const metadata: Metadata = { title: "Verify email — Webcoin Labs" };
 
@@ -19,7 +19,7 @@ export default async function VerifyPage({
   if (token) {
     const result = await verifyWaitlistEmail(token);
     if (result.success) {
-      redirect(`/status?c=${result.referralCode}`);
+      redirect(`/status?c=${result.statusToken}`);
     }
     return (
       <Shell>
@@ -62,7 +62,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main
       className="flex min-h-screen items-center justify-center px-6 py-16"
-      style={{ backgroundColor: COLORS.bg, color: COLORS.text }}
+      style={{ background: GRAD.heroMesh, color: COLORS.text }}
     >
       {children}
     </main>

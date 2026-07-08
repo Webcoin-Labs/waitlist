@@ -86,9 +86,9 @@ const CAPABILITIES: Array<{
   },
   {
     icon: IdCard,
-    title: "Founder Pass Access",
-    body: "Unlock ecosystem-linked founder credentials for selected Arc and Base builders.",
-    chips: ["Founder Pass", "Arc", "Base", "Eligibility"],
+    title: "Builder Pass Access",
+    body: "Proof-based Builder Pass access for selected Arc and Base builders.",
+    chips: ["Builder Pass", "Arc", "Base", "Eligibility"],
     accent: "#7c3aed",
     kind: "pass",
     span: "lg:col-span-2",
@@ -225,7 +225,7 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
         <div className="rounded-xl border p-3" style={{ borderColor: "rgba(124,58,237,0.24)", backgroundColor: "rgba(124,58,237,0.06)" }}>
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-semibold" style={{ color: COLORS.text }}>
-              Founder Pass
+              Builder Pass
             </span>
             <ShieldCheck className="h-4 w-4" style={{ color: accent }} />
           </div>
