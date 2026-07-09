@@ -117,9 +117,9 @@ export function FounderPassSection() {
                 />
 
                 <div className="relative flex flex-col gap-7" style={{ transform: "translateZ(34px)" }}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <img src="/logo/webcoin-mark-light.webp" alt="Webcoin Labs" className="h-14 w-14 object-contain" />
+                  <div className="flex items-center justify-between gap-5">
+                    <div className="min-w-0">
+                      <img src="/logo/webcoin-wordmark-light.webp" alt="Webcoin Labs" className="h-10 w-auto max-w-[220px] object-contain sm:h-12" />
                     </div>
                     <p className="text-[22px] font-bold tracking-tight" style={{ color: COLORS.darkText }}>
                       Builder Pass

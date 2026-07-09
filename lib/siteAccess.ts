@@ -8,7 +8,7 @@ export { SITE_ACCESS_COOKIE };
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 180; // 180 days — soft pre-launch gate, not meant to expire mid-review
 
 function expectedCode() {
-  return (process.env.SITE_ACCESS_CODE ?? "ANSHIT").trim().toUpperCase();
+  return (process.env.SITE_ACCESS_CODE ?? "BOONDIKALADOO").trim().toUpperCase();
 }
 
 /** Compares the submitted code to the expected access code in constant time. */

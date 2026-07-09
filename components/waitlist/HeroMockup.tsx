@@ -9,6 +9,7 @@ import {
   Compass,
   Crown,
   FileText,
+  Gauge,
   Globe2,
   Hammer,
   IdCard,
@@ -16,7 +17,6 @@ import {
   Lock,
   Network,
   ShieldCheck,
-  Sparkles,
   Users,
   Zap,
 } from "lucide-react";
@@ -38,7 +38,7 @@ const TOP_CHIPS = [
   { label: "Arc", icon: ArcGlyphIcon, left: "84%", top: "-10%", tone: "#f59e0b", tilt: 4 },
 ] as const;
 
-type DashboardIcon = typeof Sparkles;
+type DashboardIcon = typeof Activity;
 type ModuleItem = {
   label: string;
   value: string;
@@ -53,17 +53,17 @@ type NavItem = {
 };
 
 const MODULES: ModuleItem[] = [
-  { label: "Founder Tools", value: "8 tools active", icon: Sparkles, tone: "#8b5cf6" },
+  { label: "Founder Tools", value: "8 tools active", icon: Compass, tone: "#8b5cf6" },
   { label: "Pitch Deck Score", value: "82 /100", icon: FileText, tone: "#22d3ee", foot: "Strong" },
   { label: "Tokenomics Studio", value: "Review in progress", icon: BarChart3, tone: "#c084fc" },
   { label: "Investor Intros", value: "3 requests sent", icon: Network, tone: "#34d399" },
   { label: "Builder Access", value: "12 new builders", icon: Users, tone: "#38bdf8" },
-  { label: "WebXP", value: "320 XP", icon: Sparkles, tone: "#a78bfa", foot: "+100 pending" },
+  { label: "WebXP", value: "320 XP", icon: Gauge, tone: "#a78bfa", foot: "+100 pending" },
 ] as const;
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Overview", icon: LayoutDashboard, active: true },
-  { label: "Founder Tools", icon: Sparkles },
+  { label: "Founder Tools", icon: Compass },
   { label: "Builder Access", icon: Users },
   { label: "Intros", icon: Network },
   { label: "WebXP", icon: Activity },
@@ -559,8 +559,16 @@ export function HeroMockup() {
                     Level 1
                   </p>
                 </div>
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full" style={{ backgroundColor: "rgba(124,58,237,0.16)", color: "#c4b5fd" }}>
-                  <Sparkles className="h-4 w-4" />
+                <span
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border text-[10px] font-black tracking-[-0.03em]"
+                  style={{
+                    borderColor: "rgba(167,139,250,0.28)",
+                    background: "linear-gradient(135deg, rgba(124,58,237,0.28), rgba(37,99,235,0.18))",
+                    color: "#ddd6fe",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12), 0 10px 24px -18px rgba(124,58,237,0.85)",
+                  }}
+                >
+                  XP
                 </span>
               </div>
             </div>

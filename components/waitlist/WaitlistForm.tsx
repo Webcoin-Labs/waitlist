@@ -3,17 +3,17 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Hammer, Loader2, Rocket, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Gift, Loader2, ShieldCheck, TrendingUp } from "lucide-react";
 import { joinWaitlist } from "@/app/actions/waitlist";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
 type Role = "FOUNDER" | "BUILDER" | "INVESTOR" | "ADVISOR";
 
-const ROLES: Array<{ value: Role; label: string; icon: typeof Rocket }> = [
-  { value: "FOUNDER", label: "Founder", icon: Rocket },
-  { value: "BUILDER", label: "Builder", icon: Hammer },
-  { value: "INVESTOR", label: "Investor", icon: TrendingUp },
-  { value: "ADVISOR", label: "Advisor", icon: Users },
+const ROLES: Array<{ value: Role; label: string; caption: string; iconSrc: string; accent: string }> = [
+  { value: "FOUNDER", label: "Founder", caption: "Startup access", iconSrc: "/role-icons/founder-badge.svg", accent: "#7c3aed" },
+  { value: "BUILDER", label: "Builder", caption: "Proof credential", iconSrc: "/role-icons/builder-hammer.svg", accent: "#0ea5e9" },
+  { value: "INVESTOR", label: "Investor", caption: "Deal flow", iconSrc: "/role-icons/investor-chart.svg", accent: "#059669" },
+  { value: "ADVISOR", label: "Advisor", caption: "Expert network", iconSrc: "/role-icons/advisor-handshake.svg", accent: "#db2777" },
 ];
 
 function MiniKpi({ label, value }: { label: string; value: string }) {
@@ -27,61 +27,71 @@ function MiniKpi({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FounderPassPreview() {
+function AccessPassPreview({ kind }: { kind: "founder" | "builder" }) {
+  const isFounder = kind === "founder";
+  const title = isFounder ? "Founder Pass" : "Builder Pass";
+  const label = isFounder ? "Founder" : "Builder";
+  const subtitle = isFounder ? "Invite-only founder credential" : "Verified proof-of-work credential";
+  const accent = isFounder ? "#a78bfa" : "#38bdf8";
+  const proof = isFounder ? "Startup profile" : "GitHub + portfolio";
+
   return (
-    <div className="grid gap-2">
-      <div className="overflow-hidden rounded-2xl p-4" style={{ background: GRAD.darkIsland, border: "1px solid rgba(167,139,250,0.35)" }}>
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: "#a78bfa" }}>
-            Founder Pass
-          </span>
-          <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ backgroundColor: "rgba(167,139,250,0.18)", color: "#c4b5fd" }}>
-            Eligible soon
-          </span>
+    <div className="rounded-[20px] border p-2.5 sm:p-3" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
+      <p className="mb-2 px-1 text-[11px] font-semibold leading-snug" style={{ color: COLORS.textSecondary }}>
+        This is how your {title} will look.
+      </p>
+      <div className="relative overflow-hidden rounded-[18px] border p-3 sm:p-3.5" style={{ borderColor: "rgba(255,255,255,0.14)", background: GRAD.darkIsland }}>
+        <div aria-hidden className="absolute -right-10 -top-10 h-24 w-24 rounded-full blur-2xl" style={{ backgroundColor: isFounder ? "rgba(167,139,250,0.3)" : "rgba(56,189,248,0.24)" }} />
+        <div className="relative flex items-start gap-2.5 sm:items-center sm:gap-3">
+          <div className="h-12 w-12 shrink-0 rounded-2xl p-[2px] sm:h-14 sm:w-14" style={{ background: `linear-gradient(135deg, ${accent}, rgba(255,255,255,0.65))` }}>
+            <img src="/logo/solrishuavatar.png" alt="" className="h-full w-full rounded-[14px] object-cover" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-[15px] font-black" style={{ color: COLORS.darkText }}>
+                  {title}
+                </p>
+                <p className="truncate text-[11px]" style={{ color: COLORS.darkTextSecondary }}>
+                  {subtitle}
+                </p>
+              </div>
+              <BadgeCheck className="h-4 w-4 shrink-0" style={{ color: accent }} />
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <PassMini label={label} value="You" />
+              <PassMini label="Track" value="Arc / Base" />
+              <PassMini label="Status" value="Eligible soon" accent={accent} />
+            </div>
+          </div>
         </div>
-        <p className="mt-2 text-[15px] font-bold text-white">Your builder credential.</p>
-        <div className="mt-3 flex items-center gap-3">
-          <img src="/logo/Arc_Logo_White.svg" alt="Arc" className="h-4 w-auto object-contain opacity-80" />
-          <img src="/logo/Base_lockup_white.svg" alt="Base" className="h-4 w-auto object-contain opacity-80" />
+        <div className="relative mt-3 flex items-center justify-between gap-2 border-t pt-2" style={{ borderColor: COLORS.darkBorder }}>
+          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: COLORS.darkTextMuted }}>
+            {proof}
+          </span>
+          <span className="shrink-0 text-[10px] font-black" style={{ color: accent }}>
+            +5,000 WebXP
+          </span>
         </div>
       </div>
-      <p className="text-center text-[12px]" style={{ color: COLORS.textMuted }}>
-        Building too?{" "}
+      <p className="mt-2.5 text-center text-[12px] leading-snug" style={{ color: COLORS.textMuted }}>
+        {isFounder ? "Building too?" : "Founding too?"}{" "}
         <span className="font-semibold" style={{ color: COLORS.accentDeep }}>
-          You can also claim a Builder Pass.
+          You can also claim a {isFounder ? "Builder" : "Founder"} Pass.
         </span>
       </p>
     </div>
   );
 }
 
-function BuilderPassPreview() {
+function PassMini({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="grid gap-2">
-      <div className="overflow-hidden rounded-2xl p-4" style={{ background: GRAD.darkIsland, border: "1px solid rgba(56,189,248,0.35)" }}>
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: "#38bdf8" }}>
-            Builder Pass
-          </span>
-          <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ backgroundColor: "rgba(56,189,248,0.18)", color: "#bae6fd" }}>
-            Eligible soon
-          </span>
-        </div>
-        <p className="mt-2 text-[15px] font-bold text-white">Your proof-of-work credential.</p>
-        <div className="mt-3 flex items-center gap-2">
-          <span className="rounded-full px-2.5 py-1 text-[10px] font-semibold" style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(245,245,247,0.75)" }}>
-            GitHub
-          </span>
-          <span className="rounded-full px-2.5 py-1 text-[10px] font-semibold" style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(245,245,247,0.75)" }}>
-            Portfolio
-          </span>
-        </div>
-      </div>
-      <p className="text-center text-[12px]" style={{ color: COLORS.textMuted }}>
-        Founding too?{" "}
-        <span className="font-semibold" style={{ color: COLORS.accentDeep }}>
-          You can also claim a Founder Pass.
-        </span>
+    <div className="min-w-0 rounded-xl px-2 py-1.5" style={{ backgroundColor: "rgba(255,255,255,0.045)" }}>
+      <p className="text-[8.5px] font-bold uppercase tracking-[0.12em]" style={{ color: COLORS.darkTextMuted }}>
+        {label}
+      </p>
+      <p className="mt-0.5 truncate text-[10.5px] font-bold" style={{ color: accent ?? COLORS.darkText }}>
+        {value}
       </p>
     </div>
   );
@@ -167,7 +177,7 @@ export function WaitlistForm({
   };
 
   const preview =
-    role === "FOUNDER" ? <FounderPassPreview /> : role === "BUILDER" ? <BuilderPassPreview /> : role === "INVESTOR" ? <InvestorPreview /> : role === "ADVISOR" ? <AdvisorPreview /> : null;
+    role === "FOUNDER" ? <AccessPassPreview kind="founder" /> : role === "BUILDER" ? <AccessPassPreview kind="builder" /> : role === "INVESTOR" ? <InvestorPreview /> : role === "ADVISOR" ? <AdvisorPreview /> : null;
 
   return (
     <div className="w-full">
@@ -210,54 +220,82 @@ export function WaitlistForm({
               </button>
             </form>
 
-            <div className="mt-3 flex flex-col items-center gap-1 text-center">
-              <p className="text-[13.5px] font-semibold" style={{ color: COLORS.text }}>
-                Verify your email to activate your WebXP and waitlist position.
+            <div className="mt-4 grid gap-2 text-left">
+              <p className="grid grid-cols-[22px_minmax(0,1fr)] items-start gap-2.5 text-[13.5px] font-semibold leading-6 sm:text-[15px]" style={{ color: COLORS.textSecondary }}>
+                <ShieldCheck className="mt-0.5 h-[18px] w-[18px] shrink-0" style={{ color: COLORS.textMuted }} />
+                <span>Verify your email and get a chance to unlock exclusive Founder and Builder Pass.</span>
               </p>
-              <p className="text-[13px] font-medium" style={{ color: COLORS.textSecondary }}>
-                Get{" "}
-                <span className="font-bold" style={{ color: COLORS.accentDeep }}>
-                  +100 WebXP
-                </span>{" "}
-                after verifying your email.
+              <p className="grid grid-cols-[22px_minmax(0,1fr)] items-start gap-2.5 text-[13.5px] font-medium leading-6 sm:text-[15px]" style={{ color: COLORS.textSecondary }}>
+                <Gift className="mt-0.5 h-[18px] w-[18px] shrink-0" style={{ color: COLORS.textMuted }} />
+                <span>
+                  Get{" "}
+                  <span className="font-bold" style={{ color: COLORS.accentDeep }}>
+                    +100 WebXP
+                  </span>{" "}
+                  after verifying your email.
+                </span>
               </p>
             </div>
           </motion.div>
         ) : (
           <motion.div key="role-step" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25, ease: EASE }}>
-            <div className="rounded-[22px] border p-5" style={{ borderColor: COLORS.border, backgroundColor: "#fff", boxShadow: "0 24px 60px -30px rgba(11,10,18,0.18)" }}>
+            <div className="overflow-hidden rounded-[24px] border p-3 sm:p-5" style={{ borderColor: COLORS.border, backgroundColor: "rgba(255,255,255,0.94)", boxShadow: "0 24px 70px -34px rgba(11,10,18,0.24)" }}>
               <button
                 type="button"
                 onClick={() => setStep("email")}
-                className="mb-3 inline-flex items-center gap-1.5 text-[12px] font-semibold"
+                className="mb-3 inline-flex max-w-full items-center gap-1.5 text-[12px] font-semibold"
                 style={{ color: COLORS.textMuted }}
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
-                {email}
+                <span className="truncate">{email}</span>
               </button>
 
-              <p className="text-[15px] font-bold" style={{ color: COLORS.text }}>
-                Who are you?
-              </p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[18px] font-black tracking-tight" style={{ color: COLORS.text }}>
+                    Who are you?
+                  </p>
+                  <p className="mt-1 text-[12.5px]" style={{ color: COLORS.textSecondary }}>
+                    Pick the access path that fits you best.
+                  </p>
+                </div>
+                <span className="hidden rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] sm:inline-flex" style={{ borderColor: COLORS.borderAccent, color: COLORS.accentDeep }}>
+                  Private beta
+                </span>
+              </div>
 
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {ROLES.map((r) => {
-                  const Icon = r.icon;
                   const active = role === r.value;
                   return (
                     <button
                       key={r.value}
                       type="button"
                       onClick={() => setRole(r.value)}
-                      className="flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 transition-all duration-200"
+                      className="group relative overflow-hidden rounded-[16px] border px-2.5 py-2.5 text-left transition-all duration-200 hover:-translate-y-0.5 sm:rounded-[18px] sm:py-3"
                       style={{
                         borderColor: active ? COLORS.borderAccent : COLORS.border,
-                        backgroundColor: active ? "rgba(124,58,237,0.06)" : COLORS.surfaceMuted,
+                        backgroundColor: active ? "rgba(124,58,237,0.07)" : "#fff",
+                        boxShadow: active ? "0 14px 34px -26px rgba(124,58,237,0.9)" : "0 1px 2px rgba(11,10,18,0.03)",
                       }}
                     >
-                      <Icon className="h-4.5 w-4.5" style={{ color: active ? COLORS.accentDeep : COLORS.textMuted }} />
-                      <span className="text-[12px] font-semibold" style={{ color: active ? COLORS.text : COLORS.textSecondary }}>
-                        {r.label}
+                      <span
+                        aria-hidden
+                        className="absolute -right-6 -top-6 h-14 w-14 rounded-full opacity-0 blur-xl transition-opacity group-hover:opacity-50"
+                        style={{ backgroundColor: r.accent }}
+                      />
+                      <span className="relative flex items-center gap-2 sm:flex-col sm:text-center">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-10 sm:w-10 sm:rounded-2xl" style={{ backgroundColor: active ? "rgba(255,255,255,0.86)" : COLORS.surfaceMuted }}>
+                          <img src={r.iconSrc} alt="" className="h-6 w-6 object-contain sm:h-7 sm:w-7" />
+                        </span>
+                        <span className="min-w-0 sm:mt-2">
+                          <span className="block truncate text-[12.5px] font-black" style={{ color: COLORS.text }}>
+                            {r.label}
+                          </span>
+                          <span className="block truncate text-[10px] leading-tight sm:text-[10.5px]" style={{ color: COLORS.textMuted }}>
+                            {r.caption}
+                          </span>
+                        </span>
                       </span>
                     </button>
                   );
@@ -272,7 +310,7 @@ export function WaitlistForm({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2, ease: EASE }}
-                    className="mt-4"
+                    className="mt-3 sm:mt-4"
                   >
                     {preview}
                   </motion.div>
@@ -283,7 +321,7 @@ export function WaitlistForm({
                 type="button"
                 onClick={submit}
                 disabled={!role || isPending}
-                className="group mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="group mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[18px] px-4 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-4 sm:rounded-2xl sm:px-6 sm:py-3.5"
                 style={{ backgroundColor: COLORS.text, color: "#fff", boxShadow: "0 10px 24px -12px rgba(11,10,18,0.5)" }}
               >
                 {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

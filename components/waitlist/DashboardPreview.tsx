@@ -401,8 +401,7 @@ function GlobalNetworkPanel() {
               Founder, builder, investor, and advisor graph.
             </p>
             <div className="mt-3 flex items-center gap-3">
-              <img src="/logo/circle-logo-white.svg" alt="Arc" className="h-4 w-auto object-contain" />
-              <img src="/logo/Base_lockup_white.svg" alt="Base" className="h-3.5 w-auto object-contain" />
+              <img src="/logo/circle-logo-ondark.svg" alt="Arc" className="h-4 w-auto object-contain" />
             </div>
           </div>
           {REGIONS.map((r) => (

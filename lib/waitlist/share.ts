@@ -24,7 +24,7 @@ export function buildXShareText({
   const networks = arc && base ? `${arc} or ${base}` : arc ?? base ?? "Arc or Base";
 
   return [
-    "I just joined the Webcoin Labs waitlist - the founder OS for builders shipping real blockchain companies.",
+    "I just joined the Webcoin Labs waitlist - the founder OS for builders shipping real companies.",
     "",
     `Building on ${networks}? Founder Pass beta is opening for eligible builders.`,
     "",

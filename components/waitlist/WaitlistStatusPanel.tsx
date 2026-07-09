@@ -24,7 +24,6 @@ import {
   PieChart,
   Send,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
   Trophy,
   Users,
@@ -287,7 +286,7 @@ export function WaitlistStatusPanel(props: Props) {
                 Earn promotional WebXP by helping bring serious builders and founders into Webcoin Labs.
               </p>
             </div>
-            <Sparkles className="h-5 w-5 shrink-0" style={{ color: COLORS.accentDeep }} />
+            <BadgeCheck className="h-5 w-5 shrink-0" style={{ color: COLORS.accentDeep }} />
           </div>
 
           <div className="mt-5 grid gap-3">

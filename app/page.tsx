@@ -78,8 +78,8 @@ export default async function WaitlistLandingPage({
         <WaitlistHero referralCode={referralCode} statLabel={statLabel} />
       </div>
 
-      <FounderPassEligibilityStrip />
       <PartnerStrip />
+      <FounderPassEligibilityStrip />
       <FounderPassSection />
       <FounderPassInviteSection />
       <DashboardPreview />

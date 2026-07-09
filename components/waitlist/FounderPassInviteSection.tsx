@@ -7,7 +7,6 @@ import {
   Lock,
   Megaphone,
   ShieldCheck,
-  Sparkles,
   Star,
   TrendingUp,
   UserPlus,
@@ -33,6 +32,12 @@ const CARD_FIELDS: { label: string; value: string; accent?: boolean }[] = [
   { label: "Focus", value: "Builders • Funding • Growth" },
   { label: "Access", value: "Premium Features" },
   { label: "Network", value: "Web3 Startups" },
+];
+
+const CARD_META: { label: string; value: string; accent?: boolean }[] = [
+  { label: "Access", value: "Premium founder tools" },
+  { label: "Status", value: "Invite only", accent: true },
+  { label: "Network", value: "Builders / funding / growth" },
 ];
 
 const UNLOCKS: { icon: LucideIcon; label: string }[] = [
@@ -120,62 +125,113 @@ export function FounderPassInviteSection() {
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.65, ease: EASE }}
-              className="relative overflow-hidden rounded-[26px] p-7 sm:p-8"
-              style={{
-                background: GRAD.darkIsland,
-                boxShadow:
-                  "0 0 0 1.5px rgba(167,139,250,0.4), 0 0 40px -10px rgba(124,58,237,0.35), 0 50px 120px -52px rgba(124,58,237,0.55)",
-              }}
+              className="relative mx-auto w-full max-w-xl"
             >
-              <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px" style={{ backgroundImage: GRAD.brand }} />
-              <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full blur-3xl" style={{ backgroundColor: "rgba(124,58,237,0.32)" }} />
+              <div aria-hidden className="absolute inset-4 rounded-[34px] blur-3xl" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.35), rgba(34,211,238,0.18))" }} />
+              <div
+                className="relative overflow-hidden rounded-[30px] border p-5 shadow-[0_46px_130px_-62px_rgba(76,29,149,0.75)] sm:p-6"
+                style={{
+                  background:
+                    "radial-gradient(circle at 18% 18%, rgba(34,211,238,0.2), transparent 28%), radial-gradient(circle at 84% 20%, rgba(167,139,250,0.28), transparent 30%), linear-gradient(135deg, #08091a 0%, #11102a 47%, #30194c 100%)",
+                  borderColor: "rgba(196,181,253,0.55)",
+                }}
+              >
+                <div aria-hidden className="absolute inset-x-0 top-0 h-px" style={{ backgroundImage: GRAD.brand }} />
+                <div aria-hidden className="absolute -right-20 -top-24 h-60 w-60 rounded-full blur-3xl" style={{ backgroundColor: "rgba(124,58,237,0.34)" }} />
+                <div aria-hidden className="absolute -bottom-24 left-8 h-48 w-48 rounded-full blur-3xl" style={{ backgroundColor: "rgba(34,211,238,0.18)" }} />
+                <div aria-hidden className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "linear-gradient(115deg, transparent 0 43%, #fff 44%, transparent 45% 100%)" }} />
 
-              <div className="relative flex items-start justify-between">
-                <p className="text-[13px] font-semibold" style={{ color: COLORS.darkTextSecondary }}>
-                  Webcoin Labs
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-[20px] font-bold tracking-tight" style={{ color: COLORS.darkText }}>
+                <div className="relative flex items-start justify-between gap-5">
+                  <img src="/logo/wcl-white.webp" alt="Webcoin Labs" className="h-6 w-auto object-contain sm:h-7" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em]" style={{ borderColor: "rgba(196,181,253,0.26)", color: "#ddd6fe", backgroundColor: "rgba(255,255,255,0.07)" }}>
+                    <ShieldCheck className="h-3.5 w-3.5" />
                     Founder Pass
-                  </p>
-                  <Sparkles className="h-4 w-4" style={{ color: "#c4b5fd" }} />
-                </div>
-              </div>
-
-              <div className="relative mt-6 flex items-center gap-6">
-                <div
-                  className="h-24 w-24 shrink-0 rounded-full p-[2.5px]"
-                  style={{ background: "conic-gradient(from 180deg, #a78bfa, #22d3ee, #f472b6, #a78bfa)" }}
-                >
-                  <img
-                    src="/logo/solrishuavatar.png"
-                    alt="Founder"
-                    className="h-full w-full rounded-full object-cover"
-                    style={{ backgroundColor: COLORS.darkSurface }}
-                  />
+                  </span>
                 </div>
 
-                <div className="flex-1">
-                  {CARD_FIELDS.map((field) => (
-                    <div key={field.label} className="flex items-center justify-between gap-4 py-[5px]">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: COLORS.darkTextMuted }}>
-                        {field.label}
-                      </span>
-                      <span className="text-[13px] font-semibold" style={{ color: field.accent ? "#c4b5fd" : COLORS.darkText }}>
-                        {field.value}
+                <div className="relative mt-9 flex items-end justify-between gap-5">
+                  <div>
+                    <div
+                      className="grid h-12 w-16 grid-cols-3 grid-rows-2 gap-[3px] rounded-xl border p-2"
+                      style={{ borderColor: "rgba(250,204,21,0.36)", background: "linear-gradient(135deg, rgba(250,204,21,0.55), rgba(180,83,9,0.24))" }}
+                      aria-hidden
+                    >
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <span key={i} className="rounded-[3px]" style={{ backgroundColor: "rgba(255,255,255,0.38)" }} />
+                      ))}
+                    </div>
+                    <p className="mt-5 text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
+                      Credential ID
+                    </p>
+                    <p className="mt-1 font-mono text-[18px] font-bold tracking-[0.12em]" style={{ color: COLORS.darkText }}>
+                      WCL-FND-2026
+                    </p>
+                  </div>
+
+                  <div className="hidden items-center gap-1 text-[#ddd6fe] sm:flex" aria-hidden>
+                    <span className="h-7 w-[2px] rounded-full bg-current opacity-35" />
+                    <span className="h-10 w-[2px] rounded-full bg-current opacity-55" />
+                    <span className="h-14 w-[2px] rounded-full bg-current opacity-75" />
+                  </div>
+                </div>
+
+                <div className="relative mt-8 grid gap-5 border-t pt-5 sm:grid-cols-[96px_1fr]" style={{ borderColor: COLORS.darkBorder }}>
+                  <div
+                    className="h-20 w-20 rounded-2xl p-[2px]"
+                    style={{ background: "linear-gradient(135deg, #22d3ee, #a78bfa, #f472b6)" }}
+                  >
+                    <img
+                      src="/logo/solrishuavatar.png"
+                      alt="Founder"
+                      className="h-full w-full rounded-[14px] object-cover"
+                      style={{ backgroundColor: COLORS.darkSurface }}
+                    />
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
+                          Cardholder
+                        </p>
+                        <p className="mt-1 text-[20px] font-black tracking-tight" style={{ color: COLORS.darkText }}>
+                          Solrishu
+                        </p>
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold" style={{ backgroundColor: "rgba(167,139,250,0.18)", color: "#ddd6fe" }}>
+                        <Lock className="h-3.5 w-3.5" />
+                        Under consideration
                       </span>
                     </div>
-                  ))}
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      {CARD_META.map((field) => (
+                        <div key={field.label} className="min-w-0">
+                          <p className="text-[9px] font-black uppercase tracking-[0.14em]" style={{ color: COLORS.darkTextMuted }}>
+                            {field.label}
+                          </p>
+                          <p className="mt-1 truncate text-[12px] font-bold" style={{ color: field.accent ? "#c4b5fd" : COLORS.darkText }}>
+                            {field.value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="relative mt-6 border-t pt-5" style={{ borderColor: COLORS.darkBorder }}>
-                <span
-                  className="mx-auto flex w-max items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold"
-                  style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "#c4b5fd" }}
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href="#perks"
+                  className="inline-flex items-center gap-1.5 rounded-full border bg-white px-4 py-2 text-[12px] font-bold transition-transform hover:-translate-y-0.5"
+                  style={{ borderColor: COLORS.border, color: COLORS.text }}
                 >
-                  <Lock className="h-4 w-4" />
-                  Under consideration
+                  Check Founder Access benefits
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </a>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: COLORS.textMuted }}>
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Access credential only
                 </span>
               </div>
             </motion.div>

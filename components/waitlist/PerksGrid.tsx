@@ -9,7 +9,6 @@ import {
   IdCard,
   Rocket,
   ScanSearch,
-  Sparkles,
   UserSearch,
   Users,
   type LucideIcon,
@@ -96,7 +95,7 @@ export function PerksGrid() {
   const [active, setActive] = useState(0);
 
   return (
-    <section className="border-y py-20" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
+    <section id="perks" className="border-y py-20" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
       <div className="container mx-auto max-w-6xl px-6">
         <div className="grid gap-9 lg:grid-cols-[230px_1fr] lg:items-start">
           <div className="lg:sticky lg:top-28">
@@ -321,7 +320,7 @@ function SignalPreview({ type, accent, active }: { type: Signal; accent: string;
       >
         Beta
       </motion.span>
-      <Sparkles className="h-3.5 w-3.5" style={{ color: accent }} />
+      <BadgeCheck className="h-3.5 w-3.5" style={{ color: accent }} />
     </div>
   );
 }
