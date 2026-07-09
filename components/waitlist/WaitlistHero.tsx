@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Rocket } from "lucide-react";
+import { Check } from "lucide-react";
 import { WaitlistForm } from "./WaitlistForm";
 import { HeroMockup } from "./HeroMockup";
-import { GradientText, Wordmark } from "./Brand";
+import { GradientText } from "./Brand";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
 const BENEFITS = [
@@ -14,7 +14,7 @@ const BENEFITS = [
   "Access 500+ venture capitalists, angel investors, and advisors from top companies like Microsoft, Google, and NVIDIA",
 ] as const;
 
-export function WaitlistHero({ referralCode, statLabel }: { referralCode?: string; statLabel: string }) {
+export function WaitlistHero({ referralCode }: { referralCode?: string }) {
   return (
     <section className="relative overflow-hidden" style={{ background: GRAD.heroMesh, color: COLORS.text }}>
       <div
@@ -59,7 +59,6 @@ export function WaitlistHero({ referralCode, statLabel }: { referralCode?: strin
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.accent }} />
               </span>
               Private early access
-              <Rocket className="h-3.5 w-3.5" />
             </motion.div>
 
             <motion.h1
@@ -105,45 +104,14 @@ export function WaitlistHero({ referralCode, statLabel }: { referralCode?: strin
               <WaitlistForm referralCode={referralCode} />
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.42, ease: EASE }}
-              className="mt-4 max-w-xl rounded-[20px] border bg-white/75 p-4 shadow-[0_18px_50px_-38px_rgba(11,10,18,0.45)] backdrop-blur"
-              style={{ borderColor: COLORS.border }}
+              className="mt-6 max-w-xl text-[16px] font-medium leading-7 sm:text-[18px]"
+              style={{ color: COLORS.textSecondary }}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: COLORS.textMuted }}>
-                    What is
-                  </p>
-                  <div className="mt-1">
-                    <Wordmark variant="dark" height={24} />
-                  </div>
-                </div>
-                <span className="rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em]" style={{ borderColor: COLORS.borderAccent, color: COLORS.accentDeep, backgroundColor: "rgba(124,58,237,0.06)" }}>
-                  {statLabel}
-                </span>
-              </div>
-
-              <p className="mt-3 text-[15px] font-semibold leading-6" style={{ color: COLORS.text }}>
-                The operating system for founders, builders, and future breakout teams.
-              </p>
-              <p className="mt-2 text-[12.5px] leading-5" style={{ color: COLORS.textSecondary }}>
-                Webcoin Labs gives founders and builders one operating layer to collaborate, ship faster, become
-                fundraising-ready, and access founder tools, builder discovery, pitch deck intelligence, tokenomics
-                support, WebXP, private network opportunities, matching, intros, and ecosystem distribution.
-              </p>
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.56 }}
-              className="sr-only"
-              style={{ color: COLORS.textMuted }}
-            >
-              {statLabel}
+              The OS for founders, builders, and Investors.
             </motion.p>
           </div>
 

@@ -107,7 +107,7 @@ function Item({ q, a, i }: { q: string; a: string; i: number }) {
 
 export function Faq() {
   return (
-    <section id="faq" className="py-24" style={{ backgroundColor: COLORS.bgAlt }}>
+    <section id="faq" className="py-14 lg:py-24" style={{ backgroundColor: COLORS.bgAlt }}>
       <div className="container mx-auto max-w-3xl px-6">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight md:text-[2.7rem] md:leading-[1.05]" style={{ color: COLORS.text }}>

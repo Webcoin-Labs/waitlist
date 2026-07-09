@@ -6,7 +6,7 @@ import { COLORS } from "@/lib/waitlist/tokens";
 
 export function FinalCta({ referralCode }: { referralCode?: string }) {
   return (
-    <section className="relative overflow-hidden border-t py-28" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bg }}>
+    <section className="relative overflow-hidden border-t py-16 lg:py-28" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bg }}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"

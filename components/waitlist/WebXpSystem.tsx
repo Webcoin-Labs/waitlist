@@ -64,7 +64,7 @@ export function WebXpSystem() {
   const RewardIcon = reward.icon;
 
   return (
-    <section id="why-join" className="relative overflow-hidden py-24" style={{ backgroundColor: COLORS.bg }}>
+    <section id="why-join" className="relative overflow-hidden py-14 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
       <div className="container relative mx-auto max-w-6xl px-6">
         <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div>

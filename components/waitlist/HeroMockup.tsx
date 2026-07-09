@@ -22,20 +22,25 @@ import {
 } from "lucide-react";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
-function ArcGlyphIcon({ className, style }: { className?: string; style?: CSSProperties }) {
-  return (
-    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M4 15 A 9 9 0 0 1 20 15" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" />
-      <circle cx="12" cy="6.2" r="2.2" fill="currentColor" />
-    </svg>
-  );
+function LogoImgIcon(src: string) {
+  return function LogoIcon({ className, style }: { className?: string; style?: CSSProperties }) {
+    return <img src={src} alt="" className={className} style={{ ...style, objectFit: "contain" }} />;
+  };
 }
+
+const ArcLogoIcon = LogoImgIcon("/logo/Arc_network-A.svg");
+const SolanaLogoIcon = LogoImgIcon("/logo/solana-s-LogoMark.svg");
+const ZamaLogoIcon = LogoImgIcon("/logo/zama-z-square_yellow.svg");
+const BitcoinLogoIcon = LogoImgIcon("/logo/Bitcoin.svg");
 
 const TOP_CHIPS = [
   { label: "WebXP", icon: Zap, left: "10%", top: "-8%", tone: "#8b5cf6", tilt: -4 },
   { label: "Founder Access", icon: Crown, left: "38%", top: "-12%", tone: "#c084fc", tilt: 3 },
   { label: "Builder Access", icon: Hammer, left: "63%", top: "-7%", tone: "#38bdf8", tilt: -3 },
-  { label: "Arc", icon: ArcGlyphIcon, left: "84%", top: "-10%", tone: "#f59e0b", tilt: 4 },
+  { label: "Arc", icon: ArcLogoIcon, left: "84%", top: "-10%", tone: "#f59e0b", tilt: 4 },
+  { label: "Solana", icon: SolanaLogoIcon, left: "3%", top: "38%", tone: "#9945FF", tilt: 5 },
+  { label: "Zama", icon: ZamaLogoIcon, left: "95%", top: "46%", tone: "#fdd10b", tilt: -4 },
+  { label: "Bitcoin", icon: BitcoinLogoIcon, left: "6%", top: "72%", tone: "#f7931a", tilt: -3 },
 ] as const;
 
 type DashboardIcon = typeof Activity;
@@ -126,7 +131,7 @@ function Chip({
       }}
     >
       {Icon ? (
-        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `${tone}26` }}>
+        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full" style={{ backgroundColor: `${tone}26` }}>
           <Icon className="h-3 w-3" style={{ color: tone }} />
         </span>
       ) : null}

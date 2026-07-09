@@ -119,7 +119,6 @@ export function WaitlistStatusPanel(props: Props) {
   const passStatus = PASS_STATUS_LABEL[props.founderPassStatus] ?? titleCase(props.founderPassStatus);
   const passTier = props.founderPassTier ? titleCase(props.founderPassTier) : "Not assigned";
   const passTrack = trackLabel(props.founderPassTrack);
-  const isPassEligible = ["ELIGIBLE", "INVITED", "CLAIMED"].includes(props.founderPassStatus);
 
   const copy = async () => {
     try {
@@ -272,7 +271,6 @@ export function WaitlistStatusPanel(props: Props) {
           passStatus={passStatus}
           webXp={props.webXp}
           verifiedReferralCount={props.verifiedReferralCount}
-          isPassEligible={isPassEligible}
           reduce={reduce}
         />
 
@@ -409,7 +407,6 @@ function FounderPassPanel({
   passStatus,
   webXp,
   verifiedReferralCount,
-  isPassEligible,
   reduce,
 }: {
   displayName: string;
@@ -418,7 +415,6 @@ function FounderPassPanel({
   passStatus: string;
   webXp: number;
   verifiedReferralCount: number;
-  isPassEligible: boolean;
   reduce: boolean | null;
 }) {
   return (
@@ -490,15 +486,6 @@ function FounderPassPanel({
         <p className="max-w-[270px] text-[12px] leading-5" style={{ color: COLORS.darkTextSecondary }}>
           Beta eligibility is currently available for builders and founders launching on Arc and Base.
         </p>
-        <button
-          type="button"
-          disabled
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-[12px] font-bold disabled:cursor-not-allowed disabled:opacity-75"
-          style={{ backgroundColor: "rgba(255,255,255,0.1)", color: COLORS.darkText }}
-        >
-          {isPassEligible ? "Claim Founder Pass" : "Coming soon"}
-          <Lock className="h-4 w-4" />
-        </button>
       </div>
       <p className="relative mt-4 text-[10.5px] leading-5" style={{ color: COLORS.darkTextMuted }}>
         Founder Pass is an in-app access credential. It is not a payment card, token, NFT, investment product, or financial product.

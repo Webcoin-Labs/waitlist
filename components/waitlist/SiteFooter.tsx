@@ -2,9 +2,32 @@ import { Wordmark } from "./Brand";
 import { COLORS, GRAD } from "@/lib/waitlist/tokens";
 
 const FOOTER_LINKS = [
-  { title: "Build", links: ["Founder Tools", "Builder Proof", "Pitch Deck Review", "Tokenomics Support"] },
-  { title: "Explore", links: ["Dashboard", "Builder Pass", "WebXP", "Private Network"] },
-  { title: "Connect", links: ["Discord", "X", "Advisor Network", "Investor Access"] },
+  {
+    title: "Build",
+    links: [
+      { label: "Founder Tools", href: "#join" },
+      { label: "Builder Proof", href: "#join" },
+      { label: "Pitch Deck Review", href: "#join" },
+      { label: "Tokenomics Support", href: "#join" },
+    ],
+  },
+  {
+    title: "Explore",
+    links: [
+      { label: "Dashboard", href: "#join" },
+      { label: "Builder Pass", href: "#join" },
+      { label: "WebXP", href: "#join" },
+      { label: "Private Network", href: "#join" },
+    ],
+  },
+  {
+    title: "Connect",
+    links: [
+      { label: "Telegram", href: "https://t.me/thewebcoinlabs", external: true },
+      { label: "X", href: "https://x.com/webcoinlabs", external: true },
+      { label: "LinkedIn", href: "https://www.linkedin.com/company/webcoin-capital", external: true },
+    ],
+  },
 ] as const;
 
 export function SiteFooter() {
@@ -27,8 +50,15 @@ export function SiteFooter() {
                 </p>
                 <div className="mt-4 grid gap-3">
                   {group.links.map((link) => (
-                    <a key={link} href="#join" className="text-[13px] font-medium transition-colors" style={{ color: COLORS.darkTextSecondary }}>
-                      {link}
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target={link.external ? "_blank" : undefined}
+                      rel={link.external ? "noopener noreferrer" : undefined}
+                      className="text-[13px] font-medium transition-colors"
+                      style={{ color: COLORS.darkTextSecondary }}
+                    >
+                      {link.label}
                     </a>
                   ))}
                 </div>

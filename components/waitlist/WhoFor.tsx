@@ -21,6 +21,16 @@ import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
 type PreviewKind = "founder" | "builder" | "deck" | "tokenomics" | "investor" | "advisor" | "pass" | "network";
 
+// Same verified geography as DashboardPreview/GlobalMap — coords are % positions
+// on the real map asset (public/maps/simplemaps-world.svg, viewBox 0 0 2000 857).
+const NETWORK_HUBS = [
+  { x: 16.5, y: 31.0, tone: "#a78bfa" }, // San Francisco
+  { x: 49.5, y: 20.0, tone: "#38bdf8" }, // London
+  { x: 51.8, y: 51.8, tone: "#fbbf24" }, // Nigeria
+  { x: 60.1, y: 58.2, tone: "#a78bfa" }, // Kenya
+  { x: 87.5, y: 32.5, tone: "#38bdf8" }, // Japan
+] as const;
+
 const CAPABILITIES: Array<{
   icon: LucideIcon;
   title: string;
@@ -29,6 +39,7 @@ const CAPABILITIES: Array<{
   accent: string;
   kind: PreviewKind;
   span: string;
+  dark?: boolean;
 }> = [
   {
     icon: Rocket,
@@ -104,17 +115,20 @@ const CAPABILITIES: Array<{
   },
 ];
 
-function PreviewShell({ label, children }: { label: string; children: ReactNode }) {
+function PreviewShell({ label, children, dark }: { label: string; children: ReactNode; dark?: boolean }) {
   return (
     <div
       className="mt-5 overflow-hidden rounded-2xl border p-3 transition-all duration-300 group-hover:-translate-y-0.5"
-      style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}
+      style={{
+        borderColor: dark ? COLORS.darkBorderStrong : COLORS.border,
+        background: dark ? GRAD.darkIsland : COLORS.surfaceMuted,
+      }}
     >
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: COLORS.textFaint }}>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: dark ? COLORS.darkTextMuted : COLORS.textFaint }}>
           inside Webcoin Labs
         </span>
-        <span className="text-[10px] font-semibold" style={{ color: COLORS.textMuted }}>
+        <span className="text-[10px] font-semibold" style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textMuted }}>
           {label}
         </span>
       </div>
@@ -123,14 +137,14 @@ function PreviewShell({ label, children }: { label: string; children: ReactNode 
   );
 }
 
-function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
+function Preview({ kind, accent, dark }: { kind: PreviewKind; accent: string; dark?: boolean }) {
   if (kind === "builder") {
     return (
-      <PreviewShell label="proof layer">
+      <PreviewShell label="proof layer" dark={dark}>
         <div className="grid gap-2">
           {["github.com/founder-tools", "startup profile linked", "available for Arc projects"].map((line, i) => (
-            <div key={line} className="flex items-center gap-2 text-[11px]" style={{ color: COLORS.textSecondary }}>
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: i === 0 ? accent : COLORS.textFaint }} />
+            <div key={line} className="flex items-center gap-2 text-[11px]" style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: i === 0 ? accent : dark ? COLORS.darkTextMuted : COLORS.textFaint }} />
               <span className="truncate">{line}</span>
             </div>
           ))}
@@ -141,13 +155,13 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
 
   if (kind === "deck") {
     return (
-      <PreviewShell label="readiness">
+      <PreviewShell label="readiness" dark={dark}>
         <div className="flex items-end gap-1.5">
           {[34, 58, 76, 64, 88].map((height, i) => (
-            <span key={height} className="flex-1 rounded-t-lg" style={{ height: 42, backgroundColor: COLORS.border }}>
+            <span key={height} className="flex-1 rounded-t-lg" style={{ height: 42, backgroundColor: dark ? "rgba(255,255,255,0.1)" : COLORS.border }}>
               <motion.span
                 className="block rounded-t-lg"
-                style={{ background: i === 4 ? GRAD.brand : COLORS.borderStrong }}
+                style={{ background: i === 4 ? GRAD.brand : dark ? "rgba(255,255,255,0.28)" : COLORS.borderStrong }}
                 initial={{ height: "14%" }}
                 whileInView={{ height: `${height}%` }}
                 viewport={{ once: true }}
@@ -156,7 +170,7 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
             </span>
           ))}
         </div>
-        <div className="mt-3 grid gap-1.5 text-[11px]" style={{ color: COLORS.textSecondary }}>
+        <div className="mt-3 grid gap-1.5 text-[11px]" style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>
           <span>Narrative gaps marked for review</span>
           <span>Investor-ready sections prepared</span>
         </div>
@@ -166,7 +180,7 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
 
   if (kind === "tokenomics") {
     return (
-      <PreviewShell label="model view">
+      <PreviewShell label="model view" dark={dark}>
         <div className="grid gap-2">
           {[
             ["Team", "42%"],
@@ -174,11 +188,11 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
             ["Treasury", "54%"],
           ].map(([name, width]) => (
             <div key={name}>
-              <div className="mb-1 flex justify-between text-[10px]" style={{ color: COLORS.textMuted }}>
+              <div className="mb-1 flex justify-between text-[10px]" style={{ color: dark ? COLORS.darkTextMuted : COLORS.textMuted }}>
                 <span>{name}</span>
                 <span>allocation lane</span>
               </div>
-              <span className="block h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: COLORS.border }}>
+              <span className="block h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: dark ? "rgba(255,255,255,0.1)" : COLORS.border }}>
                 <span className="block h-full rounded-full" style={{ width, background: `linear-gradient(90deg, ${accent}, ${accent}88)` }} />
               </span>
             </div>
@@ -190,15 +204,15 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
 
   if (kind === "investor") {
     return (
-      <PreviewShell label="intro request">
+      <PreviewShell label="intro request" dark={dark}>
         <div className="grid gap-2 text-[11px]">
           <div className="flex items-center justify-between gap-3">
-            <span style={{ color: COLORS.textSecondary }}>Relevant investor list</span>
+            <span style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>Relevant investor list</span>
             <span style={{ color: accent }}>Reviewing</span>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <span style={{ color: COLORS.textSecondary }}>Warm intro request</span>
-            <span style={{ color: COLORS.green }}>Drafted</span>
+            <span style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>Warm intro request</span>
+            <span style={{ color: dark ? "#34d399" : COLORS.green }}>Drafted</span>
           </div>
         </div>
       </PreviewShell>
@@ -207,10 +221,14 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
 
   if (kind === "advisor") {
     return (
-      <PreviewShell label="discovery">
+      <PreviewShell label="discovery" dark={dark}>
         <div className="flex flex-wrap gap-1.5">
           {["Product", "Fundraising", "GTM", "Community"].map((tag) => (
-            <span key={tag} className="rounded-full border px-2 py-1 text-[10px]" style={{ borderColor: COLORS.border, color: COLORS.textSecondary }}>
+            <span
+              key={tag}
+              className="rounded-full border px-2 py-1 text-[10px]"
+              style={{ borderColor: dark ? COLORS.darkBorder : COLORS.border, color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}
+            >
               {tag}
             </span>
           ))}
@@ -221,15 +239,21 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
 
   if (kind === "pass") {
     return (
-      <PreviewShell label="eligibility">
-        <div className="rounded-xl border p-3" style={{ borderColor: "rgba(124,58,237,0.24)", backgroundColor: "rgba(124,58,237,0.06)" }}>
+      <PreviewShell label="eligibility" dark={dark}>
+        <div
+          className="rounded-xl border p-3"
+          style={{
+            borderColor: dark ? "rgba(196,181,253,0.28)" : "rgba(124,58,237,0.24)",
+            backgroundColor: dark ? "rgba(196,181,253,0.1)" : "rgba(124,58,237,0.06)",
+          }}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold" style={{ color: COLORS.text }}>
+            <span className="text-[12px] font-semibold" style={{ color: dark ? COLORS.darkText : COLORS.text }}>
               Builder Pass
             </span>
             <ShieldCheck className="h-4 w-4" style={{ color: accent }} />
           </div>
-          <p className="mt-1 text-[11px]" style={{ color: COLORS.textSecondary }}>
+          <p className="mt-1 text-[11px]" style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>
             Arc and Base beta eligibility after proof review.
           </p>
         </div>
@@ -239,35 +263,74 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
 
   if (kind === "network") {
     return (
-      <PreviewShell label="private graph">
-        <div className="relative h-20 overflow-hidden rounded-xl" style={{ background: "radial-gradient(circle at 30% 50%, rgba(14,116,144,0.1), transparent 48%), radial-gradient(circle at 74% 45%, rgba(124,58,237,0.1), transparent 52%)" }}>
-          {[
-            ["12%", "24%"],
-            ["36%", "56%"],
-            ["61%", "28%"],
-            ["82%", "62%"],
-          ].map(([left, top], i) => (
-            <span
-              key={`${left}-${top}`}
-              className="absolute h-2.5 w-2.5 rounded-full"
-              style={{ left, top, backgroundColor: [accent, COLORS.accent, COLORS.green, COLORS.amber][i] }}
+      <PreviewShell label="private graph" dark={dark}>
+        <div
+          className="relative overflow-hidden rounded-xl"
+          style={{
+            aspectRatio: "2000 / 857",
+            background: "radial-gradient(circle at 28% 34%, rgba(167,139,250,0.16), transparent 55%), rgba(255,255,255,0.03)",
+          }}
+        >
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(120deg, rgba(167,139,250,0.34), rgba(56,189,248,0.24))",
+              WebkitMaskImage: "url(/maps/simplemaps-world.svg)",
+              maskImage: "url(/maps/simplemaps-world.svg)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-70"
+            style={{
+              backgroundImage: "radial-gradient(circle, rgba(196,181,253,0.85) 1px, transparent 1.5px)",
+              backgroundSize: "6px 6px",
+              WebkitMaskImage: "url(/maps/simplemaps-world.svg)",
+              maskImage: "url(/maps/simplemaps-world.svg)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
+          {NETWORK_HUBS.map((hub, i) => (
+            <motion.span
+              key={`${hub.x}-${hub.y}`}
+              className="absolute h-1.5 w-1.5 rounded-full"
+              style={{ left: `${hub.x}%`, top: `${hub.y}%`, backgroundColor: hub.tone, boxShadow: `0 0 6px ${hub.tone}`, transform: "translate(-50%,-50%)" }}
+              animate={{ opacity: [0.55, 1, 0.55] }}
+              transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.25, ease: "easeInOut" }}
             />
           ))}
-          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 300 80" fill="none" aria-hidden>
-            <path d="M42 28 C 95 28, 98 58, 130 50 S 190 22, 225 30 S 255 62, 272 54" stroke={COLORS.borderStrong} strokeWidth="1.4" />
-          </svg>
         </div>
       </PreviewShell>
     );
   }
 
   return (
-    <PreviewShell label="workspace">
+    <PreviewShell label="workspace" dark={dark}>
       <div className="grid gap-2">
         {["Startup profile", "Pitch deck", "Intro request"].map((line, i) => (
-          <div key={line} className="flex items-center gap-2 rounded-lg px-2 py-1.5" style={{ backgroundColor: "#fff" }}>
-            {i === 2 ? <CircleDot className="h-3.5 w-3.5" style={{ color: accent }} /> : <CheckCircle2 className="h-3.5 w-3.5" style={{ color: COLORS.green }} />}
-            <span className="text-[11px]" style={{ color: COLORS.textSecondary }}>
+          <div
+            key={line}
+            className="flex items-center gap-2 rounded-lg px-2 py-1.5"
+            style={{ backgroundColor: dark ? "rgba(255,255,255,0.06)" : "#fff" }}
+          >
+            {i === 2 ? (
+              <CircleDot className="h-3.5 w-3.5" style={{ color: accent }} />
+            ) : (
+              <CheckCircle2 className="h-3.5 w-3.5" style={{ color: dark ? "#34d399" : COLORS.green }} />
+            )}
+            <span className="text-[11px]" style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>
               {line}
             </span>
           </div>
@@ -279,6 +342,7 @@ function Preview({ kind, accent }: { kind: PreviewKind; accent: string }) {
 
 function CapabilityCard({ item, index }: { item: (typeof CAPABILITIES)[number]; index: number }) {
   const Icon = item.icon;
+  const dark = item.dark;
 
   return (
     <motion.article
@@ -289,11 +353,14 @@ function CapabilityCard({ item, index }: { item: (typeof CAPABILITIES)[number]; 
       whileHover={{ y: -4 }}
       className={`group relative min-h-[300px] overflow-hidden rounded-3xl border p-5 ${item.span}`}
       style={{
-        borderColor: COLORS.border,
-        backgroundColor: "#fff",
-        boxShadow: "0 20px 50px -36px rgba(11,10,18,0.14)",
+        borderColor: dark ? COLORS.darkBorderStrong : COLORS.border,
+        background: dark ? GRAD.darkIsland : "#fff",
+        boxShadow: dark ? "0 24px 60px -40px rgba(124,58,237,0.5)" : "0 20px 50px -36px rgba(11,10,18,0.14)",
       }}
     >
+      {dark ? (
+        <div aria-hidden className="absolute -right-16 -top-16 h-48 w-48 rounded-full blur-3xl" style={{ backgroundColor: "rgba(124,58,237,0.3)" }} />
+      ) : null}
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-px opacity-70"
@@ -303,20 +370,23 @@ function CapabilityCard({ item, index }: { item: (typeof CAPABILITIES)[number]; 
       <div className="relative flex items-start justify-between gap-4">
         <span
           className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
-          style={{ backgroundColor: `${item.accent}14`, color: item.accent }}
+          style={{ backgroundColor: dark ? "#fff" : `${item.accent}14`, color: dark ? "#0a0a0f" : item.accent }}
         >
           <Icon className="h-5 w-5" strokeWidth={1.9} />
         </span>
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ color: COLORS.textMuted }}>
+        <span
+          className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{ color: dark ? COLORS.darkTextMuted : COLORS.textMuted }}
+        >
           Open preview <ArrowUpRight className="h-3 w-3" />
         </span>
       </div>
 
       <div className="relative mt-6">
-        <h3 className="text-[20px] font-bold tracking-tight" style={{ color: COLORS.text }}>
+        <h3 className="text-[20px] font-bold tracking-tight" style={{ color: dark ? COLORS.darkText : COLORS.text }}>
           {item.title}
         </h3>
-        <p className="mt-2.5 text-[13.5px] leading-6" style={{ color: COLORS.textSecondary }}>
+        <p className="mt-2.5 text-[13.5px] leading-6" style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>
           {item.body}
         </p>
       </div>
@@ -326,7 +396,11 @@ function CapabilityCard({ item, index }: { item: (typeof CAPABILITIES)[number]; 
           <span
             key={chip}
             className="rounded-full border px-2.5 py-1 text-[11px] font-medium"
-            style={{ borderColor: COLORS.border, backgroundColor: COLORS.bg, color: COLORS.textSecondary }}
+            style={{
+              borderColor: dark ? COLORS.darkBorder : COLORS.border,
+              backgroundColor: dark ? "rgba(255,255,255,0.06)" : COLORS.bg,
+              color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary,
+            }}
           >
             {chip}
           </span>
@@ -334,7 +408,7 @@ function CapabilityCard({ item, index }: { item: (typeof CAPABILITIES)[number]; 
       </div>
 
       <div className="relative">
-        <Preview kind={item.kind} accent={item.accent} />
+        <Preview kind={item.kind} accent={item.accent} dark />
       </div>
     </motion.article>
   );

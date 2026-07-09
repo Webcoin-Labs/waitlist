@@ -28,7 +28,7 @@ const TRACK_LOGO_DARK: Partial<Record<(typeof TRACKS)[number], string>> = {
 
 export function FounderPassSection() {
   return (
-    <section className="py-24" style={{ backgroundColor: COLORS.bg }}>
+    <section className="py-14 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
       <div className="container mx-auto max-w-6xl px-6">
         <div className="grid items-center gap-14 lg:grid-cols-[0.95fr_1.05fr]">
           <div>

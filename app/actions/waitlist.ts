@@ -60,6 +60,28 @@ function newReferralCode() {
   return randomBytes(6).toString("base64url").replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
 }
 
+function normalizeReferralCodeInput(value: FormDataEntryValue | null): string {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) return "";
+
+  try {
+    const url = new URL(trimmed);
+    const ref = url.searchParams.get("ref");
+    if (ref) return ref.trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+  } catch {
+    const refMatch = trimmed.match(/[?&]ref=([^&#]+)/i);
+    if (refMatch?.[1]) {
+      try {
+        return decodeURIComponent(refMatch[1]).trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+      } catch {
+        return refMatch[1].trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+      }
+    }
+  }
+
+  return trimmed.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+}
+
 function referralLinkFor(code: string) {
   return `${baseUrl()}/?ref=${code}`;
 }
@@ -124,7 +146,15 @@ const joinSchema = z.object({
   utmCampaign: z.string().trim().max(80).optional().or(z.literal("")),
 });
 
+const emailOnlySchema = z.object({
+  email: z.string().trim().toLowerCase().email("Enter a valid email."),
+});
+
 export type JoinWaitlistResult =
+  | { success: true; email: string; alreadyVerified: boolean; statusToken?: string }
+  | { success: false; error: string };
+
+export type ExistingWaitlistAccessResult =
   | { success: true; email: string; alreadyVerified: boolean; statusToken?: string }
   | { success: false; error: string };
 
@@ -147,12 +177,34 @@ const FREE_EMAIL_DOMAINS = new Set([
 
 // ── join ─────────────────────────────────────────────────────────────────────
 
+export async function getExistingWaitlistAccess(emailInput: string): Promise<ExistingWaitlistAccessResult> {
+  const parsed = emailOnlySchema.safeParse({ email: emailInput });
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid email." };
+
+  const { email } = parsed.data;
+  const meta = await requestMeta();
+  const limiter = await rateLimitAsync(rateLimitKey(meta.ipHash ?? email, "waitlist-existing-access"), 10, 60_000);
+  if (!limiter.ok) return { success: false, error: "Too many attempts. Please try again shortly." };
+
+  const existing = await db.waitlistEntry.findUnique({
+    where: { email },
+    select: { id: true, status: true, emailVerifiedAt: true, statusToken: true },
+  });
+
+  if (!existing || existing.status === "BLOCKED" || !existing.emailVerifiedAt) {
+    return { success: true, email, alreadyVerified: false };
+  }
+
+  const statusToken = existing.statusToken ?? (await backfillStatusToken(existing.id));
+  return { success: true, email, alreadyVerified: true, statusToken };
+}
+
 export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResult> {
   const parsed = joinSchema.safeParse({
     email: formData.get("email"),
     name: formData.get("name") ?? "",
     role: formData.get("role") ?? "FOUNDER",
-    ref: formData.get("ref") ?? "",
+    ref: normalizeReferralCodeInput(formData.get("ref")),
     utmSource: formData.get("utmSource") ?? "",
     utmMedium: formData.get("utmMedium") ?? "",
     utmCampaign: formData.get("utmCampaign") ?? "",

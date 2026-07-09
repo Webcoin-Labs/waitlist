@@ -9,8 +9,6 @@ type Payload = { toEmail: string; verifyLink: string; name?: string | null; role
 type DeliveryResult = { delivered: boolean; provider: "resend" | "webhook" | "console"; error?: string };
 
 const DEFAULT_SUBJECT = "Activate your Webcoin Labs early access";
-const LOGO_PATH = "/logo/webcoin-wordmark-dark.webp";
-const MARK_PATH = "/logo/webcoin-mark-light.webp";
 
 type RoleCopy = {
   preheader: string;
@@ -26,24 +24,24 @@ type RoleCopy = {
 
 const ROLE_COPY: Record<WaitlistEmailRole, RoleCopy> = {
   FOUNDER: {
-    preheader: "Verify your email to activate WebXP, referrals, and your Founder Pass preview.",
+    preheader: "Verify your email to activate WebXP, referrals, and your Founder Pass access.",
     passLabel: "Founder Pass",
     passOwnerLabel: "Founder",
     passProof: "Startup profile",
     passTone: "violet",
-    bannerTitle: "Your Founder Pass preview is ready.",
+    bannerTitle: "Your Founder Pass access is almost ready.",
     intro:
       "Verify your email to lock your waitlist position, activate your referral link, and open your Founder Pass eligibility track.",
     body: "Webcoin Labs is the operating layer for serious founders and builders: proof profiles, launch tasks, advisor discovery, builder networks, and investor-ready workflows in one place.",
     eligibility: "Founder Pass is locked until email verification. Beta access opens first to founders and builders launching on Arc and Base, with more tracks coming soon.",
   },
   BUILDER: {
-    preheader: "Verify your email to activate WebXP, referrals, and your Builder Pass preview.",
+    preheader: "Verify your email to activate WebXP, referrals, and your Builder Pass access.",
     passLabel: "Builder Pass",
     passOwnerLabel: "Builder",
     passProof: "GitHub + portfolio",
     passTone: "blue",
-    bannerTitle: "Your Builder Pass preview is ready.",
+    bannerTitle: "Your Builder Pass access is almost ready.",
     intro:
       "Verify your email to lock your waitlist position, activate your referral link, and open your Builder Pass eligibility track.",
     body: "Webcoin Labs puts shipped work in front of founders who need proof, not pitches: GitHub, portfolios, live projects, and a builder network that gets you discovered directly.",
@@ -98,8 +96,11 @@ function getFrom() {
   return process.env.WAITLIST_FROM_EMAIL ?? process.env.SIGNUP_FROM_EMAIL ?? null;
 }
 
-function greetingFor(toEmail: string, name?: string | null): string {
-  const displayName = name?.trim() || getDisplayNameFromEmail(toEmail);
+function displayNameFor(toEmail: string, name?: string | null): string {
+  return name?.trim() || getDisplayNameFromEmail(toEmail) || "there";
+}
+
+function greetingFor(displayName: string): string {
   return displayName ? `Hey ${displayName},` : "Hey there,";
 }
 
@@ -111,25 +112,42 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function assetUrl(verifyLink: string, path: string): string {
-  try {
-    return new URL(path, verifyLink).toString();
-  } catch {
-    const base = (process.env.WAITLIST_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://webcoinlabs.com").replace(/\/+$/, "");
-    return `${base}${path}`;
-  }
-}
-
 function disclaimerFor(passLabel: string | null): string {
   return passLabel
     ? `WebXP and ${passLabel} are promotional in-app access systems. They have no monetary value, no token value, no airdrop value, and do not represent ownership, investment, or financial rights.`
     : "WebXP is a promotional in-app points system. It has no monetary value, no token value, no airdrop value, and does not represent ownership, investment, or financial rights.";
 }
 
-function buildPassCard(copy: RoleCopy, verifyLink: string): string {
+function roleLabelFor(role?: WaitlistEmailRole | null): string {
+  switch (role) {
+    case "BUILDER":
+      return "Builder";
+    case "INVESTOR":
+      return "Investor";
+    case "ADVISOR":
+      return "Advisor";
+    case "FOUNDER":
+    default:
+      return "Founder";
+  }
+}
+
+function bannerTitleFor(role: WaitlistEmailRole | null | undefined, displayName: string, fallback: string): string {
+  if (role === "FOUNDER" || role === "BUILDER") {
+    const roleLabel = roleLabelFor(role);
+    const namePart = displayName.toLowerCase() === "there" ? "" : ` ${displayName}`;
+    return `Hey ${roleLabel}${namePart}, we're glad to have you onboard.`;
+  }
+  return fallback;
+}
+
+function wordmarkHtml(color = "#0b0a12", size = 18): string {
+  return `<span style="display:inline-block;font-size:${size}px;line-height:1;font-weight:800;letter-spacing:-0.04em;color:${color};">Webcoin <span style="color:#3b82f6;">Labs</span></span>`;
+}
+
+function buildPassCard(copy: RoleCopy): string {
   if (!copy.passLabel || !copy.passOwnerLabel || !copy.passProof || !copy.passTone) return "";
 
-  const markUrl = escapeHtml(assetUrl(verifyLink, MARK_PATH));
   const accent = copy.passTone === "blue" ? "#38bdf8" : "#a78bfa";
   const accentSoft = copy.passTone === "blue" ? "rgba(56,189,248,0.16)" : "rgba(167,139,250,0.18)";
   const border = copy.passTone === "blue" ? "rgba(56,189,248,0.34)" : "rgba(167,139,250,0.38)";
@@ -143,12 +161,12 @@ function buildPassCard(copy: RoleCopy, verifyLink: string): string {
                       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                         <tr>
                           <td style="vertical-align:top;">
-                            <p style="margin:0;font-size:10px;font-weight:bold;letter-spacing:0.18em;text-transform:uppercase;color:#8f8aa8;">Webcoin Labs</p>
+                            <p style="margin:0;">${wordmarkHtml("#ffffff", 14)}</p>
                             <p style="margin:16px 0 0 0;font-size:28px;line-height:1.05;font-weight:800;color:#ffffff;">${escapeHtml(copy.passLabel)}</p>
                             <p style="margin:8px 0 0 0;font-size:13px;line-height:1.5;color:#c9c5dc;">Your access credential preview.</p>
                           </td>
                           <td align="right" style="vertical-align:top;width:76px;">
-                            <img src="${markUrl}" width="38" height="38" alt="" style="display:block;width:38px;height:38px;border:0;border-radius:12px;" />
+                            <span style="display:inline-block;width:38px;height:38px;border-radius:12px;background:${accentSoft};border:1px solid ${border};font-size:21px;line-height:38px;text-align:center;color:${accent};">✓</span>
                             <span style="display:inline-block;margin-top:14px;padding:6px 10px;border-radius:999px;background:${accentSoft};font-size:10px;font-weight:bold;color:${accent};white-space:nowrap;">Locked</span>
                           </td>
                         </tr>
@@ -190,12 +208,12 @@ function buildPassCard(copy: RoleCopy, verifyLink: string): string {
             </tr>`;
 }
 
-function buildHtml(verifyLink: string, greeting: string, role?: WaitlistEmailRole | null) {
+function buildHtml(verifyLink: string, greeting: string, displayName: string, role?: WaitlistEmailRole | null) {
   const link = escapeHtml(verifyLink);
   const copy = copyFor(role);
   const subject = subjectFor(role);
-  const logoUrl = escapeHtml(assetUrl(verifyLink, LOGO_PATH));
-  const passCard = buildPassCard(copy, verifyLink);
+  const bannerTitle = bannerTitleFor(role, displayName, copy.bannerTitle);
+  const passCard = buildPassCard(copy);
 
   const eligibilityBlock = copy.eligibility
     ? `<p style="margin:0 0 16px 0;font-size:15px;line-height:1.7;color:#444052;">${escapeHtml(copy.eligibility)}</p>`
@@ -216,7 +234,7 @@ function buildHtml(verifyLink: string, greeting: string, role?: WaitlistEmailRol
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background-color:#ffffff;border:1px solid #e4e2ee;border-radius:24px;overflow:hidden;box-shadow:0 22px 70px rgba(20,16,42,0.10);">
             <tr>
               <td style="padding:30px 34px 0 34px;">
-                <img src="${logoUrl}" width="166" alt="Webcoin Labs" style="display:block;width:166px;max-width:70%;height:auto;border:0;outline:none;text-decoration:none;" />
+                ${wordmarkHtml()}
               </td>
             </tr>
 
@@ -226,7 +244,7 @@ function buildHtml(verifyLink: string, greeting: string, role?: WaitlistEmailRol
                   <tr>
                     <td style="padding:28px 26px;">
                       <p style="margin:0;font-size:10px;font-weight:bold;letter-spacing:0.18em;text-transform:uppercase;color:#c4b5fd;">Private beta access</p>
-                      <p style="margin:10px 0 0 0;font-size:30px;line-height:1.08;font-weight:800;color:#ffffff;">${escapeHtml(copy.bannerTitle)}</p>
+                      <p style="margin:10px 0 0 0;font-size:30px;line-height:1.08;font-weight:800;color:#ffffff;">${escapeHtml(bannerTitle)}</p>
                       <p style="margin:14px 0 0 0;max-width:500px;font-size:15px;line-height:1.65;color:#e4e0f4;">${escapeHtml(copy.intro)}</p>
                     </td>
                   </tr>
@@ -302,10 +320,12 @@ function stripTags(value: string): string {
   return value.replace(/&rsquo;/g, "'").replace(/&mdash;/g, "--").replace(/&[a-z]+;/g, "");
 }
 
-function buildText(verifyLink: string, greeting: string, role?: WaitlistEmailRole | null) {
+function buildText(verifyLink: string, greeting: string, displayName: string, role?: WaitlistEmailRole | null) {
   const copy = copyFor(role);
   const lines = [
     subjectFor(role),
+    "",
+    bannerTitleFor(role, displayName, copy.bannerTitle),
     "",
     greeting,
     "",
@@ -319,7 +339,7 @@ function buildText(verifyLink: string, greeting: string, role?: WaitlistEmailRol
   if (copy.passLabel && copy.passOwnerLabel && copy.passProof) {
     lines.push(
       "",
-      `${copy.passLabel} preview`,
+      `${copy.passLabel} access`,
       `Status: Locked until verification`,
       `${copy.passOwnerLabel}: You`,
       "Track: Arc / Base beta",
@@ -354,8 +374,8 @@ async function sendViaResend(payload: Payload, greeting: string): Promise<Delive
         from,
         to: [payload.toEmail],
         subject: subjectFor(payload.role),
-        html: buildHtml(payload.verifyLink, greeting, payload.role),
-        text: buildText(payload.verifyLink, greeting, payload.role),
+        html: buildHtml(payload.verifyLink, greeting, displayNameFor(payload.toEmail, payload.name), payload.role),
+        text: buildText(payload.verifyLink, greeting, displayNameFor(payload.toEmail, payload.name), payload.role),
         ...(replyTo ? { reply_to: replyTo } : {}),
       }),
       cache: "no-store",
@@ -394,7 +414,8 @@ async function sendViaWebhook(payload: Payload, greeting: string): Promise<Deliv
 }
 
 export async function dispatchWaitlistVerificationEmail(payload: Payload): Promise<DeliveryResult> {
-  const greeting = greetingFor(payload.toEmail, payload.name);
+  const displayName = displayNameFor(payload.toEmail, payload.name);
+  const greeting = greetingFor(displayName);
 
   const resendResult = await sendViaResend(payload, greeting);
   if (resendResult.delivered) return resendResult;

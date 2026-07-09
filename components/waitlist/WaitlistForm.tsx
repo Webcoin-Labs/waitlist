@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, BadgeCheck, Gift, Loader2, ShieldCheck, TrendingUp } from "lucide-react";
-import { joinWaitlist } from "@/app/actions/waitlist";
+import { getExistingWaitlistAccess, joinWaitlist } from "@/app/actions/waitlist";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
 type Role = "FOUNDER" | "BUILDER" | "INVESTOR" | "ADVISOR";
@@ -15,6 +15,28 @@ const ROLES: Array<{ value: Role; label: string; caption: string; iconSrc: strin
   { value: "INVESTOR", label: "Investor", caption: "Deal flow", iconSrc: "/role-icons/investor-chart.svg", accent: "#059669" },
   { value: "ADVISOR", label: "Advisor", caption: "Expert network", iconSrc: "/role-icons/advisor-handshake.svg", accent: "#db2777" },
 ];
+
+function cleanReferralCodeInput(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  try {
+    const url = new URL(trimmed);
+    const ref = url.searchParams.get("ref");
+    if (ref) return ref.trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+  } catch {
+    const refMatch = trimmed.match(/[?&]ref=([^&#]+)/i);
+    if (refMatch?.[1]) {
+      try {
+        return decodeURIComponent(refMatch[1]).trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+      } catch {
+        return refMatch[1].trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+      }
+    }
+  }
+
+  return trimmed.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 32).toUpperCase();
+}
 
 function MiniKpi({ label, value }: { label: string; value: string }) {
   return (
@@ -146,17 +168,45 @@ export function WaitlistForm({
   const [step, setStep] = useState<"email" | "role">("email");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role | null>(null);
+  const [manualReferralCode, setManualReferralCode] = useState(referralCode ?? "");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const submit = () => {
+  const goTo = (path: string) => {
+    router.push(path);
+    if (typeof window !== "undefined") {
+      window.location.assign(path);
+    }
+  };
+
+  const continueFromEmail = () => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) return;
+    setError("");
+    setEmail(normalizedEmail);
+    startTransition(async () => {
+      const res = await getExistingWaitlistAccess(normalizedEmail);
+      if (!res.success) {
+        setError(res.error);
+        return;
+      }
+      if (res.alreadyVerified && res.statusToken) {
+        goTo(`/status?c=${res.statusToken}`);
+        return;
+      }
+      setStep("role");
+    });
+  };
+
+  const submit = (options?: { skipReferral?: boolean }) => {
     if (!role) return;
     setError("");
     startTransition(async () => {
       const fd = new FormData();
       fd.set("email", email);
       fd.set("role", role);
-      if (referralCode) fd.set("ref", referralCode);
+      const referral = options?.skipReferral ? "" : cleanReferralCodeInput(manualReferralCode);
+      if (referral) fd.set("ref", referral);
       if (typeof window !== "undefined") {
         const p = new URLSearchParams(window.location.search);
         if (p.get("utm_source")) fd.set("utmSource", p.get("utm_source") ?? "");
@@ -169,10 +219,10 @@ export function WaitlistForm({
         return;
       }
       if (res.alreadyVerified && res.statusToken) {
-        router.push(`/status?c=${res.statusToken}`);
+        goTo(`/status?c=${res.statusToken}`);
         return;
       }
-      router.push(`/verify?e=${encodeURIComponent(res.email)}`);
+      goTo(`/verify?e=${encodeURIComponent(res.email)}`);
     });
   };
 
@@ -187,7 +237,7 @@ export function WaitlistForm({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (email) setStep("role");
+                continueFromEmail();
               }}
               className="flex flex-col gap-2 rounded-[22px] border p-2.5 transition-shadow duration-300 focus-within:shadow-[0_0_0_5px_rgba(124,58,237,0.14)] sm:flex-row sm:items-center"
               style={{
@@ -212,13 +262,21 @@ export function WaitlistForm({
               </div>
               <button
                 type="submit"
+                disabled={isPending || !email.trim()}
                 className="group inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
                 style={{ backgroundColor: COLORS.text, color: "#fff", boxShadow: "0 10px 24px -12px rgba(11,10,18,0.5)" }}
               >
-                Join Waitlist
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {isPending ? "Checking..." : "Join Waitlist"}
+                {!isPending ? <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /> : null}
               </button>
             </form>
+
+            {error ? (
+              <p className="mt-3 text-center text-[13px]" style={{ color: COLORS.red }}>
+                {error}
+              </p>
+            ) : null}
 
             <div className="mt-4 grid gap-2 text-left">
               <p className="grid grid-cols-[22px_minmax(0,1fr)] items-start gap-2.5 text-[13.5px] font-semibold leading-6 sm:text-[15px]" style={{ color: COLORS.textSecondary }}>
@@ -317,17 +375,56 @@ export function WaitlistForm({
                 ) : null}
               </AnimatePresence>
 
-              <button
-                type="button"
-                onClick={submit}
-                disabled={!role || isPending}
-                className="group mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[18px] px-4 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-4 sm:rounded-2xl sm:px-6 sm:py-3.5"
-                style={{ backgroundColor: COLORS.text, color: "#fff", boxShadow: "0 10px 24px -12px rgba(11,10,18,0.5)" }}
-              >
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {isPending ? "Joining…" : "Join Waitlist"}
-                {!isPending ? <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /> : null}
-              </button>
+              {role ? (
+                <div className="mt-3 rounded-[18px] border p-3 sm:mt-4" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[13px] font-black" style={{ color: COLORS.text }}>
+                      Referral code
+                    </p>
+                    <span className="rounded-full px-2.5 py-1 text-[9.5px] font-black uppercase tracking-[0.12em]" style={{ backgroundColor: "#fff", color: COLORS.textMuted }}>
+                      Optional
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={manualReferralCode}
+                    onChange={(e) => setManualReferralCode(e.target.value)}
+                    placeholder="Paste referral code or link"
+                    className="mt-2 w-full rounded-2xl border bg-white px-3.5 py-3 text-[13.5px] font-semibold outline-none transition-shadow focus:shadow-[0_0_0_4px_rgba(124,58,237,0.12)]"
+                    style={{ borderColor: COLORS.border, color: COLORS.text }}
+                    autoComplete="off"
+                  />
+                  <p className="mt-2 text-[11.5px] leading-5" style={{ color: COLORS.textMuted }}>
+                    If your referral link did not apply, paste the code here. You can also skip this and still join.
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_150px]">
+                <button
+                  type="button"
+                  onClick={() => submit()}
+                  disabled={!role || isPending}
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-[18px] px-4 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-2xl sm:px-6 sm:py-3.5"
+                  style={{ backgroundColor: COLORS.text, color: "#fff", boxShadow: "0 10px 24px -12px rgba(11,10,18,0.5)" }}
+                >
+                  {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {isPending ? "Joining..." : "Join Waitlist"}
+                  {!isPending ? <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /> : null}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setManualReferralCode("");
+                    submit({ skipReferral: true });
+                  }}
+                  disabled={!role || isPending}
+                  className="inline-flex w-full items-center justify-center rounded-[18px] border px-4 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-2xl"
+                  style={{ borderColor: COLORS.border, backgroundColor: "#fff", color: COLORS.textSecondary }}
+                >
+                  Skip code
+                </button>
+              </div>
             </div>
 
             {error ? (

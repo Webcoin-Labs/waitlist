@@ -49,7 +49,7 @@ const UNLOCKS: { icon: LucideIcon; label: string }[] = [
 
 export function FounderPassInviteSection() {
   return (
-    <section className="py-24" style={{ backgroundColor: COLORS.bg }}>
+    <section className="py-14 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
       <div className="container mx-auto max-w-6xl px-6">
         <div className="grid items-start gap-14 lg:grid-cols-[0.95fr_1.05fr]">
           {/* LEFT — copy */}
@@ -98,14 +98,6 @@ export function FounderPassInviteSection() {
               >
                 Join waitlist
                 <ArrowRight className="h-4 w-4" />
-              </a>
-              <a
-                href="#join"
-                className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-                style={{ borderColor: COLORS.border, color: COLORS.text, backgroundColor: "#fff" }}
-              >
-                Founder Pass consideration
-                <UserPlus className="h-4 w-4" style={{ color: COLORS.accentDeep }} />
               </a>
             </div>
 

@@ -82,15 +82,15 @@ export default async function StatusPage({
           </div>
         ) : (
           <>
-            <div className="mx-auto mb-8 max-w-5xl">
+            <div className="mx-auto mb-6 max-w-5xl lg:mb-8">
               <div
-                className="mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em]"
+                className="mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] lg:mb-5"
                 style={{ borderColor: COLORS.borderAccent, color: COLORS.accentDeep, backgroundColor: "rgba(124,58,237,0.06)" }}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Email verified
               </div>
-              <h1 className="max-w-3xl text-4xl font-black tracking-tight md:text-5xl md:leading-[1.02]" style={{ color: COLORS.text }}>
+              <h1 className="max-w-3xl text-3xl font-black tracking-tight sm:text-4xl md:text-5xl md:leading-[1.02]" style={{ color: COLORS.text }}>
                 You&apos;re on the Webcoin Labs waitlist.
               </h1>
               <p className="mt-3 max-w-xl text-[14px] leading-6" style={{ color: COLORS.textSecondary }}>

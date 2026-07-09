@@ -95,7 +95,7 @@ export function PerksGrid() {
   const [active, setActive] = useState(0);
 
   return (
-    <section id="perks" className="border-y py-20" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
+    <section id="perks" className="border-y py-14 lg:py-20" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
       <div className="container mx-auto max-w-6xl px-6">
         <div className="grid gap-9 lg:grid-cols-[230px_1fr] lg:items-start">
           <div className="lg:sticky lg:top-28">

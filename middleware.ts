@@ -13,6 +13,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/admin") || // has its own separate WAITLIST_ADMIN_TOKEN gate
     pathname === "/enter" ||
+    pathname === "/verify" ||
+    pathname === "/status" ||
     IS_STATIC_FILE.test(pathname);
 
   if (bypass) return NextResponse.next();

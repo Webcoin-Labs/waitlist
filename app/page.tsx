@@ -14,7 +14,6 @@ import { PerksGrid } from "@/components/waitlist/PerksGrid";
 import { Faq } from "@/components/waitlist/Faq";
 import { FinalCta } from "@/components/waitlist/FinalCta";
 import { SiteFooter } from "@/components/waitlist/SiteFooter";
-import { getPublicWaitlistStat } from "@/app/actions/waitlist";
 import { COLORS } from "@/lib/waitlist/tokens";
 
 export const metadata: Metadata = {
@@ -37,18 +36,11 @@ export default async function WaitlistLandingPage({
   const sp = (await searchParams) ?? {};
   const referralCode = typeof sp.ref === "string" ? sp.ref : undefined;
 
-  let statLabel = "Private early access is open.";
-  try {
-    statLabel = (await getPublicWaitlistStat()).label;
-  } catch {
-    /* DB optional at render time */
-  }
-
   return (
     <main style={{ backgroundColor: COLORS.bg, color: COLORS.text }}>
       {/* top nav */}
       <div className="absolute left-0 right-0 top-0 z-30">
-        <div className="container mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+        <div className="container mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <Link href="/" aria-label="Webcoin Labs">
             <Wordmark variant="dark" height={24} priority />
           </Link>
@@ -75,16 +67,21 @@ export default async function WaitlistLandingPage({
       </div>
 
       <div id="join">
-        <WaitlistHero referralCode={referralCode} statLabel={statLabel} />
+        <WaitlistHero referralCode={referralCode} />
       </div>
 
-      <PartnerStrip />
       <FounderPassEligibilityStrip />
+      <PartnerStrip />
+      <PerksGrid />
       <FounderPassSection />
       <FounderPassInviteSection />
-      <DashboardPreview />
-      <PerksGrid />
-      <WhoFor />
+      {/* Heavy desktop-oriented visuals — hidden on mobile to keep the phone scroll tight */}
+      <div className="hidden lg:block">
+        <DashboardPreview />
+      </div>
+      <div className="hidden lg:block">
+        <WhoFor />
+      </div>
       <BeforeAfter />
       <WebXpSystem />
       <Faq />
