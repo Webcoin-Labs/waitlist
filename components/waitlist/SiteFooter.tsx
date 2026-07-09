@@ -1,7 +1,18 @@
 import { Wordmark } from "./Brand";
 import { COLORS, GRAD } from "@/lib/waitlist/tokens";
 
-const FOOTER_LINKS = [
+type FooterLink = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+type FooterLinkGroup = {
+  title: string;
+  links: FooterLink[];
+};
+
+const FOOTER_LINKS: FooterLinkGroup[] = [
   {
     title: "Build",
     links: [
