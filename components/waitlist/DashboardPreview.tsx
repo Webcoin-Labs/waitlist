@@ -28,6 +28,7 @@ import {
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 import { GradientText } from "./Brand";
 import { TIERS } from "./FounderPassSection";
+import { MobileDashboardPhone } from "./MobileDashboardPhone";
 
 const UI = {
   shell: "#f7f9fc",
@@ -524,6 +525,14 @@ const NAV_COPY: Record<string, { eyebrow: string; title: string }> = {
   Profile: { eyebrow: "Command Center", title: "Good morning, Founder" },
 };
 
+const DASHBOARD_NAV_ITEMS = [
+  { icon: LayoutDashboard, label: "Overview" },
+  { icon: Users, label: "Network" },
+  { icon: MessageSquare, label: "Introductions" },
+  { icon: IdCard, label: "Builder Pass" },
+  { icon: FileText, label: "Profile" },
+] as const;
+
 export function DashboardPreview() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-120px" });
@@ -535,7 +544,7 @@ export function DashboardPreview() {
   const [activeNav, setActiveNav] = useState("Overview");
 
   return (
-    <section className="relative py-24" style={{ backgroundColor: COLORS.bg }}>
+    <section className="relative py-12 sm:py-16 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[560px]"
@@ -553,24 +562,28 @@ export function DashboardPreview() {
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.accent }} />
               Preview
             </span>
-            <h2 className="mt-5 text-[2.15rem] font-bold leading-[1.18] tracking-tight" style={{ color: COLORS.text }}>
-              See how <GradientText>Webcoin Labs</GradientText> works.
+            <h2 className="mt-4 text-balance text-[1.9rem] font-bold leading-[1.12] tracking-tight sm:mt-5 sm:text-[2.15rem] sm:leading-[1.18]" style={{ color: COLORS.text }}>
+              See how <GradientText>Webcoin Labs</GradientText> dashboards will work.
             </h2>
-            <p className="mt-2 text-[16px] leading-7" style={{ color: COLORS.textSecondary }}>
-              Your founder operating system.
+            <p className="mt-2 max-w-2xl text-pretty text-[14px] leading-6 sm:text-[16px] sm:leading-7" style={{ color: COLORS.textSecondary }}>
+              Explore a sample founder dashboard and select any section to preview the experience.
             </p>
           </div>
           <a
             href="#join"
-            className="inline-flex items-center rounded-full px-5 py-2.5 text-[13.5px] font-semibold transition-transform hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[13px] font-semibold transition-transform hover:-translate-y-0.5 max-sm:w-full sm:text-[13.5px]"
             style={{ backgroundColor: COLORS.text, color: "#fff" }}
           >
             Explore the dashboard
           </a>
         </div>
 
+        <div className="mt-8 lg:hidden">
+          <MobileDashboardPhone />
+        </div>
+
         {/* full-width landscape mockup */}
-        <div ref={ref} className="relative mt-10">
+        <div ref={ref} className="relative mt-10 hidden lg:block">
             <div
               aria-hidden
               className="pointer-events-none absolute -inset-6 rounded-[38px]"
@@ -607,13 +620,7 @@ export function DashboardPreview() {
                   </div>
 
                   <nav className="mt-7 grid gap-1">
-                    {[
-                      { icon: LayoutDashboard, label: "Overview" },
-                      { icon: Users, label: "Network" },
-                      { icon: MessageSquare, label: "Introductions" },
-                      { icon: IdCard, label: "Builder Pass" },
-                      { icon: FileText, label: "Profile" },
-                    ].map((item) => (
+                    {DASHBOARD_NAV_ITEMS.map((item) => (
                       <SidebarItem
                         key={item.label}
                         icon={item.icon}
@@ -673,6 +680,26 @@ export function DashboardPreview() {
                       </span>
                     </div>
                   </header>
+
+                  <nav className="flex gap-1 overflow-x-auto border-b px-4 py-2 lg:hidden" style={{ borderColor: UI.line, backgroundColor: UI.panel }} aria-label="Dashboard sections">
+                    {DASHBOARD_NAV_ITEMS.map((item) => {
+                      const active = activeNav === item.label;
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={() => setActiveNav(item.label)}
+                          aria-current={active ? "page" : undefined}
+                          className="inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6d5dfc]"
+                          style={{ color: active ? UI.violet : UI.muted, backgroundColor: active ? "#f0efff" : "transparent" }}
+                        >
+                          <Icon className="size-3.5" style={{ color: active ? UI.violet : UI.faint }} />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </nav>
 
                   <main className="p-5">
                     <div className="grid gap-4">
@@ -787,8 +814,8 @@ export function DashboardPreview() {
               </div>
             </motion.div>
 
-            <p className="mt-4 text-center text-[11px]" style={{ color: COLORS.textFaint }}>
-              Preview UI. Live numbers appear inside your dashboard after verification.
+            <p className="mt-4 text-center text-[11px] leading-5" style={{ color: COLORS.textFaint }}>
+              Demo dashboard. The layout, content, and features are illustrative and subject to change. Live numbers appear after verification.
             </p>
         </div>
       </div>

@@ -95,9 +95,9 @@ export function PerksGrid() {
   const [active, setActive] = useState(0);
 
   return (
-    <section id="perks" className="border-y py-14 lg:py-20" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
+    <section id="perks" className="border-y py-11 sm:py-14 lg:py-20" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid gap-9 lg:grid-cols-[230px_1fr] lg:items-start">
+        <div className="grid gap-6 lg:grid-cols-[230px_1fr] lg:items-start lg:gap-9">
           <div className="lg:sticky lg:top-28">
             <span
               className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em]"
@@ -111,12 +111,12 @@ export function PerksGrid() {
               />
               What you unlock
             </span>
-            <h2 className="mt-5 text-[2rem] font-bold leading-[1.08] tracking-tight md:text-[2.35rem]" style={{ color: COLORS.text }}>
+            <h2 className="mt-4 text-[1.65rem] font-bold leading-[1.08] tracking-tight max-lg:text-balance sm:mt-5 sm:text-[2rem] md:text-[2.35rem]" style={{ color: COLORS.text }}>
               Everything you need to build and scale.
             </h2>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
             {PERKS.map((perk, index) => (
               <UnlockCard
                 key={perk.title}
@@ -156,7 +156,7 @@ function UnlockCard({
       transition={{ duration: 0.46, delay: (index % 8) * 0.045, ease: EASE }}
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.985 }}
-      className="group relative min-h-[150px] overflow-hidden rounded-2xl border p-4 text-left"
+      className="group relative overflow-hidden rounded-xl border p-2.5 text-left sm:min-h-[150px] sm:rounded-2xl sm:p-4"
       style={{
         borderColor: active ? `${perk.accent}55` : COLORS.border,
         backgroundColor: "#fff",
@@ -178,26 +178,26 @@ function UnlockCard({
         transition={{ duration: 0.45, ease: EASE }}
       />
 
-      <div className="relative flex items-start gap-3">
+      <div className="relative flex items-start gap-2.5 sm:gap-3">
         <motion.span
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9"
           style={{ backgroundColor: perk.soft, color: perk.accent }}
           animate={active ? { rotate: [0, -5, 5, 0], scale: [1, 1.05, 1] } : { rotate: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: EASE }}
         >
-          <Icon className="h-4.5 w-4.5" />
+          <Icon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
         </motion.span>
         <div className="min-w-0">
-          <p className="text-[13.5px] font-bold leading-5" style={{ color: COLORS.text }}>
+          <p className="text-[12.5px] font-bold leading-[1.15] sm:text-[13.5px] sm:leading-5" style={{ color: COLORS.text }}>
             {perk.title}
           </p>
-          <p className="mt-1.5 text-[11.5px] leading-4" style={{ color: COLORS.textSecondary }}>
+          <p className="mt-1 line-clamp-3 text-[11px] leading-[1.35] sm:mt-1.5 sm:line-clamp-none sm:text-[11.5px] sm:leading-4" style={{ color: COLORS.textSecondary }}>
             {perk.body}
           </p>
         </div>
       </div>
 
-      <div className="relative mt-4">
+      <div className="relative mt-4 hidden sm:block">
         <SignalPreview type={perk.signal} accent={perk.accent} active={active} />
       </div>
     </motion.button>

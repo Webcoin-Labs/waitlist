@@ -24,31 +24,29 @@ const PARTNERS = [
 function LogoCard({ name, src }: { name: string; src: string }) {
   return (
     <div
-      className="group flex h-16 w-[168px] shrink-0 items-center justify-center rounded-2xl border px-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-24px_rgba(11,10,18,0.35)]"
+      className="group flex h-14 w-[140px] shrink-0 items-center justify-center rounded-xl border px-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-24px_rgba(11,10,18,0.35)] sm:h-16 sm:w-[168px] sm:rounded-2xl sm:px-5"
       style={{ borderColor: COLORS.border, backgroundColor: "#fff", boxShadow: "0 1px 2px rgba(11,10,18,0.03)" }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={name} className="max-h-9 w-auto max-w-full object-contain" />
+      <img src={src} alt={name} className="max-h-7 w-auto max-w-full object-contain sm:max-h-9" />
     </div>
   );
 }
 
 export function PartnerStrip() {
   const loop = [...PARTNERS, ...PARTNERS];
+
   return (
-    <section className="border-y py-14" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
+    <section className="border-y py-9 sm:py-14" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
       <div className="container mx-auto max-w-6xl px-6 text-center">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: COLORS.textMuted }}>
           Trusted across the Web3 ecosystem
         </p>
       </div>
 
-      <div
-        className="relative mt-8 overflow-hidden"
-        style={{ maskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)" }}
-      >
+      <div className="relative mt-5 overflow-hidden sm:mt-8" style={{ maskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)" }}>
         <motion.div
-          className="flex w-max gap-4"
+          className="flex w-max gap-3 sm:gap-4"
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 36, repeat: Infinity, ease: "linear" }}
         >

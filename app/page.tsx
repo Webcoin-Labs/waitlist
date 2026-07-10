@@ -37,11 +37,11 @@ export default async function WaitlistLandingPage({
   const referralCode = typeof sp.ref === "string" ? sp.ref : undefined;
 
   return (
-    <main style={{ backgroundColor: COLORS.bg, color: COLORS.text }}>
+    <main className="waitlist-page" style={{ backgroundColor: COLORS.bg, color: COLORS.text }}>
       {/* top nav */}
       <div className="absolute left-0 right-0 top-0 z-30">
-        <div className="container mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link href="/" aria-label="Webcoin Labs">
+        <div className="container mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
+          <Link href="/" aria-label="Webcoin Labs" className="max-sm:origin-left max-sm:scale-90">
             <Wordmark variant="dark" height={24} priority />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
@@ -58,7 +58,7 @@ export default async function WaitlistLandingPage({
           </nav>
           <a
             href="#join"
-            className="rounded-full px-4 py-2 text-[13px] font-semibold transition-transform hover:-translate-y-0.5"
+            className="rounded-full px-3 py-2 text-[11px] font-semibold transition-transform hover:-translate-y-0.5 sm:px-4 sm:text-[13px]"
             style={{ backgroundColor: COLORS.text, color: "#fff" }}
           >
             Request access
@@ -75,15 +75,12 @@ export default async function WaitlistLandingPage({
       <PerksGrid />
       <FounderPassSection />
       <FounderPassInviteSection />
-      {/* Heavy desktop-oriented visuals — hidden on mobile to keep the phone scroll tight */}
-      <div className="hidden lg:block">
-        <DashboardPreview />
-      </div>
+      <WebXpSystem />
+      <DashboardPreview />
       <div className="hidden lg:block">
         <WhoFor />
       </div>
       <BeforeAfter />
-      <WebXpSystem />
       <Faq />
       <FinalCta referralCode={referralCode} />
       <SiteFooter />

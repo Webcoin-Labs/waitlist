@@ -44,8 +44,8 @@ const FOOTER_LINKS: FooterLinkGroup[] = [
 export function SiteFooter() {
   return (
     <footer className="border-t" style={{ borderColor: COLORS.darkBorder, background: GRAD.darkIsland }}>
-      <div className="container mx-auto max-w-6xl px-6 py-14">
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_1.45fr]">
+      <div className="container mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <div className="grid gap-8 sm:gap-10 lg:grid-cols-[1.1fr_1.45fr]">
           <div>
             <Wordmark variant="light" height={26} />
             <p className="mt-3 max-w-[280px] text-[13px] leading-6" style={{ color: COLORS.darkTextSecondary }}>
@@ -53,7 +53,7 @@ export function SiteFooter() {
             </p>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-7 sm:grid-cols-3 sm:gap-8">
             {FOOTER_LINKS.map((group) => (
               <div key={group.title}>
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "#a78bfa" }}>
@@ -78,7 +78,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col justify-between gap-5 border-t pt-7 md:flex-row md:items-center" style={{ borderColor: COLORS.darkBorder }}>
+        <div className="mt-10 flex flex-col justify-between gap-4 border-t pt-6 sm:mt-14 sm:gap-5 sm:pt-7 md:flex-row md:items-center" style={{ borderColor: COLORS.darkBorder }}>
           <p className="text-[12px] font-semibold" style={{ color: COLORS.darkText }}>
             © 2026 Webcoin Labs. All rights reserved.
           </p>

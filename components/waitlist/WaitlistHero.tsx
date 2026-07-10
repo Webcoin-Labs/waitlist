@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { WaitlistForm } from "./WaitlistForm";
 import { HeroMockup } from "./HeroMockup";
+import { MobileDashboardPhone } from "./MobileDashboardPhone";
 import { GradientText } from "./Brand";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
@@ -39,14 +40,14 @@ export function WaitlistHero({ referralCode }: { referralCode?: string }) {
         />
       </div>
 
-      <div className="container relative z-10 mx-auto max-w-7xl px-6 pb-10 pt-24 lg:pb-12 lg:pt-24">
-        <div className="grid items-start gap-7 lg:grid-cols-[minmax(390px,0.72fr)_minmax(0,1.28fr)] xl:gap-8">
+      <div className="container relative z-10 mx-auto max-w-7xl px-4 pb-8 pt-20 sm:px-6 sm:pb-10 sm:pt-24 lg:pb-12 lg:pt-24">
+        <div className="grid items-start gap-5 sm:gap-7 lg:grid-cols-[minmax(390px,0.72fr)_minmax(0,1.28fr)] xl:gap-8">
           <div>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: EASE }}
-              className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em]"
+              className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] sm:px-3.5 sm:py-1.5 sm:text-[11px]"
               style={{
                 borderColor: COLORS.border,
                 color: COLORS.accentDeep,
@@ -65,17 +66,21 @@ export function WaitlistHero({ referralCode }: { referralCode?: string }) {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.05, ease: EASE }}
-              className="mt-5 max-w-xl text-[2.15rem] font-bold leading-[1.05] tracking-[-0.02em] md:text-[3.1rem] lg:text-[2.65rem] xl:text-[2.85rem]"
+              className="mt-4 max-w-xl text-[1.9rem] font-bold leading-[1.08] tracking-[-0.02em] max-lg:text-balance sm:mt-5 sm:text-[2.15rem] md:text-[3.1rem] lg:text-[2.65rem] xl:text-[2.85rem]"
             >
               Build real{"\u00a0"}startups with the right{" "}
               <GradientText>builders, systems, and distribution.</GradientText>
             </motion.h1>
 
+            <div className="mt-6 lg:hidden">
+              <MobileDashboardPhone compact />
+            </div>
+
             <motion.ul
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12, ease: EASE }}
-              className="mt-4 grid max-w-xl gap-2"
+              className="mt-5 grid max-w-xl gap-1.5 sm:mt-4 sm:gap-2"
             >
               {BENEFITS.map((line, i) => (
                 <motion.li
@@ -83,10 +88,10 @@ export function WaitlistHero({ referralCode }: { referralCode?: string }) {
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4, delay: 0.16 + i * 0.04, ease: EASE }}
-                  className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-3 text-[13px] font-medium leading-5 sm:text-[13.5px]"
+                  className="grid grid-cols-[18px_minmax(0,1fr)] items-start gap-2.5 text-[12px] font-medium leading-[18px] max-lg:text-pretty sm:grid-cols-[20px_minmax(0,1fr)] sm:gap-3 sm:text-[13.5px] sm:leading-5"
                   style={{ color: COLORS.textSecondary }}
                 >
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ backgroundImage: GRAD.brand, color: "#fff" }}>
+                  <span className="mt-0.5 inline-flex size-[18px] shrink-0 items-center justify-center rounded-full sm:size-5" style={{ backgroundImage: GRAD.brand, color: "#fff" }}>
                     <Check className="h-2.5 w-2.5" strokeWidth={2.8} />
                   </span>
                   <span>{line}</span>
@@ -98,7 +103,7 @@ export function WaitlistHero({ referralCode }: { referralCode?: string }) {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.28, ease: EASE }}
-              className="mt-5 max-w-xl"
+              className="mt-4 max-w-xl sm:mt-5"
               id="join-form"
             >
               <WaitlistForm referralCode={referralCode} />
@@ -108,7 +113,7 @@ export function WaitlistHero({ referralCode }: { referralCode?: string }) {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.42, ease: EASE }}
-              className="mt-6 max-w-xl text-[16px] font-medium leading-7 sm:text-[18px]"
+              className="mt-4 max-w-xl text-[13px] font-medium leading-5 max-lg:text-pretty sm:mt-6 sm:text-[18px] sm:leading-7"
               style={{ color: COLORS.textSecondary }}
             >
               The OS for founders, builders, and Investors.

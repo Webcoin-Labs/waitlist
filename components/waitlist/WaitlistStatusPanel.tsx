@@ -4,7 +4,6 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  BadgeCheck,
   BarChart3,
   Check,
   CheckCircle2,
@@ -32,7 +31,7 @@ import {
 } from "lucide-react";
 import type { WaitlistLeaderboardRow, WaitlistTaskState } from "@/app/actions/waitlist";
 import { confirmXSharePosted, recordXShareOpened } from "@/app/actions/waitlist";
-import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
+import { COLORS } from "@/lib/waitlist/tokens";
 import { WAITLIST_TASK_REWARDS } from "@/lib/waitlist/share";
 import { GlobalMap } from "./GlobalMap";
 
@@ -83,13 +82,13 @@ const PERKS_BY_ROLE: Record<string, { icon: LucideIcon; title: string }[]> = {
   FOUNDER: [
     { icon: FileText, title: "Pitch deck review" },
     { icon: PieChart, title: "Tokenomics support" },
-    { icon: Handshake, title: "Investor intros" },
+    { icon: Handshake, title: "Investor introductions" },
     { icon: Compass, title: "Advisor discovery" },
   ],
   BUILDER: [
     { icon: Github, title: "Builder proof and portfolio" },
     { icon: Users, title: "Peer builder rooms" },
-    { icon: Handshake, title: "Founder intros" },
+    { icon: Handshake, title: "Founder introductions" },
     { icon: IdCard, title: "Builder Pass eligibility" },
   ],
   INVESTOR: [
@@ -107,7 +106,6 @@ const PERKS_BY_ROLE: Record<string, { icon: LucideIcon; title: string }[]> = {
 
 export function WaitlistStatusPanel(props: Props) {
   const router = useRouter();
-  const reduce = useReducedMotion();
   const [copied, setCopied] = useState(false);
   const [showXConfirm, setShowXConfirm] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -148,122 +146,50 @@ export function WaitlistStatusPanel(props: Props) {
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
-      <div className="space-y-5">
-        <motion.section
-          initial={reduce ? false : { opacity: 0, y: 16 }}
-          animate={reduce ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: EASE }}
-          className="relative overflow-hidden rounded-[22px] border p-5 sm:p-6"
-          style={{ borderColor: COLORS.darkBorderStrong, background: GRAD.darkIsland }}
-        >
-          <div aria-hidden className="absolute -right-28 -top-28 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: "rgba(124,58,237,0.32)" }} />
-          <div aria-hidden className="absolute bottom-0 left-0 h-px w-full" style={{ backgroundImage: GRAD.brand }} />
-          <div className="relative grid gap-7 xl:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <div className="flex items-center justify-between gap-3">
-                <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
-                  <Trophy className="h-4 w-4" />
-                  Your position
-                </div>
-                <span className="rounded-full px-3 py-1 text-[10px] font-black" style={{ backgroundColor: "rgba(255,255,255,0.08)", color: COLORS.darkTextSecondary }}>
-                  {props.accessTier}
-                </span>
-              </div>
-              <motion.p
-                initial={reduce ? false : { opacity: 0, y: 10 }}
-                animate={reduce ? undefined : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE }}
-                className="mt-4 text-6xl font-bold tracking-tight sm:text-7xl"
-                style={{ color: COLORS.darkText }}
-              >
-                {props.rank ? `#${props.rank.toLocaleString()}` : "-"}
-              </motion.p>
-              <p className="mt-2 text-[14px]" style={{ color: COLORS.darkTextSecondary }}>
-                {props.rank ? `of ${props.rankedTotal.toLocaleString()} verified members` : "Rank appears after verification"}
-              </p>
-            </div>
+    <div className="mx-auto w-full max-w-6xl">
+      <StatusOverview
+        rank={props.rank}
+        rankedTotal={props.rankedTotal}
+        webXp={props.webXp}
+        referrals={props.verifiedReferralCount}
+        accessTier={props.accessTier}
+        status={props.status}
+      />
 
-            <div className="grid grid-cols-2 gap-3">
-              <DarkStat label="WebXP total" value={props.webXp.toLocaleString()} accent={COLORS.accent} />
-              <DarkStat label="Verified referrals" value={String(props.verifiedReferralCount)} accent={COLORS.green} />
-              <DarkStat label="Access tier" value={props.accessTier} accent="#22d3ee" />
-              <DarkStat label="Status" value={titleCase(props.status)} accent="#f472b6" />
-            </div>
-          </div>
-          <div className="relative mt-5 rounded-2xl border p-3" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.045)" }}>
-            <p className="text-[12px] font-black" style={{ color: COLORS.darkText }}>
-              Keep inviting to climb the leaderboard
-            </p>
-            <p className="mt-1 text-[11.5px]" style={{ color: COLORS.darkTextMuted }}>
-              More verified referrals = higher rank + more WebXP.
-            </p>
-          </div>
-        </motion.section>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
+        <div className="grid content-start gap-6">
+          <Leaderboard
+            rows={props.leaderboard}
+            rankedTotal={props.rankedTotal}
+            rank={props.rank}
+            displayName={props.displayName}
+            webXp={props.webXp}
+            referrals={props.verifiedReferralCount}
+          />
+          <PerksCard role={props.role} />
+        </div>
 
-        <Leaderboard rows={props.leaderboard} rankedTotal={props.rankedTotal} />
-        <GlobalMap stats={props.networkStats} />
+        <div className="grid content-start gap-6">
+          <ReferralPanel
+            referralLink={props.referralLink}
+            copied={copied}
+            onCopy={copy}
+            onShare={openXShare}
+            shareClaimed={xTask?.status === "CLAIMED"}
+          />
+          <LaunchTasks
+            xTask={xTask}
+            referralTask={referralTask}
+            eligibilityTask={eligibilityTask}
+            onShare={openXShare}
+            onCopy={copy}
+            loading={isPending}
+          />
+        </div>
       </div>
 
-      <div className="space-y-5">
-        <section className="rounded-[22px] border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold tracking-tight" style={{ color: COLORS.text }}>
-                Advance your position.
-              </h2>
-              <p className="mt-1.5 text-[12.5px] leading-5" style={{ color: COLORS.textSecondary }}>
-                Share your referral link with verified builders and founders.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={copy}
-              aria-label="Copy referral link"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform hover:-translate-y-0.5"
-              style={{ backgroundColor: COLORS.text, color: "#fff" }}
-            >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </button>
-          </div>
-
-          <div className="mt-4 rounded-xl border p-3" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
-            <p className="mb-1.5 text-[9px] font-black uppercase tracking-[0.14em]" style={{ color: COLORS.textMuted }}>
-              Your referral link
-            </p>
-            <div className="flex items-center gap-2">
-              <Link2 className="h-4 w-4" style={{ color: COLORS.accentDeep }} />
-              <code className="min-w-0 flex-1 truncate text-[12px] font-semibold" style={{ color: COLORS.text }}>
-                {props.referralLink}
-              </code>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={openXShare}
-              disabled={xTask?.status === "CLAIMED"}
-              className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[12px] font-bold transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ backgroundColor: COLORS.text, color: "#fff" }}
-            >
-              <ExternalLink className="h-4 w-4" />
-              {xTask?.status === "CLAIMED" ? "Shared on X" : "Share on X"}
-            </button>
-            <button
-              type="button"
-              onClick={copy}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-[12px] font-bold transition-transform hover:-translate-y-0.5"
-              style={{ borderColor: COLORS.border, color: COLORS.text, backgroundColor: "#fff" }}
-            >
-              <Copy className="h-4 w-4" />
-              More options
-            </button>
-          </div>
-        </section>
-
-        <PerksCard role={props.role} />
-
+      <div className="mt-6 grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)]">
+        <GlobalMap stats={props.networkStats} />
         <FounderPassPanel
           displayName={props.displayName}
           passTrack={passTrack}
@@ -271,89 +197,36 @@ export function WaitlistStatusPanel(props: Props) {
           passStatus={passStatus}
           webXp={props.webXp}
           verifiedReferralCount={props.verifiedReferralCount}
-          reduce={reduce}
         />
-
-        <section className="rounded-[22px] border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold tracking-tight" style={{ color: COLORS.text }}>
-                Complete launch tasks
-              </h2>
-              <p className="mt-1 text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
-                Earn promotional WebXP by helping bring serious builders and founders into Webcoin Labs.
-              </p>
-            </div>
-            <BadgeCheck className="h-5 w-5 shrink-0" style={{ color: COLORS.accentDeep }} />
-          </div>
-
-          <div className="mt-5 grid gap-3">
-            <TaskCard
-              icon={Send}
-              title="Share your Founder Pass access"
-              reward={formatReward(WAITLIST_TASK_REWARDS.X_SHARE)}
-              description="Share your Webcoin Labs referral link on X and invite serious founders and builders."
-              task={xTask}
-              buttonLabel={xTask?.status === "CLAIMED" ? "Claimed" : "Share on X"}
-              onClick={openXShare}
-              disabled={xTask?.status === "CLAIMED"}
-              loading={isPending}
-            />
-            <TaskCard
-              icon={Users}
-              title="Invite 3 verified builders or founders"
-              reward={formatReward(WAITLIST_TASK_REWARDS.THREE_VERIFIED_REFERRALS)}
-              description="Bring serious builders or founders into Webcoin Labs. Only verified referrals count."
-              task={referralTask}
-              buttonLabel={referralTask?.status === "CLAIMED" ? "Claimed" : "Copy referral link"}
-              onClick={copy}
-              disabled={referralTask?.status === "CLAIMED"}
-            />
-            <TaskCard
-              icon={IdCard}
-              title="Check Founder Pass eligibility"
-              reward={formatReward(WAITLIST_TASK_REWARDS.FOUNDER_PASS_ELIGIBILITY_CHECK)}
-              description="Founder Pass eligibility checks are opening soon for builders launching on Arc and Base."
-              task={{ taskType: "FOUNDER_PASS_ELIGIBILITY_CHECK", status: "LOCKED", xpAwarded: eligibilityTask?.xpAwarded ?? 0, progress: 0, goal: 1 }}
-              buttonLabel="Coming soon"
-              onClick={() => undefined}
-              disabled
-              statusText="Coming soon"
-              translucent
-            />
-          </div>
-
-          <p className="mt-4 text-[11.5px] leading-5" style={{ color: COLORS.textMuted }}>
-            We may review public task activity. WebXP is a promotional in-app points system. It has no monetary value, no token value, no airdrop value, and no financial rights.
-          </p>
-        </section>
-
       </div>
 
       {showXConfirm ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 px-5">
-          <div className="w-full max-w-sm rounded-[24px] bg-white p-5 shadow-2xl">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-lg font-bold" style={{ color: COLORS.text }}>
+                <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+                  Share confirmation
+                </p>
+                <h3 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
                   Posted on X?
                 </h3>
-                <p className="mt-2 text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
-                  Confirm after posting. Webcoin Labs may review public task activity later.
+                <p className="mt-2 text-pretty text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
+                  Confirm after posting. Webcoin Labs may review public task activity before awarding the promotional reward.
                 </p>
               </div>
-              <button type="button" onClick={() => setShowXConfirm(false)} aria-label="Close" className="rounded-full p-1.5" style={{ color: COLORS.textMuted }}>
-                <X className="h-4 w-4" />
+              <button type="button" onClick={() => setShowXConfirm(false)} aria-label="Close" className="inline-flex size-8 shrink-0 items-center justify-center rounded-full hover:bg-[#f4f3f8]" style={{ color: COLORS.textMuted }}>
+                <X className="size-4" />
               </button>
             </div>
             <button
               type="button"
               onClick={confirmXShare}
               disabled={isPending}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold disabled:opacity-70"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold disabled:opacity-70"
               style={{ backgroundColor: COLORS.text, color: "#fff" }}
             >
-              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+              {isPending ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
               Yes, I posted
             </button>
           </div>
@@ -363,33 +236,169 @@ export function WaitlistStatusPanel(props: Props) {
   );
 }
 
+function StatusOverview({
+  rank,
+  rankedTotal,
+  webXp,
+  referrals,
+  accessTier,
+  status,
+}: {
+  rank: number | null;
+  rankedTotal: number;
+  webXp: number;
+  referrals: number;
+  accessTier: string;
+  status: string;
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl border bg-white shadow-sm" style={{ borderColor: COLORS.border }}>
+      <div className="grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+        <div className="p-6 sm:p-8" style={{ backgroundColor: COLORS.darkBg }}>
+          <div className="flex items-center justify-between gap-4">
+            <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase" style={{ color: "#c4b5fd" }}>
+              <Trophy className="size-4" />
+              Waitlist position
+            </span>
+            <span className="rounded-full border px-2.5 py-1 text-[10px] font-semibold" style={{ borderColor: COLORS.darkBorder, color: COLORS.darkTextSecondary }}>
+              {accessTier}
+            </span>
+          </div>
+          <p className="mt-7 text-6xl font-semibold tracking-tight tabular-nums sm:text-7xl" style={{ color: COLORS.darkText }}>
+            {rank ? `#${rank.toLocaleString()}` : "—"}
+          </p>
+          <p className="mt-2 text-[13px]" style={{ color: COLORS.darkTextSecondary }}>
+            {rank ? `of ${rankedTotal.toLocaleString()} verified members` : "Your rank appears after verification."}
+          </p>
+          <p className="mt-6 border-t pt-4 text-pretty text-[12px] leading-5" style={{ borderColor: COLORS.darkBorder, color: COLORS.darkTextMuted }}>
+            Invite people you trust. Verified referrals improve your rank and add WebXP.
+          </p>
+        </div>
+
+        <div className="p-6 sm:p-8">
+          <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+            Early access snapshot
+          </p>
+          <h2 className="mt-2 text-balance text-2xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
+            Your account is active and ready for the next step.
+          </h2>
+          <div className="mt-6 grid grid-cols-2 border-t sm:grid-cols-4" style={{ borderColor: COLORS.border }}>
+            <OverviewStat label="WebXP" value={webXp.toLocaleString()} />
+            <OverviewStat label="Referrals" value={String(referrals)} />
+            <OverviewStat label="Tier" value={accessTier} />
+            <OverviewStat label="Status" value={titleCase(status)} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OverviewStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-b border-r px-0 py-4 pr-4 last:border-r-0 sm:border-b-0 sm:px-4 first:sm:pl-0" style={{ borderColor: COLORS.border }}>
+      <p className="text-[10px] font-semibold uppercase" style={{ color: COLORS.textMuted }}>
+        {label}
+      </p>
+      <p className="mt-1 truncate text-[15px] font-semibold tabular-nums" style={{ color: COLORS.text }}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function ReferralPanel({
+  referralLink,
+  copied,
+  onCopy,
+  onShare,
+  shareClaimed,
+}: {
+  referralLink: string;
+  copied: boolean;
+  onCopy: () => void;
+  onShare: () => void;
+  shareClaimed: boolean;
+}) {
+  return (
+    <section className="rounded-2xl border bg-white p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+            Next best action
+          </p>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
+            Share your referral link.
+          </h2>
+          <p className="mt-2 max-w-xl text-pretty text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
+            Invite serious founders, builders, and operators. Referral rewards are added once the person verifies their email.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onCopy}
+          aria-label="Copy referral link"
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border hover:bg-[#f4f3f8]"
+          style={{ borderColor: COLORS.border, color: COLORS.text }}
+        >
+          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+        </button>
+      </div>
+
+      <div className="mt-5 flex items-center gap-3 rounded-lg border px-3 py-3" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
+        <Link2 className="size-4 shrink-0" style={{ color: COLORS.accentDeep }} />
+        <code className="min-w-0 flex-1 truncate text-[12px] font-medium" style={{ color: COLORS.text }}>
+          {referralLink}
+        </code>
+      </div>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={onShare}
+          disabled={shareClaimed}
+          className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+          style={{ backgroundColor: COLORS.text, color: "#fff" }}
+        >
+          <ExternalLink className="size-4" />
+          {shareClaimed ? "X task claimed" : "Share on X"}
+        </button>
+        <button type="button" onClick={onCopy} className="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-[12px] font-semibold hover:bg-[#f4f3f8]" style={{ borderColor: COLORS.border, color: COLORS.text }}>
+          <Copy className="size-4" />
+          {copied ? "Copied" : "Copy link"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function PerksCard({ role }: { role: string }) {
   const perks = PERKS_BY_ROLE[role] ?? PERKS_BY_ROLE.FOUNDER;
   const roleLabel = ROLE_LABEL[role] ?? "Founder";
 
   return (
-    <section className="rounded-[22px] border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
-      <div className="flex items-center justify-between gap-4">
+    <section className="rounded-2xl border bg-white p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold tracking-tight" style={{ color: COLORS.text }}>
+          <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+            Your access
+          </p>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
             {roleLabel} perks
           </h2>
-          <p className="mt-1 text-[12.5px] leading-5" style={{ color: COLORS.textSecondary }}>
-            What your early access unlocks.
-          </p>
         </div>
-        <Gift className="h-5 w-5 shrink-0" style={{ color: COLORS.accentDeep }} />
+        <Gift className="size-5" style={{ color: COLORS.accentDeep }} />
       </div>
 
-      <div className="mt-4 grid gap-2.5">
+      <div className="mt-5 grid gap-2 sm:grid-cols-2">
         {perks.map((perk) => {
           const Icon = perk.icon;
           return (
-            <div key={perk.title} className="flex items-center gap-3 rounded-xl border px-3 py-2.5" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg" style={{ backgroundColor: "#fff", color: COLORS.accentDeep }}>
-                <Icon className="h-4 w-4" />
+            <div key={perk.title} className="flex items-center gap-3 rounded-lg border p-3" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
+              <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-white" style={{ color: COLORS.accentDeep }}>
+                <Icon className="size-4" />
               </span>
-              <span className="text-[12.5px] font-semibold" style={{ color: COLORS.text }}>
+              <span className="text-[12px] font-medium leading-5" style={{ color: COLORS.text }}>
                 {perk.title}
               </span>
             </div>
@@ -400,6 +409,167 @@ function PerksCard({ role }: { role: string }) {
   );
 }
 
+function LaunchTasks({
+  xTask,
+  referralTask,
+  eligibilityTask,
+  onShare,
+  onCopy,
+  loading,
+}: {
+  xTask?: WaitlistTaskState;
+  referralTask?: WaitlistTaskState;
+  eligibilityTask?: WaitlistTaskState;
+  onShare: () => void;
+  onCopy: () => void;
+  loading: boolean;
+}) {
+  const lockedEligibility = {
+    taskType: "FOUNDER_PASS_ELIGIBILITY_CHECK",
+    status: "LOCKED",
+    xpAwarded: eligibilityTask?.xpAwarded ?? 0,
+    progress: 0,
+    goal: 1,
+  } as WaitlistTaskState;
+  const completedCount = [xTask, referralTask, eligibilityTask].filter((task) => task?.status === "CLAIMED").length;
+
+  return (
+    <section className="overflow-hidden rounded-xl border bg-white shadow-sm" style={{ borderColor: COLORS.border }}>
+      <div className="flex items-start justify-between gap-5 border-b px-5 py-6 sm:px-6" style={{ borderColor: COLORS.border, backgroundColor: "#fffdf9" }}>
+        <div className="flex min-w-0 items-start gap-4">
+          <TaskEmoji src="/emoji/launch-rocket.svg" />
+          <div>
+            <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentWarm }}>
+              Launch tasks
+            </p>
+            <h2 className="mt-2 text-balance text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
+              Build real early-access momentum.
+            </h2>
+            <p className="mt-2 max-w-xl text-pretty text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
+              Complete a few verified actions. We use them to measure signal, not vanity metrics.
+            </p>
+          </div>
+        </div>
+        <span className="shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-semibold tabular-nums" style={{ borderColor: COLORS.border, color: COLORS.textMuted }}>
+          {completedCount} / 3 complete
+        </span>
+      </div>
+
+      <div>
+        <TaskRow
+          number="01"
+          emojiSrc="/emoji/launch-megaphone.svg"
+          title="Share your access link"
+          description="Post your referral link on X and invite people you would genuinely recommend."
+          reward={formatReward(WAITLIST_TASK_REWARDS.X_SHARE)}
+          task={xTask}
+          actionLabel={xTask?.status === "CLAIMED" ? "Claimed" : "Share on X"}
+          onAction={onShare}
+          disabled={xTask?.status === "CLAIMED" || loading}
+        />
+        <TaskRow
+          number="02"
+          emojiSrc="/emoji/invite-handshake.svg"
+          title="Invite three verified people"
+          description="Referrals count only after each person verifies their email."
+          reward={formatReward(WAITLIST_TASK_REWARDS.THREE_VERIFIED_REFERRALS)}
+          task={referralTask}
+          actionLabel={referralTask?.status === "CLAIMED" ? "Claimed" : "Copy link"}
+          onAction={onCopy}
+          disabled={referralTask?.status === "CLAIMED"}
+        />
+        <TaskRow
+          number="03"
+          emojiSrc="/emoji/pass-id.svg"
+          title="Check Founder Pass eligibility"
+          description="Eligibility review will open in a future beta phase."
+          reward={formatReward(WAITLIST_TASK_REWARDS.FOUNDER_PASS_ELIGIBILITY_CHECK)}
+          task={lockedEligibility}
+          actionLabel="Coming soon"
+          onAction={() => undefined}
+          disabled
+        />
+      </div>
+
+      <p className="border-t px-5 py-4 text-pretty text-[11px] leading-5 sm:px-6" style={{ borderColor: COLORS.border, color: COLORS.textMuted }}>
+        WebXP is a promotional access signal only. It has no monetary, token, airdrop, ownership, investment, or financial value.
+      </p>
+    </section>
+  );
+}
+
+function TaskRow({
+  number,
+  emojiSrc,
+  title,
+  description,
+  reward,
+  task,
+  actionLabel,
+  onAction,
+  disabled,
+}: {
+  number: string;
+  emojiSrc: string;
+  title: string;
+  description: string;
+  reward: string;
+  task?: WaitlistTaskState;
+  actionLabel: string;
+  onAction: () => void;
+  disabled?: boolean;
+}) {
+  const status = task?.status ?? "LOCKED";
+
+  return (
+    <div className="grid gap-4 border-t px-5 py-5 first:border-t-0 sm:grid-cols-[28px_minmax(0,1fr)_auto] sm:items-center sm:px-6" style={{ borderColor: COLORS.border }}>
+      <span className="hidden text-[11px] font-semibold tabular-nums sm:block" style={{ color: COLORS.textMuted }}>
+        {number}
+      </span>
+      <div className="flex min-w-0 items-start gap-3">
+        <TaskEmoji src={emojiSrc} />
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-[13px] font-semibold" style={{ color: COLORS.text }}>
+              {title}
+            </h3>
+            <span className="rounded-full border px-2 py-0.5 text-[9px] font-semibold tabular-nums" style={{ borderColor: "rgba(194,65,12,0.22)", color: COLORS.accentWarm }}>
+              {reward}
+            </span>
+          </div>
+          <p className="mt-1 text-pretty text-[12px] leading-5" style={{ color: COLORS.textSecondary }}>
+            {description}
+          </p>
+          <p className="mt-1.5 text-[10px] font-semibold uppercase" style={{ color: COLORS.textMuted }}>
+            {statusLabel(status)}{task ? ` · ${task.progress}/${task.goal}` : ""}
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onAction}
+        disabled={disabled}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-55 sm:w-auto"
+        style={{ backgroundColor: status === "LOCKED" ? COLORS.surfaceMuted : COLORS.text, color: status === "LOCKED" ? COLORS.textMuted : "#fff" }}
+      >
+        {status === "LOCKED" ? <Lock className="size-3.5" /> : <ShieldCheck className="size-3.5" />}
+        {actionLabel}
+      </button>
+    </div>
+  );
+}
+
+function TaskEmoji({ src }: { src: string }) {
+  return (
+    <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#fff7ed" }}>
+      {/* Twemoji graphics: CC-BY 4.0. See public/emoji/ATTRIBUTION.md. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt="" aria-hidden className="size-5 object-contain" />
+    </span>
+  );
+}
+
 function FounderPassPanel({
   displayName,
   passTrack,
@@ -407,7 +577,6 @@ function FounderPassPanel({
   passStatus,
   webXp,
   verifiedReferralCount,
-  reduce,
 }: {
   displayName: string;
   passTrack: string;
@@ -415,268 +584,178 @@ function FounderPassPanel({
   passStatus: string;
   webXp: number;
   verifiedReferralCount: number;
-  reduce: boolean | null;
 }) {
   return (
-    <section
-      className="relative overflow-hidden rounded-[22px] border p-5 shadow-sm"
-      style={{ borderColor: COLORS.darkBorderStrong, background: GRAD.darkIsland }}
-    >
-      <div aria-hidden className="absolute -right-14 -top-14 h-40 w-40 rounded-full blur-3xl" style={{ backgroundColor: "rgba(124,58,237,0.32)" }} />
-      <div className="relative mb-4 flex items-start justify-between gap-4">
+    <section className="flex h-full flex-col rounded-2xl border p-6 shadow-sm" style={{ borderColor: COLORS.darkBorderStrong, backgroundColor: COLORS.darkBg }}>
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold tracking-tight" style={{ color: COLORS.darkText }}>
-              Founder Pass
-            </h2>
-            <span className="rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.1em]" style={{ backgroundColor: "rgba(167,139,250,0.16)", color: "#c4b5fd" }}>
-              Eligible soon
-            </span>
-          </div>
-          <p className="mt-1 text-[13px] leading-5" style={{ color: COLORS.darkTextSecondary }}>
-            Your builder credential.
-          </p>
-        </div>
-        <BadgeCheck className="h-5 w-5" style={{ color: "#a78bfa" }} />
-      </div>
-      <motion.div
-        whileHover={reduce ? undefined : { rotateX: 1.5, rotateY: -2, y: -2 }}
-        transition={{ duration: 0.25 }}
-        className="relative overflow-hidden rounded-[18px] border p-5"
-        style={{
-          borderColor: COLORS.darkBorder,
-          background: "linear-gradient(150deg, rgba(8,8,18,0.92), rgba(33,18,54,0.76))",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
-          transformStyle: "preserve-3d",
-        }}
-      >
-        <div
-          aria-hidden
-          className="absolute right-4 top-8 hidden h-28 w-20 rotate-12 rounded-[18px] border opacity-70 shadow-2xl sm:block"
-          style={{
-            borderColor: "rgba(255,255,255,0.22)",
-            background: "linear-gradient(145deg, rgba(255,255,255,0.38), rgba(255,255,255,0.08))",
-          }}
-        >
-          <span className="grid h-full w-full -rotate-90 place-items-center text-[11px] font-black tracking-[0.16em]" style={{ color: "rgba(255,255,255,0.35)" }}>
-            FOUNDER
-          </span>
-        </div>
-        <div className="relative">
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] font-bold uppercase tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
-              Webcoin Labs
-            </span>
-          </div>
-          <p className="mt-5 text-2xl font-bold tracking-tight" style={{ color: COLORS.darkText }}>
+          <p className="text-[11px] font-semibold uppercase" style={{ color: "#c4b5fd" }}>
             Founder Pass
           </p>
-          <div className="mt-5 grid max-w-[72%] grid-cols-2 gap-3 sm:max-w-[70%]">
-            <PassField label="Founder" value={displayName} />
-            <PassField label="Track" value={passTrack} />
-            <PassField label="Tier" value={passTier} />
-            <PassField label="Status" value={passStatus} />
-            <PassField label="WebXP" value={webXp.toLocaleString()} />
-            <PassField label="Referrals" value={String(verifiedReferralCount)} />
+          <h2 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: COLORS.darkText }}>
+            Your access credential.
+          </h2>
+          <p className="mt-2 text-pretty text-[13px] leading-5" style={{ color: COLORS.darkTextSecondary }}>
+            Your current status is based on verification and available beta criteria.
+          </p>
+        </div>
+        <span className="rounded-full border px-2.5 py-1 text-[10px] font-semibold" style={{ borderColor: "rgba(167,139,250,0.35)", color: "#c4b5fd" }}>
+          {passStatus}
+        </span>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 overflow-hidden rounded-xl border" style={{ borderColor: COLORS.darkBorder }}>
+        <PassMetric label="Founder" value={displayName} />
+        <PassMetric label="Track" value={passTrack} />
+        <PassMetric label="Tier" value={passTier} />
+        <PassMetric label="Status" value={passStatus} />
+        <PassMetric label="WebXP" value={webXp.toLocaleString()} />
+        <PassMetric label="Referrals" value={String(verifiedReferralCount)} />
+      </div>
+
+      <p className="mt-auto border-t pt-4 text-pretty text-[11px] leading-5" style={{ borderColor: COLORS.darkBorder, color: COLORS.darkTextMuted }}>
+        Founder Pass is a Webcoin Labs access credential. It is not a payment card, token, NFT, investment product, or financial product.
+      </p>
+    </section>
+  );
+}
+
+function PassMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 border-b border-r p-3 odd:border-r-0 even:border-r sm:[&:nth-last-child(-n+2)]:border-b-0" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.025)" }}>
+      <p className="text-[9px] font-semibold uppercase" style={{ color: COLORS.darkTextMuted }}>
+        {label}
+      </p>
+      <p className="mt-1 truncate text-[12px] font-semibold" style={{ color: COLORS.darkText }}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function Leaderboard({
+  rows,
+  rankedTotal,
+  rank,
+  displayName,
+  webXp,
+  referrals,
+}: {
+  rows: WaitlistLeaderboardRow[];
+  rankedTotal: number;
+  rank: number | null;
+  displayName: string;
+  webXp: number;
+  referrals: number;
+}) {
+  const reduce = useReducedMotion();
+
+  return (
+    <section className="rounded-2xl border bg-white p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+            Verified leaderboard
+          </p>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
+            Where you stand.
+          </h2>
+          <p className="mt-2 text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
+            Ordered by WebXP, verified referrals, then verification time.
+          </p>
+        </div>
+        <Medal className="size-5 shrink-0" style={{ color: COLORS.accentDeep }} />
+      </div>
+
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 8 }}
+        whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="mt-5 rounded-xl border p-4"
+        style={{ borderColor: "rgba(124,58,237,0.38)", backgroundColor: "rgba(124,58,237,0.06)" }}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+              Your position
+            </p>
+            <p className="mt-1 truncate text-[15px] font-semibold" style={{ color: COLORS.text }}>
+              {displayName}
+            </p>
+            <p className="mt-1 text-[12px]" style={{ color: COLORS.textSecondary }}>
+              {rank ? `Ranked #${rank.toLocaleString()} of ${rankedTotal.toLocaleString()}` : "Rank appears after verification"}
+            </p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="text-[20px] font-semibold leading-none tabular-nums" style={{ color: COLORS.accentDeep }}>
+              {rank ? `#${rank.toLocaleString()}` : "—"}
+            </p>
+            <p className="mt-1 text-[10px] font-semibold tabular-nums" style={{ color: COLORS.textMuted }}>
+              {webXp.toLocaleString()} XP · {referrals} refs
+            </p>
           </div>
         </div>
       </motion.div>
 
-      <div className="relative mt-4 flex items-end justify-between gap-3">
-        <p className="max-w-[270px] text-[12px] leading-5" style={{ color: COLORS.darkTextSecondary }}>
-          Beta eligibility is currently available for builders and founders launching on Arc and Base.
+      <div className="mt-6 flex items-center justify-between">
+        <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.textMuted }}>
+          Top 10 members
         </p>
-      </div>
-      <p className="relative mt-4 text-[10.5px] leading-5" style={{ color: COLORS.darkTextMuted }}>
-        Founder Pass is an in-app access credential. It is not a payment card, token, NFT, investment product, or financial product.
-      </p>
-    </section>
-  );
-}
-
-function Leaderboard({ rows, rankedTotal }: { rows: WaitlistLeaderboardRow[]; rankedTotal: number }) {
-  return (
-    <section className="rounded-[22px] border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight" style={{ color: COLORS.text }}>
-            Leaderboard
-          </h2>
-          <p className="mt-1 text-[12.5px]" style={{ color: COLORS.textMuted }}>
-            Ranked by WebXP, referrals, then verification time.
-          </p>
-        </div>
-        <Medal className="h-5 w-5" style={{ color: COLORS.accentDeep }} />
+        <span className="text-[11px]" style={{ color: COLORS.textMuted }}>
+          Live ranking
+        </span>
       </div>
 
-      <div className="mt-5 space-y-2">
-        {rows.length ? (
-          rows.map((row) => <LeaderboardRow key={`${row.rank}-${row.label}`} row={row} />)
-        ) : (
-          <div className="rounded-2xl border p-4 text-[13px] leading-6" style={{ borderColor: COLORS.border, color: COLORS.textSecondary, backgroundColor: COLORS.surfaceMuted }}>
-            You&apos;re early. Invite verified builders and founders to shape the leaderboard.
-          </div>
+      <ol className="mt-3 overflow-hidden rounded-xl border" style={{ borderColor: COLORS.border }}>
+        {rows.length ? rows.map((row, index) => <LeaderboardRow key={`${row.rank}-${row.label}`} row={row} index={index} reduce={reduce} />) : (
+          <li className="p-4 text-pretty text-[13px] leading-6" style={{ color: COLORS.textSecondary, backgroundColor: COLORS.surfaceMuted }}>
+            You&apos;re early. Invite verified founders and builders to help shape the leaderboard.
+          </li>
         )}
-      </div>
+      </ol>
 
-      <p className="mt-4 text-[11.5px]" style={{ color: COLORS.textMuted }}>
-        {rankedTotal.toLocaleString()} verified members ranked. Emails stay private.
+      <p className="mt-4 text-[11px] leading-5" style={{ color: COLORS.textMuted }}>
+        {rankedTotal.toLocaleString()} verified members ranked. Email addresses remain private.
       </p>
     </section>
   );
 }
 
-function LeaderboardRow({ row }: { row: WaitlistLeaderboardRow }) {
+function LeaderboardRow({ row, index, reduce }: { row: WaitlistLeaderboardRow; index: number; reduce: boolean | null }) {
   return (
-    <div
-      className="grid grid-cols-[48px_1fr_auto] items-center gap-3 rounded-2xl border px-3 py-3 transition-transform hover:-translate-y-0.5"
-      style={{
-        borderColor: row.isCurrent ? COLORS.borderAccent : COLORS.border,
-        backgroundColor: row.isCurrent ? "rgba(124,58,237,0.07)" : COLORS.surfaceMuted,
-      }}
+    <motion.li
+      initial={reduce ? false : { opacity: 0, x: -8 }}
+      whileInView={reduce ? undefined : { opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.28, delay: Math.min(index * 0.035, 0.2), ease: "easeOut" }}
+      className="grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 border-t px-4 py-3 first:border-t-0"
+      style={{ borderColor: COLORS.border, backgroundColor: row.isCurrent ? "rgba(124,58,237,0.07)" : "#fff" }}
     >
-      <span className="text-[13px] font-black" style={{ color: row.isCurrent ? COLORS.accentDeep : COLORS.textMuted }}>
+      <span className="text-[12px] font-semibold tabular-nums" style={{ color: row.isCurrent ? COLORS.accentDeep : COLORS.textMuted }}>
         #{row.rank}
       </span>
       <div className="min-w-0">
-        <p className="truncate text-[13px] font-bold" style={{ color: COLORS.text }}>
+        <p className="truncate text-[13px] font-semibold" style={{ color: COLORS.text }}>
           {row.label}
         </p>
-        <p className="text-[11.5px]" style={{ color: COLORS.textMuted }}>
-          {row.verifiedReferralCount} referrals
+        <p className="mt-0.5 text-[11px]" style={{ color: COLORS.textMuted }}>
+          {row.verifiedReferralCount} verified referrals
         </p>
       </div>
-      <span className="text-[13px] font-black" style={{ color: COLORS.text }}>
-        {row.webXp.toLocaleString()} WebXP
+      <span className="text-[12px] font-semibold tabular-nums" style={{ color: COLORS.text }}>
+        {row.webXp.toLocaleString()} XP
       </span>
-    </div>
+    </motion.li>
   );
 }
 
-function TaskCard({
-  icon: Icon,
-  title,
-  reward,
-  description,
-  task,
-  buttonLabel,
-  onClick,
-  disabled,
-  loading,
-  footer,
-  statusText,
-  translucent,
-}: {
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
-  title: string;
-  reward: string;
-  description: string;
-  task?: WaitlistTaskState;
-  buttonLabel: string;
-  onClick: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  footer?: React.ReactNode;
-  statusText?: string;
-  translucent?: boolean;
-}) {
-  const status = task?.status ?? "LOCKED";
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.4, ease: EASE }}
-      className="rounded-2xl border px-3 py-3"
-      style={{
-        borderColor: translucent ? "rgba(216,214,230,0.72)" : COLORS.border,
-        backgroundColor: translucent ? "rgba(255,255,255,0.48)" : COLORS.surfaceMuted,
-        opacity: translucent ? 0.72 : 1,
-        backdropFilter: translucent ? "blur(10px)" : undefined,
-      }}
-    >
-      <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto]">
-        <div className="flex min-w-0 items-start gap-3">
-        <span
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl"
-          style={{ backgroundColor: translucent ? "rgba(255,255,255,0.62)" : "#fff", color: translucent ? COLORS.textMuted : COLORS.accentDeep }}
-        >
-          <Icon className="h-4 w-4" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-[12.5px] font-black leading-5" style={{ color: COLORS.text }}>
-              {title}
-            </h3>
-            <span
-              className="shrink-0 rounded-full border px-2 py-0.5 text-[9.5px] font-black"
-              style={{
-                borderColor: "rgba(124,58,237,0.18)",
-                backgroundColor: translucent ? "rgba(124,58,237,0.08)" : "rgba(124,58,237,0.1)",
-                color: translucent ? COLORS.accentDeep : COLORS.accentDeep,
-              }}
-            >
-              {reward}
-            </span>
-          </div>
-          <p className="mt-1 text-[12.5px] leading-5" style={{ color: COLORS.textSecondary }}>
-            {description}
-          </p>
-          <p className="mt-2 text-[10px] font-black uppercase tracking-[0.12em]" style={{ color: COLORS.textMuted }}>
-            {statusText ?? statusLabel(status)}
-            {task ? ` · ${task.progress}/${task.goal}` : ""}
-          </p>
-        </div>
-      </div>
-        <button
-          type="button"
-          onClick={onClick}
-          disabled={disabled || loading}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-[11px] font-bold transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-75 sm:w-auto"
-          style={{
-            backgroundColor: status === "LOCKED" ? "rgba(216,214,230,0.62)" : COLORS.text,
-            color: status === "LOCKED" ? COLORS.textMuted : "#fff",
-          }}
-        >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : status === "LOCKED" ? <Lock className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-          {buttonLabel}
-        </button>
-      </div>
-
-      {footer ? <div className="mt-3">{footer}</div> : null}
-    </motion.div>
-  );
+function statusLabel(status: string) {
+  return status.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function DarkStat({ label, value, accent }: { label: string; value: string; accent: string }) {
-  return (
-    <div className="rounded-2xl border p-4" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.035)" }}>
-      <p className="text-[10.5px] font-bold uppercase tracking-[0.14em]" style={{ color: COLORS.darkTextMuted }}>
-        {label}
-      </p>
-      <p className="mt-2 text-[17px] font-black leading-6" style={{ color: accent }}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function PassField({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: COLORS.darkTextMuted }}>
-        {label}
-      </p>
-      <p className="mt-1 truncate text-[13px] font-bold" style={{ color: COLORS.darkText }}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function titleCase(s: string) {
-  return s.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+function titleCase(value: string) {
+  return value.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function formatReward(amount: number) {
@@ -687,9 +766,4 @@ function trackLabel(track: string | null) {
   if (!track) return "Arc / Base beta";
   if (track === "BOTH") return "Arc + Base";
   return titleCase(track);
-}
-
-function statusLabel(status: WaitlistTaskState["status"]) {
-  if (status === "IN_PROGRESS") return "Pending confirmation";
-  return titleCase(status);
 }

@@ -28,9 +28,9 @@ const TRACK_LOGO_DARK: Partial<Record<(typeof TRACKS)[number], string>> = {
 
 export function FounderPassSection() {
   return (
-    <section className="py-14 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
+    <section className="py-11 sm:py-14 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid items-center gap-14 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="grid items-center gap-9 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
           <div>
             <span
               className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
@@ -39,13 +39,13 @@ export function FounderPassSection() {
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.accent }} />
               Builder Pass beta
             </span>
-            <h2 className="mt-5 text-4xl font-bold tracking-tight md:text-[4.2rem] md:leading-[0.95]" style={{ color: COLORS.text }}>
+            <h2 className="mt-4 text-[2rem] font-bold tracking-tight max-lg:text-balance sm:mt-5 sm:text-4xl md:text-[4.2rem] md:leading-[0.95]" style={{ color: COLORS.text }}>
               Builder Pass.
             </h2>
-            <p className="mt-3 text-2xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
+            <p className="mt-2.5 text-xl font-semibold tracking-tight sm:mt-3 sm:text-2xl" style={{ color: COLORS.text }}>
               Your verified builder credential.
             </p>
-            <p className="mt-5 max-w-lg text-[15px] leading-7" style={{ color: COLORS.textSecondary }}>
+            <p className="mt-4 max-w-lg text-[13.5px] leading-6 max-lg:text-pretty sm:mt-5 sm:text-[15px] sm:leading-7" style={{ color: COLORS.textSecondary }}>
               Builder Pass is a proof-based access credential for builders shipping on selected ecosystems. It
               recognizes real execution across Arc and Base — including mini apps, deployed contracts, GitHub
               projects, and ecosystem contributions.
@@ -99,7 +99,7 @@ export function FounderPassSection() {
               className="mx-auto w-full max-w-xl"
             >
               <TiltCard
-                className="relative overflow-hidden rounded-[26px] p-7 sm:p-8"
+                className="relative overflow-hidden rounded-[22px] p-5 sm:rounded-[26px] sm:p-8"
                 style={{
                   background: GRAD.darkIsland,
                   boxShadow:

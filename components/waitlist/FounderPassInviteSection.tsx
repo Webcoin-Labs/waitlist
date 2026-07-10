@@ -49,9 +49,9 @@ const UNLOCKS: { icon: LucideIcon; label: string }[] = [
 
 export function FounderPassInviteSection() {
   return (
-    <section className="py-14 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
+    <section className="py-11 sm:py-14 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid items-start gap-14 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="grid items-start gap-9 lg:grid-cols-[0.95fr_1.05fr] lg:gap-14">
           {/* LEFT — copy */}
           <div>
             <span
@@ -61,13 +61,13 @@ export function FounderPassInviteSection() {
               <Lock className="h-3 w-3" />
               Invite-only access
             </span>
-            <h2 className="mt-5 text-4xl font-bold tracking-tight md:text-[4.2rem] md:leading-[0.95]" style={{ color: COLORS.text }}>
+            <h2 className="mt-4 text-[2rem] font-bold tracking-tight max-lg:text-balance sm:mt-5 sm:text-4xl md:text-[4.2rem] md:leading-[0.95]" style={{ color: COLORS.text }}>
               Founder Pass<GradientText>.</GradientText>
             </h2>
-            <p className="mt-3 text-2xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
+            <p className="mt-2.5 text-xl font-semibold tracking-tight sm:mt-3 sm:text-2xl" style={{ color: COLORS.text }}>
               Your invite-only founder credential.
             </p>
-            <p className="mt-5 max-w-lg text-[15px] leading-7" style={{ color: COLORS.textSecondary }}>
+            <p className="mt-4 max-w-lg text-[13.5px] leading-6 max-lg:text-pretty sm:mt-5 sm:text-[15px] sm:leading-7" style={{ color: COLORS.textSecondary }}>
               Founder Pass is an exclusive credential for startup founders building serious companies. It unlocks
               curated access to premium Webcoin Labs features — including builder discovery, co-founder access,
               investor readiness, funding support, and marketing/distribution advantages.
@@ -81,7 +81,7 @@ export function FounderPassInviteSection() {
               {CHIPS.map(({ icon: Icon, label }) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-[13px] font-semibold"
+                    className="inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-[11px] font-semibold sm:gap-2 sm:px-4 sm:py-2.5 sm:text-[13px]"
                   style={{ borderColor: COLORS.border, color: COLORS.text, backgroundColor: "#fff" }}
                 >
                   <Icon className="h-4 w-4" style={{ color: COLORS.accentDeep }} />
@@ -121,7 +121,7 @@ export function FounderPassInviteSection() {
             >
               <div aria-hidden className="absolute inset-4 rounded-[34px] blur-3xl" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.35), rgba(34,211,238,0.18))" }} />
               <div
-                className="relative overflow-hidden rounded-[30px] border p-5 shadow-[0_46px_130px_-62px_rgba(76,29,149,0.75)] sm:p-6"
+                className="relative overflow-hidden rounded-[22px] border p-4 shadow-[0_46px_130px_-62px_rgba(76,29,149,0.75)] sm:rounded-[30px] sm:p-6"
                 style={{
                   background:
                     "radial-gradient(circle at 18% 18%, rgba(34,211,238,0.2), transparent 28%), radial-gradient(circle at 84% 20%, rgba(167,139,250,0.28), transparent 30%), linear-gradient(135deg, #08091a 0%, #11102a 47%, #30194c 100%)",
@@ -133,29 +133,29 @@ export function FounderPassInviteSection() {
                 <div aria-hidden className="absolute -bottom-24 left-8 h-48 w-48 rounded-full blur-3xl" style={{ backgroundColor: "rgba(34,211,238,0.18)" }} />
                 <div aria-hidden className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "linear-gradient(115deg, transparent 0 43%, #fff 44%, transparent 45% 100%)" }} />
 
-                <div className="relative flex items-start justify-between gap-5">
-                  <img src="/logo/wcl-white.webp" alt="Webcoin Labs" className="h-6 w-auto object-contain sm:h-7" />
-                  <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em]" style={{ borderColor: "rgba(196,181,253,0.26)", color: "#ddd6fe", backgroundColor: "rgba(255,255,255,0.07)" }}>
-                    <ShieldCheck className="h-3.5 w-3.5" />
+                <div className="relative flex items-start justify-between gap-3 sm:gap-5">
+                  <img src="/logo/wcl-white.webp" alt="Webcoin Labs" className="h-5 w-auto object-contain sm:h-7" />
+                  <span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.1em] sm:gap-1.5 sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.12em]" style={{ borderColor: "rgba(196,181,253,0.26)", color: "#ddd6fe", backgroundColor: "rgba(255,255,255,0.07)" }}>
+                    <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     Founder Pass
                   </span>
                 </div>
 
-                <div className="relative mt-9 flex items-end justify-between gap-5">
+                <div className="relative mt-5 flex items-end justify-between gap-5 sm:mt-9">
                   <div>
                     <div
-                      className="grid h-12 w-16 grid-cols-3 grid-rows-2 gap-[3px] rounded-xl border p-2"
+                      className="grid h-9 w-12 grid-cols-3 grid-rows-2 gap-[2px] rounded-lg border p-1.5 sm:h-12 sm:w-16 sm:gap-[3px] sm:rounded-xl sm:p-2"
                       style={{ borderColor: "rgba(250,204,21,0.36)", background: "linear-gradient(135deg, rgba(250,204,21,0.55), rgba(180,83,9,0.24))" }}
                       aria-hidden
                     >
                       {Array.from({ length: 6 }).map((_, i) => (
-                        <span key={i} className="rounded-[3px]" style={{ backgroundColor: "rgba(255,255,255,0.38)" }} />
+                        <span key={i} className="rounded-[2px] sm:rounded-[3px]" style={{ backgroundColor: "rgba(255,255,255,0.38)" }} />
                       ))}
                     </div>
-                    <p className="mt-5 text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
+                    <p className="mt-3 text-[9px] font-black uppercase tracking-[0.14em] sm:mt-5 sm:text-[10px] sm:tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
                       Credential ID
                     </p>
-                    <p className="mt-1 font-mono text-[18px] font-bold tracking-[0.12em]" style={{ color: COLORS.darkText }}>
+                    <p className="mt-1 font-mono text-[14px] font-bold tracking-[0.1em] sm:text-[18px] sm:tracking-[0.12em]" style={{ color: COLORS.darkText }}>
                       WCL-FND-2026
                     </p>
                   </div>
@@ -167,42 +167,42 @@ export function FounderPassInviteSection() {
                   </div>
                 </div>
 
-                <div className="relative mt-8 grid gap-5 border-t pt-5 sm:grid-cols-[96px_1fr]" style={{ borderColor: COLORS.darkBorder }}>
+                <div className="relative mt-5 grid gap-4 border-t pt-4 sm:mt-8 sm:grid-cols-[96px_1fr] sm:gap-5 sm:pt-5" style={{ borderColor: COLORS.darkBorder }}>
                   <div
-                    className="h-20 w-20 rounded-2xl p-[2px]"
+                    className="h-14 w-14 rounded-xl p-[2px] sm:h-20 sm:w-20 sm:rounded-2xl"
                     style={{ background: "linear-gradient(135deg, #22d3ee, #a78bfa, #f472b6)" }}
                   >
                     <img
                       src="/logo/solrishuavatar.png"
                       alt="Founder"
-                      className="h-full w-full rounded-[14px] object-cover"
+                      className="h-full w-full rounded-[10px] object-cover sm:rounded-[14px]"
                       style={{ backgroundColor: COLORS.darkSurface }}
                     />
                   </div>
 
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
+                        <p className="text-[9px] font-black uppercase tracking-[0.14em] sm:text-[10px] sm:tracking-[0.18em]" style={{ color: COLORS.darkTextMuted }}>
                           Cardholder
                         </p>
-                        <p className="mt-1 text-[20px] font-black tracking-tight" style={{ color: COLORS.darkText }}>
+                        <p className="mt-1 text-[16px] font-black tracking-tight sm:text-[20px]" style={{ color: COLORS.darkText }}>
                           Solrishu
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold" style={{ backgroundColor: "rgba(167,139,250,0.18)", color: "#ddd6fe" }}>
-                        <Lock className="h-3.5 w-3.5" />
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold sm:gap-1.5 sm:px-3 sm:py-1 sm:text-[11px]" style={{ backgroundColor: "rgba(167,139,250,0.18)", color: "#ddd6fe" }}>
+                        <Lock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         Under consideration
                       </span>
                     </div>
 
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="mt-3 grid gap-2.5 sm:mt-4 sm:grid-cols-3 sm:gap-3">
                       {CARD_META.map((field) => (
                         <div key={field.label} className="min-w-0">
-                          <p className="text-[9px] font-black uppercase tracking-[0.14em]" style={{ color: COLORS.darkTextMuted }}>
+                          <p className="text-[8px] font-black uppercase tracking-[0.12em] sm:text-[9px] sm:tracking-[0.14em]" style={{ color: COLORS.darkTextMuted }}>
                             {field.label}
                           </p>
-                          <p className="mt-1 truncate text-[12px] font-bold" style={{ color: field.accent ? "#c4b5fd" : COLORS.darkText }}>
+                          <p className="mt-1 truncate text-[11px] font-bold sm:text-[12px]" style={{ color: field.accent ? "#c4b5fd" : COLORS.darkText }}>
                             {field.value}
                           </p>
                         </div>
@@ -212,16 +212,16 @@ export function FounderPassInviteSection() {
                 </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
                 <a
                   href="#perks"
-                  className="inline-flex items-center gap-1.5 rounded-full border bg-white px-4 py-2 text-[12px] font-bold transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-1.5 rounded-full border bg-white px-3.5 py-1.5 text-[11px] font-bold transition-transform hover:-translate-y-0.5 sm:px-4 sm:py-2 sm:text-[12px]"
                   style={{ borderColor: COLORS.border, color: COLORS.text }}
                 >
                   Check Founder Access benefits
                   <ArrowRight className="h-3.5 w-3.5" />
                 </a>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: COLORS.textMuted }}>
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold sm:text-[11px]" style={{ color: COLORS.textMuted }}>
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Access credential only
                 </span>

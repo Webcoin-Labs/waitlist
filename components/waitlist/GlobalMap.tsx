@@ -1,8 +1,5 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
 import { Globe2 } from "lucide-react";
-import { COLORS, EASE } from "@/lib/waitlist/tokens";
+import { COLORS } from "@/lib/waitlist/tokens";
 
 type Props = {
   stats: {
@@ -13,17 +10,14 @@ type Props = {
   };
 };
 
-// Same verified geography as DashboardPreview's GlobalNetworkPanel — coords are
-// % positions on the real map asset (public/maps/simplemaps-world.svg, viewBox
-// 0 0 2000 857), checked against the asset's own path data, not eyeballed.
 const HUBS = [
-  { x: 16.5, y: 31.0, tone: COLORS.accent }, // San Francisco
-  { x: 29.0, y: 29.5, tone: COLORS.accent }, // New York
-  { x: 34.0, y: 69.2, tone: COLORS.accentCool }, // Brazil
-  { x: 49.5, y: 20.0, tone: COLORS.accentCool }, // London
-  { x: 51.8, y: 51.8, tone: COLORS.accentWarm }, // Nigeria
-  { x: 60.1, y: 58.2, tone: COLORS.accent }, // Kenya
-  { x: 87.5, y: 32.5, tone: COLORS.accent }, // Japan
+  { x: 16.5, y: 31.0, tone: COLORS.accent },
+  { x: 29.0, y: 29.5, tone: COLORS.accent },
+  { x: 34.0, y: 69.2, tone: COLORS.accentCool },
+  { x: 49.5, y: 20.0, tone: COLORS.accentCool },
+  { x: 51.8, y: 51.8, tone: COLORS.accentWarm },
+  { x: 60.1, y: 58.2, tone: COLORS.accent },
+  { x: 87.5, y: 32.5, tone: COLORS.accent },
 ] as const;
 
 const ARCS = [
@@ -32,40 +26,33 @@ const ARCS = [
 ] as const;
 
 export function GlobalMap({ stats }: Props) {
-  const reduce = useReducedMotion();
-
   return (
-    <section className="relative overflow-hidden rounded-[22px] border bg-white p-5 shadow-sm" style={{ borderColor: COLORS.border }}>
-      <div className="flex items-center justify-between">
+    <section className="flex h-full min-h-[360px] min-w-0 flex-col rounded-2xl border bg-white p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: COLORS.textMuted }}>
-            <Globe2 className="h-4 w-4" />
-            Global network reach
-          </div>
-          <p className="mt-2 text-lg font-black" style={{ color: COLORS.text }}>
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+            <Globe2 className="size-4" />
+            Global activity
+          </p>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
             {stats.countriesLabel}
+          </h2>
+          <p className="mt-2 text-pretty text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
+            Verified members and referrals moving through the Webcoin Labs network.
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.12em]" style={{ color: COLORS.green }}>
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
-          Live
+        <span className="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[10px] font-semibold" style={{ borderColor: COLORS.border, color: COLORS.textMuted }}>
+          <span className="size-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+          Live signal
         </span>
       </div>
 
-      <div
-        className="relative mt-4 overflow-hidden rounded-xl border"
-        style={{
-          borderColor: "#e8ebf2",
-          background:
-            "radial-gradient(circle at 24% 38%, rgba(124,58,237,0.08), transparent 26%), radial-gradient(circle at 72% 42%, rgba(14,116,144,0.07), transparent 30%), #fbfcff",
-          aspectRatio: "2000 / 857",
-        }}
-      >
+      <div className="relative mt-5 min-h-[210px] flex-1 overflow-hidden rounded-xl border" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
         <div
           aria-hidden
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(120deg, rgba(124,58,237,0.18), rgba(14,116,144,0.13))",
+            backgroundColor: "#d8d6e6",
             WebkitMaskImage: "url(/maps/simplemaps-world.svg)",
             maskImage: "url(/maps/simplemaps-world.svg)",
             WebkitMaskRepeat: "no-repeat",
@@ -78,11 +65,10 @@ export function GlobalMap({ stats }: Props) {
         />
         <div
           aria-hidden
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-70"
           style={{
-            backgroundImage: "radial-gradient(circle, #aab1c4 1px, transparent 1.5px)",
+            backgroundImage: "radial-gradient(circle, #a3a1b3 1px, transparent 1.5px)",
             backgroundSize: "7px 7px",
-            opacity: 0.75,
             WebkitMaskImage: "url(/maps/simplemaps-world.svg)",
             maskImage: "url(/maps/simplemaps-world.svg)",
             WebkitMaskRepeat: "no-repeat",
@@ -95,37 +81,25 @@ export function GlobalMap({ stats }: Props) {
         />
 
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden>
-          <g opacity="0.4">
-            {ARCS.map((arc, i) => (
-              <path key={i} d={arc.d} fill="none" stroke={arc.tone} strokeWidth="0.35" strokeDasharray="1.4 1.6" />
-            ))}
-          </g>
+          {ARCS.map((arc) => (
+            <path key={arc.d} d={arc.d} fill="none" stroke={arc.tone} strokeWidth="0.35" strokeDasharray="1.4 1.6" opacity="0.48" />
+          ))}
         </svg>
 
-        {HUBS.map((hub, i) => (
+        {HUBS.map((hub) => (
           <span
             key={`${hub.x}-${hub.y}`}
-            className="absolute h-2 w-2 -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${hub.x}%`, top: `${hub.y}%` }}
-          >
-            {!reduce ? (
-              <motion.span
-                className="absolute inset-0 rounded-full"
-                style={{ backgroundColor: hub.tone }}
-                animate={{ scale: [1, 2.8, 1], opacity: [0.6, 0, 0.6] }}
-                transition={{ duration: 2.6, repeat: Infinity, delay: i * 0.24, ease: "easeInOut" }}
-              />
-            ) : null}
-            <span className="absolute inset-0 rounded-full" style={{ backgroundColor: hub.tone, boxShadow: `0 0 6px ${hub.tone}` }} />
-          </span>
+            className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+            style={{ left: `${hub.x}%`, top: `${hub.y}%`, backgroundColor: hub.tone }}
+          />
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
+      <div className="mt-5 grid grid-cols-2 border-t pt-4 sm:grid-cols-4" style={{ borderColor: COLORS.border }}>
         <MapStat label="Verified members" value={stats.verifiedMembers.toLocaleString()} />
         <MapStat label="Referrals" value={stats.verifiedReferrals.toLocaleString()} />
-        <MapStat label="Countries" value="Activating" />
-        <MapStat label="Builders/founders" value={stats.buildersFounders.toLocaleString()} />
+        <MapStat label="Countries" value={stats.countriesLabel} />
+        <MapStat label="Builders / founders" value={stats.buildersFounders.toLocaleString()} />
       </div>
     </section>
   );
@@ -133,11 +107,11 @@ export function GlobalMap({ stats }: Props) {
 
 function MapStat({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <p className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: COLORS.textMuted }}>
+    <div className="min-w-0 border-r px-3 first:pl-0 last:border-r-0 last:pr-0 even:border-r-0 sm:even:border-r" style={{ borderColor: COLORS.border }}>
+      <p className="text-[9px] font-semibold uppercase" style={{ color: COLORS.textMuted }}>
         {label}
       </p>
-      <p className="mt-1 text-[14px] font-black" style={{ color: COLORS.text }}>
+      <p className="mt-1 truncate text-[13px] font-semibold tabular-nums" style={{ color: COLORS.text }}>
         {value}
       </p>
     </div>

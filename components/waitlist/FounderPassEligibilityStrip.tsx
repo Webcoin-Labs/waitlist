@@ -25,40 +25,40 @@ const COMING_SOON = [
 
 export function FounderPassEligibilityStrip() {
   return (
-    <section className="py-8" style={{ backgroundColor: COLORS.bg }}>
+    <section className="py-5 sm:py-8" style={{ backgroundColor: COLORS.bg }}>
       <div className="container mx-auto max-w-7xl px-6">
         <div
-          className="relative overflow-hidden rounded-[32px] border px-8 py-10 md:px-12 md:py-12"
+          className="relative overflow-hidden rounded-[18px] border px-4 py-5 sm:rounded-[22px] sm:px-5 sm:py-6 md:rounded-[32px] md:px-12 md:py-12"
           style={{ borderColor: COLORS.darkBorder, background: GRAD.darkIsland }}
         >
           <div aria-hidden className="absolute inset-0 opacity-60" style={{ background: "radial-gradient(520px 220px at 38% 0%, rgba(124,58,237,0.18), transparent 70%)" }} />
-          <div className="relative grid gap-8 lg:grid-cols-[0.75fr_1.6fr] lg:items-center">
+          <div className="relative grid gap-6 lg:grid-cols-[0.75fr_1.6fr] lg:items-center lg:gap-8">
             <div className="lg:border-r lg:pr-7" style={{ borderColor: COLORS.darkBorder }}>
               <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "#a78bfa" }}>
                 Builder Pass beta
               </p>
-              <h2 className="mt-2 text-[22px] font-bold tracking-tight" style={{ color: COLORS.darkText }}>
+              <h2 className="mt-2 text-[20px] font-bold tracking-tight max-lg:text-balance sm:text-[22px]" style={{ color: COLORS.darkText }}>
                 Available now for Arc and Base.
               </h2>
-              <p className="mt-3 max-w-md text-[13px] leading-6" style={{ color: COLORS.darkTextSecondary }}>
+              <p className="mt-2.5 max-w-md text-[12px] leading-5 max-lg:text-pretty sm:mt-3 sm:text-[13px] sm:leading-6" style={{ color: COLORS.darkTextSecondary }}>
                 Builder Pass is currently available for builders shipping on Arc and Base. More ecosystem tracks are
                 coming soon.
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-[0.72fr_1fr] md:items-start">
+            <div className="grid gap-5 md:grid-cols-[0.72fr_1fr] md:items-start md:gap-6">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: COLORS.darkTextMuted }}>
                   Available now
                 </p>
-                <div className="mt-3 grid grid-cols-2 gap-4">
+                <div className="mt-2.5 grid grid-cols-2 gap-2.5 md:mt-3 md:gap-4">
                   {AVAILABLE.map((network) => (
                     <div
                       key={network.slug}
-                      className="flex min-h-[152px] items-center justify-center rounded-2xl border p-5 transition duration-300 hover:-translate-y-0.5"
+                      className="flex min-h-[84px] items-center justify-center rounded-xl border p-3 transition duration-300 hover:-translate-y-0.5 md:min-h-[152px] md:rounded-2xl md:p-5"
                       style={{ borderColor: network.ring, backgroundColor: network.tint }}
                     >
-                      <img src={network.logo} alt={network.label} className="max-h-14 w-auto max-w-[140px] object-contain" />
+                      <img src={network.logo} alt={network.label} className="max-h-8 w-auto max-w-[100px] object-contain md:max-h-14 md:max-w-[140px]" />
                     </div>
                   ))}
                 </div>
@@ -68,15 +68,15 @@ export function FounderPassEligibilityStrip() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: COLORS.darkTextMuted }}>
                   Coming soon
                 </p>
-                <div className="mt-3 grid grid-cols-2 gap-4">
+                <div className="mt-2.5 grid grid-cols-2 gap-2.5 md:mt-3 md:gap-4">
                   {COMING_SOON.map((network) => (
                     <div
                       key={network.slug}
-                      className="flex min-h-[152px] flex-col items-center justify-center gap-3 rounded-2xl border p-4 text-center opacity-72 transition duration-300 hover:opacity-100"
+                      className="flex min-h-[84px] flex-col items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center opacity-72 transition duration-300 hover:opacity-100 md:min-h-[152px] md:gap-3 md:rounded-2xl md:p-4"
                       style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.032)" }}
                     >
-                      <img src={network.logo} alt={network.label} className="max-h-10 w-auto max-w-[110px] object-contain" />
-                      <span className="text-[9px] font-semibold uppercase tracking-[0.1em]" style={{ color: COLORS.darkTextMuted }}>
+                      <img src={network.logo} alt={network.label} className="max-h-6 w-auto max-w-[76px] object-contain md:max-h-10 md:max-w-[110px]" />
+                      <span className="text-[8px] font-semibold uppercase tracking-[0.1em] md:text-[9px]" style={{ color: COLORS.darkTextMuted }}>
                         Coming soon
                       </span>
                     </div>

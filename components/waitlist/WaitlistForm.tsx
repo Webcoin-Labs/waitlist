@@ -239,14 +239,14 @@ export function WaitlistForm({
                 e.preventDefault();
                 continueFromEmail();
               }}
-              className="flex flex-col gap-2 rounded-[22px] border p-2.5 transition-shadow duration-300 focus-within:shadow-[0_0_0_5px_rgba(124,58,237,0.14)] sm:flex-row sm:items-center"
+              className="flex flex-col gap-1.5 rounded-[18px] border p-2 transition-shadow duration-300 focus-within:shadow-[0_0_0_5px_rgba(124,58,237,0.14)] sm:flex-row sm:items-center sm:gap-2 sm:rounded-[22px] sm:p-2.5"
               style={{
                 borderColor: COLORS.border,
                 backgroundColor: "#fff",
                 boxShadow: "0 24px 60px -30px rgba(11,10,18,0.18)",
               }}
             >
-              <div className="flex-1 px-3.5 py-2.5 text-left">
+              <div className="flex-1 px-3 py-2 text-left sm:px-3.5 sm:py-2.5">
                 <input
                   type="email"
                   required
@@ -255,7 +255,7 @@ export function WaitlistForm({
                   onFocus={() => onFocusChange?.(true)}
                   onBlur={() => onFocusChange?.(false)}
                   placeholder="Enter your email to get started"
-                  className="w-full bg-transparent text-[15px] outline-none sm:text-[16px]"
+                  className="w-full bg-transparent text-[14px] outline-none sm:text-[16px]"
                   style={{ color: COLORS.text }}
                   autoComplete="email"
                 />
@@ -263,7 +263,7 @@ export function WaitlistForm({
               <button
                 type="submit"
                 disabled={isPending || !email.trim()}
-                className="group inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+                className="group inline-flex items-center justify-center gap-2 rounded-[14px] px-4 py-3 text-[13px] font-semibold transition-all duration-200 hover:-translate-y-0.5 sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
                 style={{ backgroundColor: COLORS.text, color: "#fff", boxShadow: "0 10px 24px -12px rgba(11,10,18,0.5)" }}
               >
                 {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
@@ -278,13 +278,13 @@ export function WaitlistForm({
               </p>
             ) : null}
 
-            <div className="mt-4 grid gap-2 text-left">
-              <p className="grid grid-cols-[22px_minmax(0,1fr)] items-start gap-2.5 text-[13.5px] font-semibold leading-6 sm:text-[15px]" style={{ color: COLORS.textSecondary }}>
-                <ShieldCheck className="mt-0.5 h-[18px] w-[18px] shrink-0" style={{ color: COLORS.textMuted }} />
+            <div className="mt-3 grid gap-1.5 text-left sm:mt-4 sm:gap-2">
+              <p className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-2 text-[12px] font-semibold leading-5 max-lg:text-pretty sm:grid-cols-[22px_minmax(0,1fr)] sm:gap-2.5 sm:text-[15px] sm:leading-6" style={{ color: COLORS.textSecondary }}>
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 sm:size-[18px]" style={{ color: COLORS.textMuted }} />
                 <span>Verify your email and get a chance to unlock exclusive Founder and Builder Pass.</span>
               </p>
-              <p className="grid grid-cols-[22px_minmax(0,1fr)] items-start gap-2.5 text-[13.5px] font-medium leading-6 sm:text-[15px]" style={{ color: COLORS.textSecondary }}>
-                <Gift className="mt-0.5 h-[18px] w-[18px] shrink-0" style={{ color: COLORS.textMuted }} />
+              <p className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-2 text-[12px] font-medium leading-5 max-lg:text-pretty sm:grid-cols-[22px_minmax(0,1fr)] sm:gap-2.5 sm:text-[15px] sm:leading-6" style={{ color: COLORS.textSecondary }}>
+                <Gift className="mt-0.5 size-4 shrink-0 sm:size-[18px]" style={{ color: COLORS.textMuted }} />
                 <span>
                   Get{" "}
                   <span className="font-bold" style={{ color: COLORS.accentDeep }}>

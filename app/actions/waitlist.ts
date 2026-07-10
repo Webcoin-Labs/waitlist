@@ -112,12 +112,6 @@ function displayNameFor(entry: { name: string | null; email: string }) {
   return entry.name?.trim() || getDisplayNameFromEmail(entry.email) || "Founder";
 }
 
-function anonymizedLeaderboardName(entry: { name: string | null; role: WaitlistRole }, rank: number) {
-  const parts = entry.name?.trim().split(/\s+/).filter(Boolean) ?? [];
-  if (parts.length >= 2) return `${parts[0]} ${parts[1][0]?.toUpperCase()}.`;
-  return `${entry.role === "BUILDER" ? "Builder" : "Founder"} #${String(rank).padStart(3, "0")}`;
-}
-
 function isMissingTaskTable(error: unknown) {
   return (
     (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") ||
@@ -557,27 +551,18 @@ export async function getWaitlistStatus(statusToken: string): Promise<WaitlistSt
   if (verified && (RANKED_STATUSES as readonly string[]).includes(entry.status)) {
     const ranked = await db.waitlistEntry.findMany({
       where: { status: { in: RANKED_STATUSES as unknown as WaitlistStatus[] } },
-      select: { id: true, name: true, role: true, webXp: true, verifiedReferralCount: true, emailVerifiedAt: true },
+      select: { id: true, name: true, email: true, role: true, webXp: true, verifiedReferralCount: true, emailVerifiedAt: true },
       take: 10_000,
     });
     rankedTotal = ranked.length;
     verifiedReferrals = ranked.reduce((sum, item) => sum + item.verifiedReferralCount, 0);
     buildersFounders = ranked.filter((item) => item.role === "FOUNDER" || item.role === "BUILDER").length;
-    const sorted = ([...ranked] as (Rankable & { id: string; name: string | null; role: WaitlistRole })[]).sort(compareRank);
+    const sorted = ([...ranked] as (Rankable & { id: string; name: string | null; email: string; role: WaitlistRole })[]).sort(compareRank);
     const idx = sorted.findIndex((r) => r.id === entry.id);
     rank = idx >= 0 ? idx + 1 : null;
-    const interesting = new Map<number, (typeof sorted)[number]>();
-    sorted.slice(0, 5).forEach((item, i) => interesting.set(i, item));
-    if (idx >= 0) {
-      for (let i = Math.max(0, idx - 1); i <= Math.min(sorted.length - 1, idx + 1); i += 1) {
-        interesting.set(i, sorted[i]);
-      }
-    }
-    leaderboard = [...interesting.entries()]
-      .sort(([a], [b]) => a - b)
-      .map(([i, item]) => ({
+    leaderboard = sorted.slice(0, 10).map((item, i) => ({
         rank: i + 1,
-        label: item.id === entry.id ? "You" : anonymizedLeaderboardName(item, i + 1),
+        label: item.id === entry.id ? "You" : displayNameFor(item),
         webXp: item.webXp,
         verifiedReferralCount: item.verifiedReferralCount,
         isCurrent: item.id === entry.id,

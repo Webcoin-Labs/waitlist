@@ -43,3 +43,14 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .wl-marquee-track { animation: none; }
 }
+
+@media (max-width: 639px) {
+  .waitlist-page .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .waitlist-page {
+    overflow-x: clip;
+  }
+}
