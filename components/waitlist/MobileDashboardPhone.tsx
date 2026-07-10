@@ -18,10 +18,10 @@ const MOBILE_METRICS = [
 ] as const;
 
 const MOBILE_NAV = [
-  { label: "Home", icon: Home, active: true },
-  { label: "Tools", icon: Compass, active: false },
-  { label: "Network", icon: Network, active: false },
-  { label: "Pass", icon: IdCard, active: false },
+  { label: "Home", icon: Home, href: "#join", active: true },
+  { label: "Tools", icon: Compass, href: "#perks", active: false },
+  { label: "Network", icon: Network, href: "#why-join", active: false },
+  { label: "Pass", icon: IdCard, href: "#join-form", active: false },
 ] as const;
 
 export function MobileDashboardPhone({ compact = false }: { compact?: boolean }) {
@@ -60,9 +60,13 @@ export function MobileDashboardPhone({ compact = false }: { compact?: boolean })
                   <p className="truncate text-[8.5px] text-[#98a2b3]">Founder operating system</p>
                 </div>
               </div>
-              <span className="grid size-8 place-items-center rounded-full border border-[#e4e7ec] bg-white text-[#667085]">
+              <a
+                href="#join-form"
+                aria-label="Join to access dashboard notifications"
+                className="grid size-8 place-items-center rounded-full border border-[#e4e7ec] bg-white text-[#667085]"
+              >
                 <Bell className="size-3.5" />
-              </span>
+              </a>
             </div>
           </div>
 
@@ -138,13 +142,13 @@ export function MobileDashboardPhone({ compact = false }: { compact?: boolean })
           </div>
 
           <nav className="grid grid-cols-4 border-t border-[#e4e7ec] bg-white px-2 pb-2.5 pt-2" aria-label="Mobile dashboard preview navigation">
-            {MOBILE_NAV.map(({ label, icon: Icon, active }) => (
-              <span key={label} className="flex flex-col items-center gap-1 text-[7.5px] font-semibold" style={{ color: active ? "#6d28d9" : "#98a2b3" }}>
+            {MOBILE_NAV.map(({ label, icon: Icon, href, active }) => (
+              <a key={label} href={href} className="flex flex-col items-center gap-1 text-[7.5px] font-semibold" style={{ color: active ? "#6d28d9" : "#98a2b3" }}>
                 <span className={`grid size-7 place-items-center rounded-xl ${active ? "bg-[#f1ecff]" : "bg-transparent"}`}>
                   <Icon className="size-3.5" />
                 </span>
                 {label}
-              </span>
+              </a>
             ))}
           </nav>
         </div>

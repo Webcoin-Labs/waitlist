@@ -495,14 +495,14 @@ function FounderPassPreview() {
           Tier depends on verified builder proof, contracts interacted, launch quality, GitHub activity, and ecosystem contribution.
         </p>
 
-        <button
-          type="button"
+        <a
+          href="#join-form"
           className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-3 text-[13px] font-semibold"
           style={{ backgroundColor: UI.ink, color: "#fff" }}
         >
           Check Builder Pass
           <ArrowUpRight className="h-4 w-4" />
-        </button>
+        </a>
       </section>
 
       <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
@@ -517,12 +517,96 @@ function FounderPassPreview() {
   );
 }
 
+function DemoStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border px-3 py-3" style={{ borderColor: UI.line, backgroundColor: UI.panelSoft }}>
+      <span className="text-[12px] font-medium" style={{ color: UI.muted }}>{label}</span>
+      <span className="text-[13px] font-bold tabular-nums" style={{ color: UI.ink }}>{value}</span>
+    </div>
+  );
+}
+
+function IntroductionsOverview() {
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)]">
+      <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[15px] font-bold" style={{ color: UI.ink }}>Introduction pipeline</p>
+            <p className="text-[12px]" style={{ color: UI.muted }}>Curated investors, advisors, and operator requests.</p>
+          </div>
+          <StatusPill tone="violet">4 active</StatusPill>
+        </div>
+        <div className="mt-4 overflow-hidden rounded-2xl border" style={{ borderColor: UI.line }}>
+          <QueueRow name="Seed investor intro" meta="Fintech, infra, consumer networks" status="Queued" tone="violet" />
+          <QueueRow name="Advisor match" meta="Go-to-market and founder storytelling" status="Ready" tone="green" />
+          <QueueRow name="Builder peer room" meta="Arc ecosystem founders" status="Live" tone="cyan" />
+          <QueueRow name="Pitch review" meta="Deck, profile, proof points" status="Draft" tone="amber" />
+        </div>
+      </section>
+
+      <section className="rounded-2xl border p-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
+        <p className="text-[15px] font-bold" style={{ color: UI.ink }}>Request health</p>
+        <p className="text-[12px]" style={{ color: UI.muted }}>Your current introduction activity.</p>
+        <div className="mt-4 grid gap-2">
+          <DemoStat label="Ready to send" value="2" />
+          <DemoStat label="Awaiting reply" value="1" />
+          <DemoStat label="Completed" value="6" />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProfileOverview() {
+  const proof = [
+    ["Founder role", "Verified", UI.green],
+    ["Pitch summary", "Uploaded", UI.violet],
+    ["Builder proof", "Connected", UI.cyan],
+    ["Advisor notes", "Pending", UI.amber],
+  ] as const;
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(300px,0.7fr)]">
+      <section className="rounded-2xl border p-5" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[15px] font-bold" style={{ color: UI.ink }}>Founder profile</p>
+            <p className="text-[12px]" style={{ color: UI.muted }}>Proof score and launch readiness.</p>
+          </div>
+          <StatusPill tone="green">82% ready</StatusPill>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          {proof.map(([label, value, tone]) => (
+            <div key={label} className="flex items-center justify-between gap-3 rounded-xl border px-3 py-3" style={{ borderColor: UI.line, backgroundColor: UI.panelSoft }}>
+              <span className="text-[12px] font-medium" style={{ color: UI.muted }}>{label}</span>
+              <span className="text-[11px] font-semibold" style={{ color: tone }}>{value}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border p-5" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
+        <p className="text-[15px] font-bold" style={{ color: UI.ink }}>Next profile action</p>
+        <p className="mt-1 text-pretty text-[12px] leading-5" style={{ color: UI.muted }}>Add advisor context to improve matching and introduction quality.</p>
+        <div className="mt-5 h-2 overflow-hidden rounded-full" style={{ backgroundColor: UI.panelSoft }}>
+          <div className="h-full w-[82%] rounded-full" style={{ backgroundColor: UI.violet }} />
+        </div>
+        <a href="#join-form" className="mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[12px] font-semibold" style={{ backgroundColor: UI.ink, color: "#fff" }}>
+          Complete your profile
+          <ArrowUpRight className="size-3.5" />
+        </a>
+      </section>
+    </div>
+  );
+}
+
 const NAV_COPY: Record<string, { eyebrow: string; title: string }> = {
   Overview: { eyebrow: "Command Center", title: "Good morning, Founder" },
   Network: { eyebrow: "Network", title: "Your founder network" },
-  Introductions: { eyebrow: "Command Center", title: "Good morning, Founder" },
+  Introductions: { eyebrow: "Introductions", title: "Warm intro pipeline" },
   "Builder Pass": { eyebrow: "Builder Pass", title: "Builder Pass eligibility" },
-  Profile: { eyebrow: "Command Center", title: "Good morning, Founder" },
+  Profile: { eyebrow: "Founder profile", title: "Proof and readiness" },
 };
 
 const DASHBOARD_NAV_ITEMS = [
@@ -542,6 +626,12 @@ export function DashboardPreview() {
   const referrals = useCountUp(3, inView && !reduce, 900);
   const founderPassStatus = useFounderPassStatus(inView && !reduce);
   const [activeNav, setActiveNav] = useState("Overview");
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const selectNav = (label: string) => {
+    setActiveNav(label);
+    setShowNotifications(false);
+  };
 
   return (
     <section className="relative py-12 sm:py-16 lg:py-24" style={{ backgroundColor: COLORS.bg }}>
@@ -571,7 +661,7 @@ export function DashboardPreview() {
           </div>
           <a
             href="#join"
-            className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[13px] font-semibold transition-transform hover:-translate-y-0.5 max-sm:w-full sm:text-[13.5px]"
+            className="inline-flex items-center rounded-full px-5 py-2.5 text-[13px] font-semibold transition-transform hover:-translate-y-0.5 max-sm:w-full max-sm:justify-center sm:text-[13.5px]"
             style={{ backgroundColor: COLORS.text, color: "#fff" }}
           >
             Explore the dashboard
@@ -626,7 +716,7 @@ export function DashboardPreview() {
                         icon={item.icon}
                         label={item.label}
                         active={activeNav === item.label}
-                        onClick={() => setActiveNav(item.label)}
+                        onClick={() => selectNav(item.label)}
                       />
                     ))}
                   </nav>
@@ -655,7 +745,7 @@ export function DashboardPreview() {
                 </aside>
 
                 <div>
-                  <header className="flex flex-wrap items-center gap-3 border-b px-5 py-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
+                  <header className="relative flex flex-wrap items-center gap-3 border-b px-5 py-4" style={{ borderColor: UI.line, backgroundColor: UI.panel }}>
                     <div>
                       <p className="text-[12px] font-semibold" style={{ color: UI.muted }}>
                         {(NAV_COPY[activeNav] ?? NAV_COPY.Overview).eyebrow}
@@ -668,9 +758,37 @@ export function DashboardPreview() {
                       <Search className="h-4 w-4" />
                       <span className="text-[12px]">Search intros, referrals, docs</span>
                     </div>
-                    <button className="inline-flex h-10 w-10 items-center justify-center rounded-full border" style={{ borderColor: UI.line, color: UI.muted, backgroundColor: UI.panel }} aria-label="Notifications">
-                      <Bell className="h-4 w-4" />
-                    </button>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowNotifications((value) => !value)}
+                        aria-label="Notifications"
+                        aria-expanded={showNotifications}
+                        aria-controls="dashboard-notifications"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full border"
+                        style={{ borderColor: UI.line, color: UI.muted, backgroundColor: UI.panel }}
+                      >
+                        <Bell className="h-4 w-4" />
+                      </button>
+                      {showNotifications ? (
+                        <div id="dashboard-notifications" className="absolute right-0 top-12 z-20 w-72 rounded-2xl border bg-white p-3 shadow-lg" style={{ borderColor: UI.line }}>
+                          <p className="px-2 py-1 text-[11px] font-semibold uppercase" style={{ color: UI.faint }}>Notifications</p>
+                          {[
+                            ["Referral verified", "+20 WebXP added", UI.green],
+                            ["Builder Pass", "Eligibility review opened", UI.cyan],
+                            ["Pitch review", "Advisor notes are ready", UI.violet],
+                          ].map(([title, detail, tone]) => (
+                            <div key={title} className="flex gap-2.5 border-t px-2 py-2.5 first:border-t-0" style={{ borderColor: UI.line }}>
+                              <span className="mt-1 size-2 shrink-0 rounded-full" style={{ backgroundColor: tone }} />
+                              <span>
+                                <span className="block text-[11px] font-semibold" style={{ color: UI.ink }}>{title}</span>
+                                <span className="mt-0.5 block text-[10px]" style={{ color: UI.muted }}>{detail}</span>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
                     <div className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3" style={{ borderColor: UI.line, backgroundColor: UI.panelSoft }}>
                       <span className="inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full" style={{ background: GRAD.brand }}>
                         <img src="/logo/solrishuavatar.png" alt="Founder" className="h-full w-full object-cover" />
@@ -689,7 +807,7 @@ export function DashboardPreview() {
                         <button
                           key={item.label}
                           type="button"
-                          onClick={() => setActiveNav(item.label)}
+                          onClick={() => selectNav(item.label)}
                           aria-current={active ? "page" : undefined}
                           className="inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6d5dfc]"
                           style={{ color: active ? UI.violet : UI.muted, backgroundColor: active ? "#f0efff" : "transparent" }}
@@ -705,8 +823,12 @@ export function DashboardPreview() {
                     <div className="grid gap-4">
                       {activeNav === "Network" ? (
                         <NetworkOverview />
+                      ) : activeNav === "Introductions" ? (
+                        <IntroductionsOverview />
                       ) : activeNav === "Builder Pass" ? (
                         <FounderPassPreview />
+                      ) : activeNav === "Profile" ? (
+                        <ProfileOverview />
                       ) : (
                         <>
                       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
@@ -728,7 +850,7 @@ export function DashboardPreview() {
                                 Curated investors, advisors, and operator requests.
                               </p>
                             </div>
-                            <button className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-[12px] font-semibold" style={{ color: UI.violet, backgroundColor: "#f0efff" }}>
+                            <button type="button" onClick={() => selectNav("Introductions")} className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-[12px] font-semibold" style={{ color: UI.violet, backgroundColor: "#f0efff" }}>
                               View all <ChevronRight className="h-3.5 w-3.5" />
                             </button>
                           </div>

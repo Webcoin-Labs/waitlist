@@ -66,7 +66,7 @@ export function WaitlistHero({ referralCode }: { referralCode?: string }) {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.05, ease: EASE }}
-              className="mt-4 max-w-xl text-[1.9rem] font-bold leading-[1.08] tracking-[-0.02em] max-lg:text-balance sm:mt-5 sm:text-[2.15rem] md:text-[3.1rem] lg:text-[2.65rem] xl:text-[2.85rem]"
+              className="mt-4 max-w-xl text-[1.9rem] font-bold leading-[1.08] tracking-[-0.02em] max-lg:text-balance sm:mt-5 sm:text-[2.15rem] sm:leading-[1.05] md:text-[3.1rem] lg:text-[2.65rem] xl:text-[2.85rem]"
             >
               Build real{"\u00a0"}startups with the right{" "}
               <GradientText>builders, systems, and distribution.</GradientText>
