@@ -34,7 +34,7 @@ const ZamaLogoIcon = LogoImgIcon("/logo/zama-z-square_yellow.svg");
 const BitcoinLogoIcon = LogoImgIcon("/logo/Bitcoin.svg");
 
 const TOP_CHIPS = [
-  { label: "WebXP", icon: Zap, left: "10%", top: "-8%", tone: "#8b5cf6", tilt: -4 },
+  { label: "Credits", icon: Zap, left: "10%", top: "-8%", tone: "#8b5cf6", tilt: -4 },
   { label: "Founder Access", icon: Crown, left: "38%", top: "-12%", tone: "#c084fc", tilt: 3 },
   { label: "Builder Access", icon: Hammer, left: "63%", top: "-7%", tone: "#38bdf8", tilt: -3 },
   { label: "Arc", icon: ArcLogoIcon, left: "84%", top: "-10%", tone: "#f59e0b", tilt: 4 },
@@ -63,7 +63,7 @@ const MODULES: ModuleItem[] = [
   { label: "Tokenomics Studio", value: "Review in progress", icon: BarChart3, tone: "#c084fc" },
   { label: "Investor Intros", value: "3 requests sent", icon: Network, tone: "#34d399" },
   { label: "Builder Access", value: "12 new builders", icon: Users, tone: "#38bdf8" },
-  { label: "WebXP", value: "320 XP", icon: Gauge, tone: "#a78bfa", foot: "+100 pending" },
+  { label: "Credits", value: "320 XP", icon: Gauge, tone: "#a78bfa", foot: "+100 pending" },
 ] as const;
 
 const NAV_ITEMS: NavItem[] = [
@@ -71,7 +71,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Founder Tools", icon: Compass },
   { label: "Builder Access", icon: Users },
   { label: "Intros", icon: Network },
-  { label: "WebXP", icon: Activity },
+  { label: "Credits", icon: Activity },
   { label: "Builder Pass", icon: IdCard },
 ] as const;
 
@@ -413,7 +413,7 @@ function SystemPanel({ percent }: { percent: number }) {
   const ready = percent >= 100;
   const rows = [
     ["Founder tools", ready ? "ready" : "loading"],
-    ["WebXP", "+100"],
+    ["Credits", "+100"],
     ["Builder Pass", "eligibility pending"],
     ["Referral rank", "verify to reveal"],
   ] as const;
@@ -555,7 +555,7 @@ export function HeroMockup() {
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <p className="text-[9px] font-bold uppercase tracking-[0.12em]" style={{ color: COLORS.darkTextMuted }}>
-                    WebXP
+                    Credits
                   </p>
                   <p className="text-[18px] font-black leading-none" style={{ color: "#a78bfa" }}>
                     100

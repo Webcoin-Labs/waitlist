@@ -271,7 +271,7 @@ function StatusOverview({
             {rank ? `of ${rankedTotal.toLocaleString()} verified members` : "Your rank appears after verification."}
           </p>
           <p className="mt-6 border-t pt-4 text-pretty text-[12px] leading-5" style={{ borderColor: COLORS.darkBorder, color: COLORS.darkTextMuted }}>
-            Invite people you trust. Verified referrals improve your rank and add WebXP.
+            Invite people you trust. Verified referrals improve your rank and add Credits.
           </p>
         </div>
 
@@ -283,7 +283,7 @@ function StatusOverview({
             Your account is active and ready for the next step.
           </h2>
           <div className="mt-6 grid grid-cols-2 border-t sm:grid-cols-4" style={{ borderColor: COLORS.border }}>
-            <OverviewStat label="WebXP" value={webXp.toLocaleString()} />
+            <OverviewStat label="Credits" value={webXp.toLocaleString()} />
             <OverviewStat label="Referrals" value={String(referrals)} />
             <OverviewStat label="Tier" value={accessTier} />
             <OverviewStat label="Status" value={titleCase(status)} />
@@ -492,7 +492,7 @@ function LaunchTasks({
       </div>
 
       <p className="border-t px-5 py-4 text-pretty text-[11px] leading-5 sm:px-6" style={{ borderColor: COLORS.border, color: COLORS.textMuted }}>
-        WebXP is a promotional access signal only. It has no monetary, token, airdrop, ownership, investment, or financial value.
+        Credits are a promotional access signal only. They have no monetary, token, airdrop, ownership, investment, or financial value.
       </p>
     </section>
   );
@@ -609,7 +609,7 @@ function FounderPassPanel({
         <PassMetric label="Track" value={passTrack} />
         <PassMetric label="Tier" value={passTier} />
         <PassMetric label="Status" value={passStatus} />
-        <PassMetric label="WebXP" value={webXp.toLocaleString()} />
+        <PassMetric label="Credits" value={webXp.toLocaleString()} />
         <PassMetric label="Referrals" value={String(verifiedReferralCount)} />
       </div>
 
@@ -661,7 +661,7 @@ function Leaderboard({
             Where you stand.
           </h2>
           <p className="mt-2 text-[13px] leading-5" style={{ color: COLORS.textSecondary }}>
-            Ordered by WebXP, verified referrals, then verification time.
+            Ordered by Credits, verified referrals, then verification time.
           </p>
         </div>
         <Medal className="size-5 shrink-0" style={{ color: COLORS.accentDeep }} />
@@ -692,7 +692,7 @@ function Leaderboard({
               {rank ? `#${rank.toLocaleString()}` : "—"}
             </p>
             <p className="mt-1 text-[10px] font-semibold tabular-nums" style={{ color: COLORS.textMuted }}>
-              {webXp.toLocaleString()} XP · {referrals} refs
+              {webXp.toLocaleString()} Credits · {referrals} refs
             </p>
           </div>
         </div>
@@ -744,7 +744,7 @@ function LeaderboardRow({ row, index, reduce }: { row: WaitlistLeaderboardRow; i
         </p>
       </div>
       <span className="text-[12px] font-semibold tabular-nums" style={{ color: COLORS.text }}>
-        {row.webXp.toLocaleString()} XP
+        {row.webXp.toLocaleString()} Credits
       </span>
     </motion.li>
   );
@@ -759,7 +759,7 @@ function titleCase(value: string) {
 }
 
 function formatReward(amount: number) {
-  return `+${amount.toLocaleString()} WebXP`;
+  return `+${amount.toLocaleString()} Credits`;
 }
 
 function trackLabel(track: string | null) {

@@ -6,7 +6,7 @@ import {
   BadgeCheck,
   BarChart3,
   Handshake,
-  IdCard,
+  Network,
   Rocket,
   ScanSearch,
   UserSearch,
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
-type Signal = "chips" | "avatars" | "meter" | "tokenomics" | "progress" | "availability" | "pending" | "network";
+type Signal = "chips" | "avatars" | "meter" | "tokenomics" | "progress" | "availability" | "network";
 
 const PERKS: {
   icon: LucideIcon;
@@ -60,7 +60,7 @@ const PERKS: {
   {
     icon: Handshake,
     title: "Investor Intros",
-    body: "Request warm investor introductions and access a curated 1000+ venture capital directory for research and outreach.",
+    body: "Request warm introductions and access a curated network of 2,000+ VCs and angel investors for fundraising outreach.",
     signal: "progress",
     accent: "#db2777",
     soft: "#fdf2f8",
@@ -74,10 +74,10 @@ const PERKS: {
     soft: "#ecfeff",
   },
   {
-    icon: IdCard,
-    title: "Builder Pass Access",
-    body: "Arc and Base builders can become eligible for proof-based Builder Pass access.",
-    signal: "pending",
+    icon: Network,
+    title: "Founder Directory",
+    body: "Discover thousands of founder profiles, with a reputation score planned for a later release.",
+    signal: "network",
     accent: "#7c3aed",
     soft: "#f1ecff",
   },
@@ -150,6 +150,7 @@ function UnlockCard({
     <motion.button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}

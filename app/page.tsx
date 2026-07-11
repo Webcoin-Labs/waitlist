@@ -9,18 +9,48 @@ import { WhoFor } from "@/components/waitlist/WhoFor";
 import { BeforeAfter } from "@/components/waitlist/BeforeAfter";
 import { FounderPassSection } from "@/components/waitlist/FounderPassSection";
 import { FounderPassInviteSection } from "@/components/waitlist/FounderPassInviteSection";
-import { WebXpSystem } from "@/components/waitlist/WebXpSystem";
+import { CreditsSystem } from "@/components/waitlist/CreditsSystem";
 import { PerksGrid } from "@/components/waitlist/PerksGrid";
 import { Faq } from "@/components/waitlist/Faq";
 import { FinalCta } from "@/components/waitlist/FinalCta";
 import { SiteFooter } from "@/components/waitlist/SiteFooter";
 import { COLORS } from "@/lib/waitlist/tokens";
 
-export const metadata: Metadata = {
-  title: "Webcoin Labs — Waitlist",
-  description:
-    "Join the Webcoin Labs waitlist. Get early access to a private network of founders, builders, investors, and advisors — built for people going from zero to 100.",
-};
+const SITE_TITLE = "Webcoin Labs — Waitlist";
+const SITE_DESCRIPTION =
+  "Join the Webcoin Labs waitlist. Get early access to a private network of founders, builders, investors, and advisors — built for people going from zero to 100.";
+
+function baseUrl() {
+  return (process.env.WAITLIST_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+}
+
+function sanitizeRef(value: string | undefined): string {
+  return (value ?? "").trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "").slice(0, 32);
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ref?: string }>;
+}): Promise<Metadata> {
+  const sp = (await searchParams) ?? {};
+  const ref = sanitizeRef(typeof sp.ref === "string" ? sp.ref : undefined);
+
+  if (!ref) {
+    return { title: SITE_TITLE, description: SITE_DESCRIPTION };
+  }
+
+  // Per-referrer share card so links pasted into X/Discord/iMessage unfurl with a
+  // personalized preview — X's tweet-intent URL has no way to attach media directly,
+  // so the OG image on the shared link is the only path to a "photo" on share.
+  const imageUrl = `${baseUrl()}/api/share-card?ref=${encodeURIComponent(ref)}`;
+  return {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    openGraph: { title: SITE_TITLE, description: SITE_DESCRIPTION, images: [{ url: imageUrl, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION, images: [imageUrl] },
+  };
+}
 
 const NAV_LINKS = [
   { label: "About", href: "#about" },
@@ -75,7 +105,7 @@ export default async function WaitlistLandingPage({
       <PerksGrid />
       <FounderPassSection />
       <FounderPassInviteSection />
-      <WebXpSystem />
+      <CreditsSystem />
       <DashboardPreview />
       <div className="hidden lg:block">
         <WhoFor />

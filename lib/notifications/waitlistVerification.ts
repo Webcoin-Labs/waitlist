@@ -1,13 +1,14 @@
 import "server-only";
 
 import { logger } from "@/lib/logger";
+import { emailDomain } from "@/lib/waitlist/signupSecurity";
 import { getDisplayNameFromEmail } from "./displayName";
 import { buildVerificationHtml, buildVerificationText, subjectFor, type WaitlistEmailRole } from "./emailTemplate";
 
 export type { WaitlistEmailRole };
 
 type Payload = { toEmail: string; verifyLink: string; name?: string | null; role?: WaitlistEmailRole | null };
-type DeliveryResult = { delivered: boolean; provider: "resend" | "webhook" | "console"; error?: string };
+export type DeliveryResult = { delivered: boolean; provider: "resend" | "webhook" | "console"; error?: string };
 
 function getFrom() {
   return process.env.WAITLIST_FROM_EMAIL ?? process.env.SIGNUP_FROM_EMAIL ?? null;
@@ -79,24 +80,42 @@ export async function dispatchWaitlistVerificationEmail(payload: Payload): Promi
   const displayName = displayNameFor(payload.toEmail, payload.name);
 
   const resendResult = await sendViaResend(payload, displayName);
-  if (resendResult.delivered) return resendResult;
+  if (resendResult.delivered) {
+    logger.info({
+      scope: "notifications.waitlistVerification",
+      message: "Verification email accepted by provider.",
+      data: { provider: resendResult.provider, recipientDomain: emailDomain(payload.toEmail) },
+    });
+    return resendResult;
+  }
 
   const webhookResult = await sendViaWebhook(payload, displayName);
-  if (webhookResult.delivered) return webhookResult;
+  if (webhookResult.delivered) {
+    logger.info({
+      scope: "notifications.waitlistVerification",
+      message: "Verification email accepted by provider.",
+      data: { provider: webhookResult.provider, recipientDomain: emailDomain(payload.toEmail) },
+    });
+    return webhookResult;
+  }
 
   if (process.env.NODE_ENV === "production") {
-    logger.error({
+    await logger.captureError({
       scope: "notifications.waitlistVerification",
       message: "Waitlist verification delivery failed in production.",
-      data: { toEmail: payload.toEmail, resendError: resendResult.error, webhookError: webhookResult.error },
+      data: {
+        recipientDomain: emailDomain(payload.toEmail),
+        resendError: resendResult.error,
+        webhookError: webhookResult.error,
+      },
     });
     return { delivered: false, provider: "webhook", error: "Verification email delivery failed." };
   }
 
-  logger.info({
+  logger.warn({
     scope: "notifications.waitlistVerification",
-    message: "Waitlist verification fallback to console output.",
-    data: { toEmail: payload.toEmail, verifyLink: payload.verifyLink, displayName, role: payload.role ?? "FOUNDER" },
+    message: "Verification email used the development console fallback.",
+    data: { recipientDomain: emailDomain(payload.toEmail), role: payload.role ?? "FOUNDER" },
   });
   return { delivered: true, provider: "console" };
 }

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const MOBILE_METRICS = [
-  { label: "WebXP", value: "100", detail: "+100 verified", icon: Zap, tone: "#7c3aed", soft: "#f1ecff" },
+  { label: "Credits", value: "100", detail: "+100 verified", icon: Zap, tone: "#7c3aed", soft: "#f1ecff" },
   { label: "Waitlist rank", value: "#128", detail: "Top 4%", icon: Activity, tone: "#c2410c", soft: "#fff3eb" },
   { label: "Referrals", value: "3", detail: "1 this week", icon: UserPlus, tone: "#059669", soft: "#ecfdf3" },
   { label: "Builder Pass", value: "Review", detail: "Beta access", icon: IdCard, tone: "#0891b2", soft: "#ecfeff" },
@@ -125,7 +125,7 @@ export function MobileDashboardPhone({ compact = false }: { compact?: boolean })
                 </div>
                 <div className="mt-2 grid gap-2">
                   {[
-                    ["Email verified", "+100 WebXP"],
+                    ["Email verified", "+100 Credits"],
                     ["Founder profile", "82% ready"],
                   ].map(([label, value]) => (
                     <div key={label} className="flex items-center gap-2.5 border-t border-[#f0f1f3] pt-2 first:border-0 first:pt-0">

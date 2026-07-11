@@ -10,16 +10,14 @@ import {
   FileText,
   Github,
   Handshake,
-  IdCard,
   Network,
   PieChart,
   Rocket,
-  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
-type PreviewKind = "founder" | "builder" | "deck" | "tokenomics" | "investor" | "advisor" | "pass" | "network";
+type PreviewKind = "founder" | "builder" | "deck" | "tokenomics" | "investor" | "advisor" | "directory" | "network";
 
 // Same verified geography as DashboardPreview/GlobalMap — coords are % positions
 // on the real map asset (public/maps/simplemaps-world.svg, viewBox 0 0 2000 857).
@@ -96,12 +94,12 @@ const CAPABILITIES: Array<{
     span: "lg:col-span-1",
   },
   {
-    icon: IdCard,
-    title: "Builder Pass Access",
-    body: "Proof-based Builder Pass access for selected Arc and Base builders.",
-    chips: ["Builder Pass", "Arc", "Base", "Eligibility"],
+    icon: Network,
+    title: "Founder Directory",
+    body: "Webcoin Labs will create a directory for thousands of founders, with a reputation score planned for a later release.",
+    chips: ["Founder Directory", "Thousands of founders", "Reputation score"],
     accent: "#7c3aed",
-    kind: "pass",
+    kind: "directory",
     span: "lg:col-span-2",
   },
   {
@@ -237,25 +235,67 @@ function Preview({ kind, accent, dark }: { kind: PreviewKind; accent: string; da
     );
   }
 
-  if (kind === "pass") {
+  if (kind === "directory") {
     return (
-      <PreviewShell label="eligibility" dark={dark}>
+      <PreviewShell label="planned directory" dark={dark}>
         <div
-          className="rounded-xl border p-3"
+          className="relative overflow-hidden rounded-xl border"
           style={{
-            borderColor: dark ? "rgba(196,181,253,0.28)" : "rgba(124,58,237,0.24)",
-            backgroundColor: dark ? "rgba(196,181,253,0.1)" : "rgba(124,58,237,0.06)",
+            aspectRatio: "2000 / 857",
+            borderColor: dark ? "rgba(196,181,253,0.18)" : COLORS.border,
+            background: dark ? "rgba(9,8,20,0.72)" : COLORS.surfaceMuted,
           }}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold" style={{ color: dark ? COLORS.darkText : COLORS.text }}>
-              Builder Pass
-            </span>
-            <ShieldCheck className="h-4 w-4" style={{ color: accent }} />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-80"
+            style={{
+              background: "linear-gradient(120deg, rgba(124,58,237,0.32), rgba(34,211,238,0.18))",
+              WebkitMaskImage: "url(/maps/simplemaps-world.svg)",
+              maskImage: "url(/maps/simplemaps-world.svg)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-70"
+            style={{
+              backgroundImage: "radial-gradient(circle, rgba(196,181,253,0.85) 1px, transparent 1.5px)",
+              backgroundSize: "6px 6px",
+              WebkitMaskImage: "url(/maps/simplemaps-world.svg)",
+              maskImage: "url(/maps/simplemaps-world.svg)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
+          {NETWORK_HUBS.map((hub, i) => (
+            <motion.span
+              key={`${hub.x}-${hub.y}`}
+              className="absolute size-1.5 rounded-full"
+              style={{ left: `${hub.x}%`, top: `${hub.y}%`, backgroundColor: hub.tone, boxShadow: `0 0 6px ${hub.tone}`, transform: "translate(-50%,-50%)" }}
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.2, ease: "easeInOut" }}
+            />
+          ))}
+          <div className="absolute inset-x-2 bottom-2 grid grid-cols-2 gap-2">
+            <div className="rounded-lg border px-2.5 py-2 backdrop-blur-sm" style={{ borderColor: "rgba(196,181,253,0.2)", backgroundColor: "rgba(9,8,20,0.78)" }}>
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em]" style={{ color: "#c4b5fd" }}>Founder directory</p>
+              <p className="mt-0.5 text-[10px]" style={{ color: COLORS.darkTextSecondary }}>Thousands of profiles planned</p>
+            </div>
+            <div className="rounded-lg border px-2.5 py-2 backdrop-blur-sm" style={{ borderColor: "rgba(34,211,238,0.22)", backgroundColor: "rgba(9,8,20,0.78)" }}>
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em]" style={{ color: "#67e8f9" }}>Reputation score</p>
+              <p className="mt-0.5 text-[10px]" style={{ color: COLORS.darkTextSecondary }}>Planned next</p>
+            </div>
           </div>
-          <p className="mt-1 text-[11px]" style={{ color: dark ? COLORS.darkTextSecondary : COLORS.textSecondary }}>
-            Arc and Base beta eligibility after proof review.
-          </p>
         </div>
       </PreviewShell>
     );

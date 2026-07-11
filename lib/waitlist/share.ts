@@ -28,7 +28,7 @@ export function buildXShareText({
     "",
     `Building on ${networks}? Founder Pass beta is opening for eligible builders.`,
     "",
-    "Use my referral link to get +100 WebXP:",
+    "Use my referral link to get +100 Credits:",
     referralUrl,
     "",
     "#WebcoinLabs #FounderPass",

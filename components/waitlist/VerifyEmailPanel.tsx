@@ -98,7 +98,7 @@ export function VerifyEmailPanel({ email }: { email?: string }) {
           Check your inbox.
         </h1>
         <p className="mt-3 text-[15px] leading-6" style={{ color: COLORS.textSecondary }}>
-          We sent a verification link. Verify to unlock WebXP and activate your waitlist position.
+          We sent a verification link. Verify to unlock Credits and activate your waitlist position.
         </p>
 
         {email ? (

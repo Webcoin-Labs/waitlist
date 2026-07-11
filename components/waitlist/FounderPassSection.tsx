@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Lock, ShieldCheck } from "lucide-react";
 import { TiltCard } from "./TiltCard";
 import { GradientText } from "./Brand";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
@@ -25,6 +25,12 @@ const TRACK_LOGO_DARK: Partial<Record<(typeof TRACKS)[number], string>> = {
   Arc: "/logo/circle-logo-ondark.svg",
   Base: "/logo/Base_lockup_white.svg",
 };
+const TRACK_DETAIL: Record<(typeof TRACKS)[number], string> = {
+  Arc: "Mini apps, contracts, and ecosystem activity.",
+  Base: "Deployed contracts, GitHub proof, and mini apps.",
+};
+const TRACK_ELIGIBILITY_NOTE =
+  "Eligibility looks at verified builder proof: mini apps shipped, contracts interacted with, GitHub activity, and ecosystem contribution. Criteria can change as beta review develops.";
 
 export function FounderPassSection() {
   return (
@@ -58,11 +64,28 @@ export function FounderPassSection() {
               <p className="text-[12px] font-bold uppercase tracking-[0.14em]" style={{ color: COLORS.textMuted }}>
                 Available in beta for Arc and Base builders
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {TRACKS.map((track) => (
-                  <span key={track} className="inline-flex items-center rounded-full border px-4 py-2" style={{ borderColor: COLORS.borderAccent, color: COLORS.text }}>
-                    <img src={TRACK_LOGO_LIGHT[track]} alt={track} className="h-5 w-auto object-contain" />
-                  </span>
+                  <div
+                    key={track}
+                    className="flex items-start justify-between gap-2 rounded-xl border px-3.5 py-3"
+                    style={{ borderColor: COLORS.borderAccent, backgroundColor: "rgba(124,58,237,0.03)" }}
+                  >
+                    <div className="min-w-0">
+                      <img src={TRACK_LOGO_LIGHT[track]} alt={track} className="h-5 w-auto object-contain" />
+                      <p className="mt-1.5 text-pretty text-[11px] leading-4" style={{ color: COLORS.textMuted }}>
+                        {TRACK_DETAIL[track]}
+                      </p>
+                    </div>
+                    <span
+                      title={TRACK_ELIGIBILITY_NOTE}
+                      aria-label={`${track} eligibility criteria`}
+                      className="mt-0.5 inline-flex size-4 shrink-0 cursor-help items-center justify-center rounded-full border text-[10px] font-bold leading-none"
+                      style={{ borderColor: COLORS.borderAccent, color: COLORS.accentDeep }}
+                    >
+                      ?
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -74,13 +97,12 @@ export function FounderPassSection() {
               </a>
               <span
                 aria-disabled
+                title="Eligibility review opens after beta launch"
                 className="inline-flex cursor-not-allowed items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold opacity-70"
                 style={{ borderColor: COLORS.border, color: COLORS.text, backgroundColor: "#fff" }}
               >
-                Check eligibility
-                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide" style={{ backgroundColor: COLORS.surfaceMuted, color: COLORS.textMuted }}>
-                  Coming soon
-                </span>
+                <Lock className="h-3.5 w-3.5" />
+                Claim Soon
               </span>
             </div>
 

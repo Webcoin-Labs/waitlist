@@ -36,6 +36,31 @@ Email verification needs either:
 - `RESEND_API_KEY` and `WAITLIST_FROM_EMAIL`
 - or `WAITLIST_EMAIL_WEBHOOK_URL` and optional `WAITLIST_EMAIL_WEBHOOK_TOKEN`
 
+Operational alerts use:
+
+- `WAITLIST_ALERT_WEBHOOK_URL`
+- optional `WAITLIST_ALERT_WEBHOOK_TOKEN`
+
+The alert webhook receives sanitized JSON for unhandled server errors,
+email-delivery failures, and high-risk signup blocks. Email addresses, raw IPs,
+device identifiers, cookies, verification tokens, and private status tokens are
+not included.
+
+## Signup abuse protection
+
+New signups are checked against a built-in disposable-email domain list and
+combined activity from hashed IP, anonymous first-party device cookie, and
+email domain. Existing entries can still resend verification without creating
+another account. The default limits are intentionally tolerant of shared Wi-Fi
+and can be tuned with:
+
+- `WAITLIST_MAX_SIGNUPS_PER_IP_HOUR`
+- `WAITLIST_MAX_SIGNUPS_PER_IP_DAY`
+- `WAITLIST_MAX_SIGNUPS_PER_DEVICE_DAY`
+- `WAITLIST_MAX_SIGNUPS_PER_IP_DOMAIN_DAY`
+- `WAITLIST_MAX_SIGNUPS_PER_DEVICE_DOMAIN_DAY`
+- `WAITLIST_DISPOSABLE_EMAIL_DOMAINS` for comma-separated local additions
+
 ## Verification
 
 ```bash

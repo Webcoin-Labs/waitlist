@@ -774,7 +774,7 @@ export function DashboardPreview() {
                         <div id="dashboard-notifications" className="absolute right-0 top-12 z-20 w-72 rounded-2xl border bg-white p-3 shadow-lg" style={{ borderColor: UI.line }}>
                           <p className="px-2 py-1 text-[11px] font-semibold uppercase" style={{ color: UI.faint }}>Notifications</p>
                           {[
-                            ["Referral verified", "+20 WebXP added", UI.green],
+                            ["Referral verified", "+20 Credits added", UI.green],
                             ["Builder Pass", "Eligibility review opened", UI.cyan],
                             ["Pitch review", "Advisor notes are ready", UI.violet],
                           ].map(([title, detail, tone]) => (
@@ -832,7 +832,7 @@ export function DashboardPreview() {
                       ) : (
                         <>
                       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
-                        <MetricCard icon={Gauge} label="WebXP" value={<span className="tabular-nums">{xp}</span>} note="Launch boost active" tone={UI.violet} pill="Live" />
+                        <MetricCard icon={Gauge} label="Credits" value={<span className="tabular-nums">{xp}</span>} note="Launch boost active" tone={UI.violet} pill="Live" />
                         <MetricCard icon={ListOrdered} label="Waitlist rank" value="#128" note="This week" tone={UI.amber} pill="Top 4%" pillFg={UI.amber} pillBg="#fff8eb" />
                         <MetricCard icon={UserPlus} label="Referrals" value={<span className="tabular-nums">{referrals}</span>} note="Verified count" tone={UI.green} pill="+1 today" pillFg={UI.cyan} pillBg="#ecfeff" />
                         <MetricCard icon={Fingerprint} label="Builder Pass" value={founderPassStatus} note="Eligibility review" tone={UI.cyan} pill="Beta" pillFg={UI.violet} pillBg="#f0efff" />
@@ -920,7 +920,7 @@ export function DashboardPreview() {
                           </div>
                           <div className="mt-4 grid gap-4">
                             <ActivityItem icon={UserCheck} title="Referral verified" time="2 min ago" tone={UI.green} />
-                            <ActivityItem icon={TrendingUp} title="WebXP launch boost added" time="12 min ago" tone={UI.violet} />
+                            <ActivityItem icon={TrendingUp} title="Credits launch boost added" time="12 min ago" tone={UI.violet} />
                             <ActivityItem icon={Send} title="Investor intro request queued" time="Today" tone={UI.cyan} />
                             <ActivityItem icon={Route} title="Arc builder lane opened" time="Today" tone={UI.amber} />
                           </div>

@@ -17,7 +17,7 @@ export function FinalCta({ referralCode }: { referralCode?: string }) {
           Build from <GradientText>zero to 100</GradientText>.
         </h2>
         <p className="mx-auto mt-3 max-w-lg text-[13.5px] leading-6 max-lg:text-pretty sm:mt-4 sm:text-[15px]" style={{ color: COLORS.textSecondary }}>
-          Join the Webcoin Labs waitlist and unlock founder tools, builder access, WebXP, and private network
+          Join the Webcoin Labs waitlist and unlock founder tools, builder access, Credits, and private network
           opportunities.
         </p>
         <div className="mx-auto mt-6 max-w-xl sm:mt-9">

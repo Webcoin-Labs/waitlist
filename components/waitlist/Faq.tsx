@@ -42,21 +42,21 @@ const FAQ_GROUPS: FaqGroup[] = [
         id: "what-happens-after-joining",
         question: "What happens after I join?",
         answer:
-          "You submit your email, choose a role, and can optionally add a referral code. After you verify the email we send, your private status dashboard becomes available with WebXP, referral progress, rank signals, and any current tasks or access updates. Joining is consideration for early access, not a guarantee of an invitation or pass.",
+          "You submit your email, choose a role, and can optionally add a referral code. After you verify the email we send, your private status dashboard becomes available with Credits, referral progress, rank signals, and any current tasks or access updates. Joining is consideration for early access, not a guarantee of an invitation or pass.",
       },
     ],
   },
   {
     id: "faq-webxp",
     number: "02",
-    label: "WebXP & referrals",
+    label: "Credits & referrals",
     description: "How early-access points and referrals work.",
     items: [
       {
         id: "how-webxp-works",
-        question: "How is WebXP awarded?",
+        question: "How are Credits awarded?",
         answer:
-          "WebXP is awarded only after the relevant action is verified. During the first seven days, a verified signup gives +100 WebXP and each verified referral gives +20 WebXP. After that launch window, the standard amounts are +50 WebXP for signup and +10 WebXP per verified referral; joining later is still useful for dashboard and beta consideration.",
+          "Credits are awarded only after the relevant action is verified. During the first seven days, a verified signup gives +100 Credits and each verified referral gives +20 Credits. After that launch window, the standard amounts are +50 Credits for signup and +10 Credits per verified referral; joining later is still useful for dashboard and beta consideration.",
       },
       {
         id: "when-referrals-count",
@@ -66,9 +66,9 @@ const FAQ_GROUPS: FaqGroup[] = [
       },
       {
         id: "webxp-value",
-        question: "Does WebXP have monetary, token, or airdrop value?",
+        question: "Do Credits have monetary, token, or airdrop value?",
         answer:
-          "No. WebXP is a promotional in-app points and priority signal only. It has no monetary value, token value, airdrop value, ownership value, investment value, or financial rights. It cannot be bought, sold, redeemed for cash, or treated as a promise of future distribution.",
+          "No. Credits are a promotional in-app points and priority signal only. They have no monetary value, token value, airdrop value, ownership value, investment value, or financial rights. They cannot be bought, sold, redeemed for cash, or treated as a promise of future distribution.",
       },
     ],
   },
@@ -120,7 +120,7 @@ const FAQ_GROUPS: FaqGroup[] = [
         id: "dashboard-access",
         question: "What can I see in the private dashboard?",
         answer:
-          "After verification, the dashboard can show WebXP, waitlist position or ranking signals, verified referrals, your referral link, task progress, and pass status when available. The preview on this page is illustrative; the live dashboard is connected to your verified entry and is protected by a separate access token. Do not share that private dashboard link.",
+          "After verification, the dashboard can show Credits, waitlist position or ranking signals, verified referrals, your referral link, task progress, and pass status when available. The preview on this page is illustrative; the live dashboard is connected to your verified entry and is protected by a separate access token. Do not share that private dashboard link.",
       },
     ],
   },
@@ -192,7 +192,7 @@ export function Faq() {
               Know what happens next.
             </h2>
             <p className="mt-3 max-w-sm text-pretty text-[13.5px] leading-6 sm:mt-5 sm:text-[15px] sm:leading-7" style={{ color: COLORS.textSecondary }}>
-              Clear answers about joining, verification, WebXP, passes, referrals, and private dashboard access.
+              Clear answers about joining, verification, Credits, passes, referrals, and private dashboard access.
             </p>
 
             <nav className="mt-6 hidden border-l lg:block" style={{ borderColor: COLORS.border }} aria-label="FAQ topics">

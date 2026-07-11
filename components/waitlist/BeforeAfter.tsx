@@ -17,7 +17,7 @@ const WEBCOIN_WAY = [
   "Founder Pass and Builder Pass pathways in one dashboard",
   "Pitch deck, tokenomics, and launch-readiness review",
   "Builder discovery, advisor matching, and warm intro requests",
-  "WebXP signals that show momentum and priority",
+  "Credits signals that show momentum and priority",
   "A structured operating layer for every launch milestone",
 ];
 

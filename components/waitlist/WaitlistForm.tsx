@@ -92,7 +92,7 @@ function AccessPassPreview({ kind }: { kind: "founder" | "builder" }) {
             {proof}
           </span>
           <span className="shrink-0 text-[10px] font-black" style={{ color: accent }}>
-            +5,000 WebXP
+            +5,000 Credits
           </span>
         </div>
       </div>
@@ -174,9 +174,6 @@ export function WaitlistForm({
 
   const goTo = (path: string) => {
     router.push(path);
-    if (typeof window !== "undefined") {
-      window.location.assign(path);
-    }
   };
 
   const continueFromEmail = () => {
@@ -288,7 +285,7 @@ export function WaitlistForm({
                 <span>
                   Get{" "}
                   <span className="font-bold" style={{ color: COLORS.accentDeep }}>
-                    +100 WebXP
+                    +100 Credits
                   </span>{" "}
                   after verifying your email.
                 </span>

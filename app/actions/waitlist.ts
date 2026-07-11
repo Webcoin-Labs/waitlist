@@ -1,7 +1,7 @@
 "use server";
 
 import { createHash, randomBytes } from "node:crypto";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import {
   Prisma,
@@ -30,6 +30,8 @@ import {
 } from "@/lib/waitlist/xp";
 import { getDisplayNameFromEmail } from "@/lib/notifications/displayName";
 import { WAITLIST_TASK_REWARDS, buildXShareText, buildXShareUrl } from "@/lib/waitlist/share";
+import { WAITLIST_DEVICE_COOKIE } from "@/lib/deviceCookie";
+import { assessWaitlistSignup } from "@/lib/waitlist/signupFraud";
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 const FOUNDER_PASS_ELIGIBILITY_TASK_OPEN = process.env.FOUNDER_PASS_ELIGIBILITY_TASK_OPEN === "true";
@@ -122,11 +124,13 @@ function isMissingTaskTable(error: unknown) {
 async function requestMeta() {
   try {
     const h = await headers();
+    const cookieStore = await cookies();
     const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? h.get("x-real-ip") ?? null;
     const ua = h.get("user-agent") ?? null;
-    return { ipHash: hashValue(ip), userAgentHash: hashValue(ua) };
+    const deviceId = cookieStore.get(WAITLIST_DEVICE_COOKIE)?.value;
+    return { ipHash: hashValue(ip), deviceHash: hashValue(deviceId ? `device:${deviceId}` : ua) };
   } catch {
-    return { ipHash: null, userAgentHash: null };
+    return { ipHash: null, deviceHash: null };
   }
 }
 
@@ -245,8 +249,21 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
       where: { id: existing.id },
       data: { verificationToken: token, verificationExpiresAt: expires, name: name ?? existing.name, role },
     });
-    await sendVerification(email, token, name ?? existing.name, role);
+    const delivery = await sendVerification(email, token, name ?? existing.name, role);
+    if (!delivery.delivered) {
+      return { success: false, error: "Your place is saved, but we could not send the verification email. Please retry." };
+    }
     return { success: true, email, alreadyVerified: false };
+  }
+
+  const security = await assessWaitlistSignup({ email, ipHash: meta.ipHash, deviceHash: meta.deviceHash });
+  if (!security.allowed) {
+    return {
+      success: false,
+      error: security.flags.includes("DISPOSABLE_EMAIL")
+        ? "Temporary or disposable email addresses are not supported."
+        : "We could not accept this signup right now. Please try again later.",
+    };
   }
 
   let created: { referralCode: string; statusToken: string | null } | null = null;
@@ -268,7 +285,9 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
           utmMedium: parsed.data.utmMedium || null,
           utmCampaign: parsed.data.utmCampaign || null,
           ipHash: meta.ipHash,
-          userAgentHash: meta.userAgentHash,
+          // Kept in the existing column for compatibility; this now stores a
+          // hash of the anonymous first-party device cookie, not the raw UA.
+          userAgentHash: meta.deviceHash,
         },
         select: { referralCode: true, statusToken: true },
       });
@@ -283,16 +302,16 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
   }
   if (!created) return { success: false, error: "Could not create your entry. Please retry." };
 
-  await sendVerification(email, token, name, role);
+  const delivery = await sendVerification(email, token, name, role);
+  if (!delivery.delivered) {
+    return { success: false, error: "Your place is saved, but we could not send the verification email. Please retry." };
+  }
   return { success: true, email, alreadyVerified: false };
 }
 
 async function sendVerification(email: string, token: string, name?: string | null, role?: WaitlistRole) {
   const verifyLink = `${baseUrl()}/verify?token=${token}`;
-  const result = await dispatchWaitlistVerificationEmail({ toEmail: email, verifyLink, name, role });
-  if (!result.delivered) {
-    logger.error({ scope: "waitlist.sendVerification", message: "Verification email not delivered.", data: { email, error: result.error } });
-  }
+  return dispatchWaitlistVerificationEmail({ toEmail: email, verifyLink, name, role });
 }
 
 // ── resend ───────────────────────────────────────────────────────────────────
@@ -312,7 +331,8 @@ export async function resendWaitlistVerification(email: string): Promise<{ succe
       where: { id: entry.id },
       data: { verificationToken: token, verificationExpiresAt: new Date(Date.now() + TOKEN_TTL_MS) },
     });
-    await sendVerification(normalized, token, entry.name, entry.role);
+    const delivery = await sendVerification(normalized, token, entry.name, entry.role);
+    if (!delivery.delivered) return { success: false, error: "Could not send the verification email. Please retry." };
   }
   return { success: true };
 }
@@ -683,7 +703,7 @@ export async function recordXShareOpened(statusToken: string): Promise<{ success
     revalidatePath(statusLinkFor(entry.referralCode));
     return { success: true };
   } catch (error) {
-    logger.error({ scope: "waitlist.recordXShareOpened", message: "Failed to record X share open.", data: { error } });
+    await logger.captureError({ scope: "waitlist.recordXShareOpened", message: "Failed to record X share open.", error });
     return { success: false, error: "Could not update the task. Please retry." };
   }
 }
@@ -708,7 +728,7 @@ export async function confirmXSharePosted(statusToken: string): Promise<{ succes
     revalidatePath(statusLinkFor(entry.referralCode));
     return { success: true, awarded };
   } catch (error) {
-    logger.error({ scope: "waitlist.confirmXSharePosted", message: "Failed to confirm X share.", data: { error } });
+    await logger.captureError({ scope: "waitlist.confirmXSharePosted", message: "Failed to confirm X share.", error });
     return { success: false, awarded: false, error: "Could not claim that task. Please retry." };
   }
 }
@@ -759,7 +779,11 @@ export async function submitFounderPassEligibility(input: {
     revalidatePath(statusLinkFor(entry.referralCode));
     return { success: true, awarded };
   } catch (error) {
-    logger.error({ scope: "waitlist.submitFounderPassEligibility", message: "Failed to submit Founder Pass eligibility.", data: { error } });
+    await logger.captureError({
+      scope: "waitlist.submitFounderPassEligibility",
+      message: "Failed to submit Founder Pass eligibility.",
+      error,
+    });
     return { success: false, awarded: false, error: "Could not save eligibility. Please retry." };
   }
 }
@@ -770,9 +794,9 @@ async function assertAdmin() {
 
 // Never echoes raw error messages to the client — Prisma errors can include
 // table/column names. "Unauthorized." is the one safe, intentional message.
-function safeAdminError(e: unknown, scope: string): string {
+async function safeAdminError(e: unknown, scope: string): Promise<string> {
   if (e instanceof Error && e.message === "Unauthorized.") return e.message;
-  logger.error({ scope, message: "Admin action failed.", data: { error: e instanceof Error ? e.message : String(e) } });
+  await logger.captureError({ scope, message: "Admin action failed.", error: e });
   return "Failed. Please retry.";
 }
 
@@ -783,7 +807,7 @@ export async function adminSetWaitlistStatus(id: string, status: WaitlistStatus)
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: safeAdminError(e, "waitlist.adminSetWaitlistStatus") };
+    return { success: false, error: await safeAdminError(e, "waitlist.adminSetWaitlistStatus") };
   }
 }
 
@@ -794,7 +818,7 @@ export async function adminSetFounderPassStatus(id: string, founderPassStatus: F
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: safeAdminError(e, "waitlist.adminSetFounderPassStatus") };
+    return { success: false, error: await safeAdminError(e, "waitlist.adminSetFounderPassStatus") };
   }
 }
 
@@ -805,7 +829,7 @@ export async function adminSetFounderPassTier(id: string, founderPassTier: Found
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: safeAdminError(e, "waitlist.adminSetFounderPassTier") };
+    return { success: false, error: await safeAdminError(e, "waitlist.adminSetFounderPassTier") };
   }
 }
 
@@ -816,7 +840,7 @@ export async function adminSetFounderPassTrack(id: string, founderPassTrack: Fou
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: safeAdminError(e, "waitlist.adminSetFounderPassTrack") };
+    return { success: false, error: await safeAdminError(e, "waitlist.adminSetFounderPassTrack") };
   }
 }
 
@@ -832,6 +856,6 @@ export async function adminAdjustWebXp(id: string, amount: number): Promise<{ su
     revalidatePath("/admin");
     return { success: true };
   } catch (e) {
-    return { success: false, error: safeAdminError(e, "waitlist.adminAdjustWebXp") };
+    return { success: false, error: await safeAdminError(e, "waitlist.adminAdjustWebXp") };
   }
 }

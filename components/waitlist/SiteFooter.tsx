@@ -27,7 +27,7 @@ const FOOTER_LINKS: FooterLinkGroup[] = [
     links: [
       { label: "Dashboard", href: "#join" },
       { label: "Builder Pass", href: "#join" },
-      { label: "WebXP", href: "#join" },
+      { label: "Credits", href: "#join" },
       { label: "Private Network", href: "#join" },
     ],
   },
@@ -83,9 +83,13 @@ export function SiteFooter() {
             © 2026 Webcoin Labs. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-4 text-[12px] font-medium" style={{ color: COLORS.darkTextSecondary }}>
-            <a href="#join">Terms</a>
-            <a href="#join">Privacy</a>
-            <a href="#join">Contact</a>
+            <a href="https://www.webcoinlabs.com/terms" target="_blank" rel="noopener noreferrer">
+              Terms
+            </a>
+            <a href="https://www.webcoinlabs.com/privacy" target="_blank" rel="noopener noreferrer">
+              Privacy
+            </a>
+            <a href="mailto:contact@webcoinlabs.com">Contact</a>
           </div>
         </div>
 
@@ -95,8 +99,8 @@ export function SiteFooter() {
             Builder Pass eligibility depend on verification, fit, and availability.
           </p>
           <p>
-            WebXP is a promotional in-app points system for waitlist ranking and launch priority. It has no monetary,
-            token, or airdrop value, and carries no ownership or financial rights.
+            Credits are a promotional in-app points system for waitlist ranking and launch priority. They have no
+            monetary, token, or airdrop value, and carry no ownership or financial rights.
           </p>
           <p>Nothing on this site is investment, legal, tax, or financial advice.</p>
         </div>

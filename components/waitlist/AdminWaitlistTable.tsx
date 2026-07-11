@@ -82,7 +82,7 @@ export function AdminWaitlistTable({ rows }: { rows: AdminWaitlistRow[] }) {
           ))}
         </select>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className={inputCls}>
-          <option value="xp">Highest WebXP</option>
+          <option value="xp">Highest Credits</option>
           <option value="referrals">Most referrals</option>
           <option value="date">Date joined</option>
         </select>
@@ -99,7 +99,7 @@ export function AdminWaitlistTable({ rows }: { rows: AdminWaitlistRow[] }) {
         <table className="min-w-full text-left text-xs">
           <thead className="bg-muted/40 text-muted-foreground">
             <tr>
-              {["Rank", "Email", "Role", "Status", "WebXP", "Refs", "Referred by", "Founder Pass", "Tier", "Track", "Joined", "Verified", "Actions"].map((h) => (
+              {["Rank", "Email", "Role", "Status", "Credits", "Refs", "Referred by", "Founder Pass", "Tier", "Track", "Joined", "Verified", "Actions"].map((h) => (
                 <th key={h} className="whitespace-nowrap px-3 py-2 font-medium">{h}</th>
               ))}
             </tr>
@@ -171,18 +171,18 @@ export function AdminWaitlistTable({ rows }: { rows: AdminWaitlistRow[] }) {
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => run(() => adminAdjustWebXp(r.id, 50), "WebXP +50.")}
+                      onClick={() => run(() => adminAdjustWebXp(r.id, 50), "Credits +50.")}
                       className="rounded border border-border px-1.5 py-1 hover:bg-muted/50"
-                      title="Add 50 WebXP"
+                      title="Add 50 Credits"
                     >
                       +50
                     </button>
                     <button
                       type="button"
                       disabled={isPending}
-                      onClick={() => run(() => adminAdjustWebXp(r.id, -50), "WebXP -50.")}
+                      onClick={() => run(() => adminAdjustWebXp(r.id, -50), "Credits -50.")}
                       className="rounded border border-border px-1.5 py-1 hover:bg-muted/50"
-                      title="Remove 50 WebXP"
+                      title="Remove 50 Credits"
                     >
                       -50
                     </button>
