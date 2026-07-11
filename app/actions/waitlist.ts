@@ -199,7 +199,9 @@ export type ExistingWaitlistAccessResult =
   | { success: true; email: string; alreadyVerified: boolean; statusToken?: string }
   | { success: false; error: string };
 
-// VCs must use a firm/work email, not a free personal inbox.
+// Founders must use a company email, not a free personal inbox — one signal
+// that helps confirm they're a real, registered company. Investors, builders,
+// and advisors can use any email, including personal inboxes.
 const FREE_EMAIL_DOMAINS = new Set([
   "gmail.com",
   "googlemail.com",
@@ -254,11 +256,11 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
   const { email, role } = parsed.data;
   const name = parsed.data.name || null;
 
-  // VC path requires a firm/work email.
-  if (role === "INVESTOR") {
+  // Founder path requires a company email.
+  if (role === "FOUNDER") {
     const domain = email.split("@")[1];
     if (domain && FREE_EMAIL_DOMAINS.has(domain)) {
-      return { success: false, error: "Please use your firm's registered work email." };
+      return { success: false, error: "Please use your company email (e.g. you@yourcompany.com), not a personal inbox." };
     }
   }
 

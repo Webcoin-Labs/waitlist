@@ -108,7 +108,7 @@ const FAQ_GROUPS: FaqGroup[] = [
         id: "email-requirements",
         question: "Do I need a business email?",
         answer:
-          "Founders, builders, and advisors can generally use the email they want connected to their Webcoin Labs access. Investors must use a registered firm or work email so investor access can be reviewed in the right context; common free personal inboxes are not accepted for that role.",
+          "Founders must use their company email so we can confirm they run a real, registered company; common free personal inboxes are not accepted for that role. Investors, builders, and advisors can generally use the email they want connected to their Webcoin Labs access, including a personal inbox.",
       },
       {
         id: "verification-email",

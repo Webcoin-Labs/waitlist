@@ -275,7 +275,7 @@ export function WaitlistForm({
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => onFocusChange?.(true)}
                   onBlur={() => onFocusChange?.(false)}
-                  placeholder="Enter your email to get started"
+                  placeholder="you@yourcompany.com"
                   className="w-full bg-transparent text-[14px] outline-none sm:text-[16px]"
                   style={{ color: COLORS.text }}
                   autoComplete="email"
@@ -410,6 +410,16 @@ export function WaitlistForm({
                   </motion.div>
                 ) : null}
               </AnimatePresence>
+
+              {role === "FOUNDER" ? (
+                <p className="mt-3 text-pretty text-[11.5px] leading-5 sm:mt-4" style={{ color: COLORS.textMuted }}>
+                  Founders need a company email (e.g.{" "}
+                  <span className="font-semibold" style={{ color: COLORS.text }}>
+                    you@yourcompany.com
+                  </span>
+                  ) — personal inboxes aren&apos;t accepted for this role, so we can confirm a real company.
+                </p>
+              ) : null}
 
               {role ? (
                 <div className="mt-3 rounded-[18px] border p-3 sm:mt-4" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>

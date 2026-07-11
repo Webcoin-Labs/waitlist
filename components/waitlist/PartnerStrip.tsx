@@ -173,7 +173,7 @@ export function PartnerStrip() {
             </p>
             <div className="mt-7 flex w-fit items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
               <span className="size-2 rounded-full bg-blue-500" />
-              <span className="text-xs font-semibold uppercase text-slate-700">Web3 ecosystem network</span>
+              <span className="text-xs font-semibold uppercase text-slate-700">Ecosystem network</span>
             </div>
           </div>
           <RibbonWall />

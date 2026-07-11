@@ -87,7 +87,7 @@ export const DOCS_PAGES: DocsPage[] = [
         title: "Before you begin",
         blocks: [
           { type: "paragraph", text: "You need an email address you control and a role that best describes how you plan to use Webcoin Labs: Founder, Builder, Investor, or Advisor." },
-          { type: "callout", tone: "note", title: "Investor email requirement", text: "Investor applications require a firm or work email. Common personal inbox providers are not accepted for that role." },
+          { type: "callout", tone: "note", title: "Founder email requirement", text: "Founder applications require a company email so we can confirm a real, registered company. Investors, builders, and advisors can use any email, including personal inbox providers." },
         ],
       },
       {

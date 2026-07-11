@@ -2,26 +2,53 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Mail, Loader2, Check, Copy } from "lucide-react";
-import { resendWaitlistVerification } from "@/app/actions/waitlist";
+import { Mail, Loader2, Check, Copy, TriangleAlert } from "lucide-react";
+import { getExistingWaitlistAccess, resendWaitlistVerification } from "@/app/actions/waitlist";
 import { COLORS, EASE } from "@/lib/waitlist/tokens";
 
 const STEPS = ["Details", "Verify email", "Dashboard access"] as const;
 
 export function VerifyEmailPanel({ email }: { email?: string }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isChecking, startChecking] = useTransition();
   const [sent, setSent] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
+  const [notYetVerified, setNotYetVerified] = useState(false);
 
   const resend = () => {
     if (!email) return;
     setError("");
+    setNotYetVerified(false);
     startTransition(async () => {
       const res = await resendWaitlistVerification(email);
       if (res.success) setSent(true);
       else setError(res.error ?? "Could not resend.");
+    });
+  };
+
+  // Covers verifying on a different device (e.g. opened the link on your
+  // phone, but the "check your inbox" screen is still open on your PC) —
+  // re-checks the same account this screen is already waiting on and
+  // forwards to the dashboard only if that email is actually verified.
+  const checkVerified = () => {
+    if (!email) return;
+    setError("");
+    setNotYetVerified(false);
+    startChecking(async () => {
+      const res = await getExistingWaitlistAccess(email);
+      if (!res.success) {
+        setError(res.error);
+        return;
+      }
+      if (res.alreadyVerified && res.statusToken) {
+        router.push(`/status?c=${res.statusToken}`);
+        return;
+      }
+      setNotYetVerified(true);
     });
   };
 
@@ -154,7 +181,28 @@ export function VerifyEmailPanel({ email }: { email?: string }) {
             ) : null}
             {sent ? "Verification resent" : "Resend verification email"}
           </button>
+          <button
+            type="button"
+            onClick={checkVerified}
+            disabled={isChecking || !email}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold transition-transform hover:-translate-y-0.5 disabled:opacity-60"
+            style={{ backgroundColor: COLORS.accentDeep, color: "#fff" }}
+          >
+            {isChecking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            Yes, I&apos;ve verified it
+          </button>
         </div>
+
+        <p className="mt-3 text-[12px]" style={{ color: COLORS.textMuted }}>
+          Verified on your phone? Click above to continue here too.
+        </p>
+
+        {notYetVerified ? (
+          <p className="mt-3 flex items-start gap-2 text-left text-[13px] leading-5" style={{ color: COLORS.amber }}>
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>Not verified yet. Open the link we emailed you, then try again.</span>
+          </p>
+        ) : null}
 
         {error ? (
           <p className="mt-3 text-[13px]" style={{ color: COLORS.red }}>
