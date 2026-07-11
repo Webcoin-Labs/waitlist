@@ -23,7 +23,6 @@ It includes:
 - Launch tasks, including X sharing and verified-referral rewards.
 - Founder Pass / Builder Pass positioning and eligibility surfaces.
 - Admin dashboard for managing waitlist entries.
-- Soft site-wide access gate for private preview.
 - Prisma schema and migrations for PostgreSQL.
 - Email delivery through Resend or webhook fallback.
 - Vitest tests for XP, ranking, tasks, Founder Pass direction, and display-name parsing.
@@ -80,7 +79,6 @@ Required / used env vars:
 - `APP_ENCRYPTION_SECRET`
 - `WAITLIST_ADMIN_TOKEN`
 - `WAITLIST_LAUNCH_AT`
-- `SITE_ACCESS_CODE`
 - `RESEND_API_KEY`
 - `WAITLIST_FROM_EMAIL`
 - `SIGNUP_FROM_EMAIL`
@@ -188,37 +186,15 @@ Admin actions include:
 
 File: `app/enter/page.tsx`
 
-Private preview access gate.
-
-Behavior:
-
-- Reads `?next=`.
-- Allows only same-site relative paths for `next`.
-- Renders `GateForm`.
-- `GateForm` submits code to `unlockSite`.
+Legacy private-preview URL. It now redirects to the public landing page.
 
 ## 6. Middleware and Access Control
 
 File: `middleware.ts`
 
-There is a soft site-wide access gate.
-
-Bypassed paths:
-
-- `/_next`
-- `/admin`
-- `/enter`
-- `/verify`
-- `/status`
-- Static files/assets with extensions, for example `.svg`, `.png`, `.ico`
-
-If not bypassed:
-
-- Checks cookie `wcl_site_access`.
-- If cookie value is `granted`, request continues.
-- Otherwise redirects to `/enter?next=<original-path-and-search>`.
-
-Admin has a separate auth gate and is not controlled by the site access gate.
+The landing page is public. Middleware only assigns the anonymous, HttpOnly
+device cookie used by signup fraud controls. Admin keeps its separate
+`WAITLIST_ADMIN_TOKEN` authentication gate.
 
 ## 7. Server Actions
 
@@ -266,13 +242,6 @@ Important security behavior:
 - Rate limits are applied to join, resend, status, and task actions.
 - Admin errors are sanitized before returning to client.
 - Server logs redact keys containing password, secret, token, authorization, cookie, or apikey.
-
-### `app/actions/siteAccess.ts`
-
-Action: `unlockSite(formData)`
-
-- Checks submitted site access code with `checkSiteAccessCode`.
-- Sets site access cookie through `grantSiteAccess`.
 
 ### `app/actions/adminAuth.ts`
 
@@ -594,26 +563,6 @@ Admin cookie:
 - sameSite lax
 - max age 8 hours
 
-### `lib/siteAccess.ts`
-
-Site access helpers:
-
-- `checkSiteAccessCode(input)`
-- `grantSiteAccess()`
-
-Uses constant-time comparison and sets cookie `wcl_site_access`.
-
-Site access cookie:
-
-- httpOnly
-- secure in production
-- sameSite lax
-- max age 180 days
-
-### `lib/siteAccessCookie.ts`
-
-Exports plain cookie name `wcl_site_access`, safe for Edge middleware import.
-
 ### `lib/logger.ts`
 
 JSON logger with levels:
@@ -735,17 +684,6 @@ Features:
 - Founder Pass status/tier/track dropdowns
 - WebXP adjustment buttons
 - quick invite/approve/pass/block actions
-
-### `GateForm.tsx`
-
-Client private-preview access form.
-
-Features:
-
-- access code input
-- uppercase formatting
-- calls `unlockSite`
-- redirects to requested `next` path on success
 
 ### `Brand.tsx`
 
@@ -1015,7 +953,7 @@ Root/config files:
 - `.env.example`: example env names and placeholders.
 - `.gitignore`: ignored files.
 - `README.md`: setup, stack, env, verification, database notes.
-- `middleware.ts`: private-preview gate.
+- `middleware.ts`: anonymous fraud-control device cookie.
 - `next-env.d.ts`: Next TypeScript env declarations.
 - `next.config.mjs`: Next config.
 - `package.json`: scripts and dependencies.
@@ -1031,10 +969,9 @@ App files:
 - `app/layout.tsx`: root HTML/body and metadata.
 - `app/page.tsx`: landing page.
 - `app/actions/adminAuth.ts`: admin login/logout actions.
-- `app/actions/siteAccess.ts`: private-preview unlock action.
 - `app/actions/waitlist.ts`: main waitlist backend actions.
 - `app/admin/page.tsx`: admin page.
-- `app/enter/page.tsx`: access gate page.
+- `app/enter/page.tsx`: redirects legacy access-gate links to `/`.
 - `app/status/page.tsx`: status dashboard page.
 - `app/verify/page.tsx`: email verification page.
 
@@ -1049,7 +986,6 @@ Component files:
 - `components/waitlist/FounderPassEligibilityStrip.tsx`
 - `components/waitlist/FounderPassInviteSection.tsx`
 - `components/waitlist/FounderPassSection.tsx`
-- `components/waitlist/GateForm.tsx`
 - `components/waitlist/GlobalMap.tsx`
 - `components/waitlist/HeroMockup.tsx`
 - `components/waitlist/PartnerStrip.tsx`
@@ -1069,8 +1005,6 @@ Library files:
 - `lib/logger.ts`
 - `lib/prisma.ts`
 - `lib/rateLimit.ts`
-- `lib/siteAccess.ts`
-- `lib/siteAccessCookie.ts`
 - `lib/utils.ts`
 - `lib/notifications/displayName.ts`
 - `lib/notifications/waitlistVerification.ts`
@@ -1109,4 +1043,3 @@ Please use this as the source of truth for the current frontend, backend,
 database schema, routes, flows, and known implementation details.
 Do not assume any real env secret values.
 ```
-
