@@ -33,14 +33,17 @@ const SolanaLogoIcon = LogoImgIcon("/logo/solana-s-LogoMark.svg");
 const ZamaLogoIcon = LogoImgIcon("/logo/zama-z-square_yellow.svg");
 const BitcoinLogoIcon = LogoImgIcon("/logo/Bitcoin.svg");
 
+// Positions were swapped per request: Credits<->Zama, Founder Access<->Bitcoin,
+// Builder Access<->Arc, then Arc<->Solana — each chip keeps its own icon/tone/tilt,
+// only the left/top slot changed.
 const TOP_CHIPS = [
-  { label: "Credits", icon: Zap, left: "10%", top: "-8%", tone: "#8b5cf6", tilt: -4 },
-  { label: "Founder Access", icon: Crown, left: "38%", top: "-12%", tone: "#c084fc", tilt: 3 },
-  { label: "Builder Access", icon: Hammer, left: "63%", top: "-7%", tone: "#38bdf8", tilt: -3 },
-  { label: "Arc", icon: ArcLogoIcon, left: "84%", top: "-10%", tone: "#f59e0b", tilt: 4 },
-  { label: "Solana", icon: SolanaLogoIcon, left: "3%", top: "38%", tone: "#9945FF", tilt: 5 },
-  { label: "Zama", icon: ZamaLogoIcon, left: "95%", top: "46%", tone: "#fdd10b", tilt: -4 },
-  { label: "Bitcoin", icon: BitcoinLogoIcon, left: "6%", top: "72%", tone: "#f7931a", tilt: -3 },
+  { label: "Credits", icon: Zap, left: "95%", top: "46%", tone: "#8b5cf6", tilt: -4 },
+  { label: "Founder Access", icon: Crown, left: "6%", top: "72%", tone: "#c084fc", tilt: 3 },
+  { label: "Builder Access", icon: Hammer, left: "84%", top: "-10%", tone: "#38bdf8", tilt: -3 },
+  { label: "Arc", icon: ArcLogoIcon, left: "16%", top: "38%", tone: "#f59e0b", tilt: 4 },
+  { label: "Solana", icon: SolanaLogoIcon, left: "63%", top: "-7%", tone: "#9945FF", tilt: 5 },
+  { label: "Zama", icon: ZamaLogoIcon, left: "10%", top: "-8%", tone: "#fdd10b", tilt: -4 },
+  { label: "Bitcoin", icon: BitcoinLogoIcon, left: "38%", top: "-12%", tone: "#f7931a", tilt: -3 },
 ] as const;
 
 type DashboardIcon = typeof Activity;

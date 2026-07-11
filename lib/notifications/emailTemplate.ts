@@ -401,3 +401,186 @@ export function buildVerificationText({
     "(c) 2026 Webcoin Labs. All rights reserved.",
   ].join("\n");
 }
+
+export function waitlistWelcomeSubject(): string {
+  return "You're on the Webcoin Labs waitlist";
+}
+
+export function buildWaitlistWelcomeHtml({
+  dashboardLink,
+  displayName,
+  role,
+}: {
+  dashboardLink: string;
+  displayName: string;
+  role?: WaitlistEmailRole | null;
+}): string {
+  const link = escapeHtml(dashboardLink);
+  const baseUrl = baseUrlFrom(dashboardLink);
+  const logoUrl = escapeHtml(`${baseUrl}${LOGO_PATH}`);
+  const greetName = escapeHtml(displayName || "there");
+  const roleCopy = copyFor(role);
+  const termsUrl = escapeHtml(`${baseUrl}/terms`);
+  const privacyUrl = escapeHtml(`${baseUrl}/privacy`);
+  const subject = waitlistWelcomeSubject();
+  const benefits = [
+    ["Product updates", "Be among the first to hear about launches and early-access windows."],
+    ["Tools and access", "Follow founder tools, Pass consideration, and selected introductions."],
+    ["Network opportunities", "Discover relevant opportunities across our 2,000+ VC and angel network."],
+  ] as const;
+
+  const benefitRows = benefits
+    .map(
+      ([title, detail]) => `<tr>
+        <td width="34" valign="top" style="width:34px;padding:0 0 12px 0;">
+          <span style="display:inline-block;width:22px;height:22px;border-radius:7px;background-color:#dcfce7;color:#15803d;font-size:13px;font-weight:800;line-height:22px;text-align:center;">&#10003;</span>
+        </td>
+        <td valign="top" style="padding:0 0 12px 0;">
+          <p style="margin:0;font-size:13px;font-weight:800;line-height:1.4;color:#111827;">${escapeHtml(title)}</p>
+          <p style="margin:2px 0 0 0;font-size:12px;line-height:1.55;color:#667085;">${escapeHtml(detail)}</p>
+        </td>
+      </tr>`,
+    )
+    .join("");
+
+  return `<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>${escapeHtml(subject)}</title>
+    <style>
+      html, body { margin:0 !important; padding:0 !important; width:100% !important; }
+      table, td { border-collapse:collapse; mso-table-lspace:0; mso-table-rspace:0; }
+      img { border:0; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic; }
+      a { color:inherit; }
+      @media only screen and (max-width:620px) {
+        .outer-pad { padding:8px 6px !important; }
+        .email-shell { width:100% !important; max-width:100% !important; min-width:0 !important; table-layout:fixed !important; }
+        .mobile-pad { padding-left:20px !important; padding-right:20px !important; }
+        .email-heading { font-size:26px !important; line-height:1.15 !important; }
+        .dashboard-button { display:block !important; text-align:center !important; }
+        .social-link { display:inline-block !important; margin:0 12px 7px 0 !important; }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background-color:#eef0f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">Your email is verified and your Webcoin Labs waitlist profile is active.&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#eef0f4" style="width:100%;background-color:#eef0f4;">
+      <tr>
+        <td class="outer-pad" align="center" style="padding:32px 12px;">
+          <table role="presentation" class="email-shell" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background-color:#ffffff;border:1px solid #dde1e8;border-radius:18px;overflow:hidden;box-shadow:0 12px 32px rgba(15,23,42,0.08);">
+            <tr>
+              <td class="mobile-pad" bgcolor="#111217" style="padding:18px 30px;background-color:#111217;border-radius:18px 18px 0 0;">
+                <img src="${logoUrl}" alt="Webcoin Labs" width="142" style="display:block;width:142px;max-width:142px;height:auto;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="mobile-pad" align="center" style="padding:32px 38px 0 38px;">
+                <table role="presentation" width="72" height="72" cellpadding="0" cellspacing="0" bgcolor="#dcfce7" style="width:72px;height:72px;background-color:#dcfce7;border:1px solid #bbf7d0;border-radius:999px;">
+                  <tr><td role="img" aria-label="Verified" align="center" valign="middle" style="font-size:32px;font-weight:800;line-height:72px;color:#15803d;">&#10003;</td></tr>
+                </table>
+                <p style="margin:18px 0 0 0;font-size:10px;font-weight:800;letter-spacing:0.11em;line-height:1.4;color:#15803d;text-transform:uppercase;">Email verified</p>
+                <h1 class="email-heading" style="margin:8px 0 0 0;font-size:30px;font-weight:800;letter-spacing:-0.025em;line-height:1.15;color:#101114;">Congratulations—you made it to the Webcoin Labs waitlist.</h1>
+                <p style="margin:14px 0 0 0;font-size:14px;line-height:1.6;color:#30333a;">Hi ${greetName}, your verified profile is active. We’ll email you when products launch, access windows open, or relevant opportunities become available.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="mobile-pad" style="padding:24px 38px 0 38px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f8fafc" style="width:100%;background-color:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;">
+                  <tr>
+                    <td style="padding:18px 18px 6px 18px;">
+                      <p style="margin:0 0 14px 0;font-size:10px;font-weight:800;letter-spacing:0.1em;line-height:1.4;color:#6b7280;text-transform:uppercase;">What your place includes</p>
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${benefitRows}</table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="mobile-pad" style="padding:22px 38px 0 38px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td align="center" bgcolor="#111217" style="background-color:#111217;border-radius:10px;">
+                      <a class="dashboard-button" href="${link}" target="_blank" style="display:inline-block;padding:13px 22px;font-size:13px;font-weight:800;line-height:1;color:#ffffff;text-decoration:none;border-radius:10px;">Open my dashboard&nbsp;&nbsp;&rarr;</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:10px 0 0 0;font-size:10px;line-height:1.55;color:#7a808c;">Your dashboard tracks Credits, referrals, access status, and available launch tasks.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="mobile-pad" style="padding:22px 38px 28px 38px;">
+                <p style="margin:0;font-size:10px;line-height:1.55;color:#7a808c;">${escapeHtml(roleCopy.accessLabel)} benefits, Pass consideration, introductions, and network opportunities remain subject to eligibility and availability.</p>
+              </td>
+            </tr>
+            <tr>
+              <td class="mobile-pad" bgcolor="#111217" style="padding:20px 30px;background-color:#111217;">
+                <p style="margin:0;font-size:12px;font-weight:800;line-height:1.45;color:#ffffff;">Webcoin Labs</p>
+                <p style="margin:3px 0 10px 0;font-size:10px;line-height:1.5;color:#aeb2bc;">The operating system for founders and serious builders.</p>
+                <p style="margin:0;font-size:10px;font-weight:700;line-height:1.7;color:#ffffff;">
+                  <a class="social-link" href="${SOCIAL_LINKS.x}" target="_blank" style="color:#ffffff;text-decoration:underline;">X / Twitter</a>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+                  <a class="social-link" href="${SOCIAL_LINKS.linkedIn}" target="_blank" style="color:#ffffff;text-decoration:underline;">LinkedIn</a>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+                  <a class="social-link" href="${SOCIAL_LINKS.telegram}" target="_blank" style="color:#ffffff;text-decoration:underline;">Telegram</a>
+                </p>
+              </td>
+            </tr>
+          </table>
+          <table role="presentation" class="email-shell" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
+            <tr>
+              <td class="mobile-pad" align="center" style="padding:14px 26px 0 26px;">
+                <p style="margin:0 0 7px 0;font-size:9px;line-height:1.5;color:#747b87;">
+                  <a href="${termsUrl}" target="_blank" style="color:#30333a;text-decoration:underline;">Terms &amp; Conditions</a>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+                  <a href="${privacyUrl}" target="_blank" style="color:#30333a;text-decoration:underline;">Privacy Policy</a>
+                </p>
+                <p style="margin:0 0 4px 0;font-size:9px;line-height:1.5;color:#8a909b;">You received this transactional email because you joined the Webcoin Labs waitlist.</p>
+                <p style="margin:0;font-size:9px;line-height:1.5;color:#8a909b;">Need help? <a href="mailto:contact@webcoinlabs.com" style="color:#606672;text-decoration:underline;">contact@webcoinlabs.com</a> &nbsp;&middot;&nbsp; &copy; 2026 Webcoin Labs.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+export function buildWaitlistWelcomeText({
+  dashboardLink,
+  displayName,
+  role,
+}: {
+  dashboardLink: string;
+  displayName: string;
+  role?: WaitlistEmailRole | null;
+}): string {
+  const baseUrl = baseUrlFrom(dashboardLink);
+  const roleCopy = copyFor(role);
+  return [
+    "CONGRATULATIONS - YOU'RE ON THE WEBCOIN LABS WAITLIST",
+    "",
+    `Hi ${displayName || "there"},`,
+    "",
+    "Your email is verified and your waitlist profile is active.",
+    "We'll email you when products launch, access windows open, or relevant opportunities become available.",
+    "",
+    "What your place includes:",
+    "- Product updates and early-access windows",
+    "- Founder tools, Pass consideration, and selected introductions",
+    "- Opportunities across our 2,000+ VC and angel network",
+    "",
+    "Open my dashboard:",
+    dashboardLink,
+    "",
+    `Note: ${roleCopy.accessLabel} benefits, Pass consideration, introductions, and network opportunities remain subject to eligibility and availability.`,
+    "",
+    `Terms & Conditions: ${baseUrl}/terms`,
+    `Privacy Policy: ${baseUrl}/privacy`,
+    "Need help? Contact contact@webcoinlabs.com",
+    "",
+    "(c) 2026 Webcoin Labs.",
+  ].join("\n");
+}

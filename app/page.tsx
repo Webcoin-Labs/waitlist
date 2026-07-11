@@ -56,6 +56,7 @@ const NAV_LINKS = [
   { label: "About", href: "#about" },
   { label: "Why Join", href: "#why-join" },
   { label: "FAQ", href: "#faq" },
+  { label: "Read docs", href: "/docs" },
 ] as const;
 
 export default async function WaitlistLandingPage({
@@ -76,14 +77,18 @@ export default async function WaitlistLandingPage({
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
-                className="text-[13.5px] font-medium transition-colors"
-                style={{ color: COLORS.textSecondary }}
+                className={
+                  link.href === "/docs"
+                    ? "rounded-full border border-zinc-300 bg-white/70 px-3 py-1.5 text-[13px] font-semibold text-zinc-800 transition-transform hover:-translate-y-0.5"
+                    : "text-[13.5px] font-medium transition-colors"
+                }
+                style={link.href === "/docs" ? undefined : { color: COLORS.textSecondary }}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
           <a

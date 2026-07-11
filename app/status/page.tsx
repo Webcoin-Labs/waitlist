@@ -28,6 +28,12 @@ export default async function StatusPage({
               <Wordmark variant="dark" height={22} />
             </Link>
             <nav className="flex items-center gap-4">
+              <Link href="/docs/faq" className="hidden text-[13px] font-medium sm:inline" style={{ color: COLORS.textSecondary }}>
+                FAQ
+              </Link>
+              <Link href="/docs" className="rounded-full border border-zinc-300 bg-white/70 px-3 py-1.5 text-[13px] font-semibold text-zinc-800 transition-transform hover:-translate-y-0.5">
+                Read docs
+              </Link>
               <Link href="/" className="text-[12px] font-medium" style={{ color: COLORS.textSecondary }}>
                 Back to home
               </Link>
@@ -65,7 +71,7 @@ export default async function StatusPage({
                     Early access verified
                   </p>
                   <h1 className="mt-4 text-balance text-4xl font-semibold tracking-tight sm:text-5xl" style={{ color: COLORS.text }}>
-                    Your Webcoin Labs dashboard.
+                    Your dashboard.
                   </h1>
                   <p className="mt-4 max-w-2xl text-pretty text-[16px] leading-7" style={{ color: COLORS.textSecondary }}>
                     Track your waitlist progress, invite the right people, and see the access paths currently available to you.

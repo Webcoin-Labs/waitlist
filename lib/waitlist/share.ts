@@ -2,6 +2,8 @@ export const WAITLIST_TASK_REWARDS = {
   X_SHARE: 200,
   THREE_VERIFIED_REFERRALS: 150,
   FOUNDER_PASS_ELIGIBILITY_CHECK: 5000,
+  CONNECT_X: 20,
+  CONNECT_DISCORD: 20,
 } as const;
 
 function cleanHandle(value: string | undefined): string | null {

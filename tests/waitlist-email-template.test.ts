@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildVerificationHtml, buildVerificationText, subjectFor } from "@/lib/notifications/emailTemplate";
+import {
+  buildVerificationHtml,
+  buildVerificationText,
+  buildWaitlistWelcomeHtml,
+  buildWaitlistWelcomeText,
+  subjectFor,
+  waitlistWelcomeSubject,
+} from "@/lib/notifications/emailTemplate";
 
 const VERIFY_LINK = "https://www.webcoinlabs.com/verify?token=abc123def456abc123def456";
 
@@ -104,6 +111,50 @@ describe("verification email template", () => {
 
   it("escapes html-sensitive display names", () => {
     const html = buildVerificationHtml({ verifyLink: VERIFY_LINK, displayName: '<img src=x onerror="1">', role: "FOUNDER" });
+    expect(html).not.toContain('<img src=x onerror="1">');
+    expect(html).toContain("&lt;img src=x onerror=");
+  });
+});
+
+describe("verified waitlist welcome email", () => {
+  const dashboardLink = "https://www.webcoinlabs.com/status?c=private-status-token";
+
+  it("uses a concise confirmation subject and success headline", () => {
+    const html = buildWaitlistWelcomeHtml({ dashboardLink, displayName: "Anshit Raj", role: "FOUNDER" });
+    expect(waitlistWelcomeSubject()).toBe("You're on the Webcoin Labs waitlist");
+    expect(html).toContain("Congratulations—you made it to the Webcoin Labs waitlist.");
+    expect(html).toContain("Email verified");
+    expect(html).toContain('aria-label="Verified"');
+  });
+
+  it("keeps the message focused on three benefits and one dashboard action", () => {
+    const html = buildWaitlistWelcomeHtml({ dashboardLink, displayName: "Anshit Raj", role: "FOUNDER" });
+    for (const copy of ["Product updates", "Tools and access", "Network opportunities", "2,000+ VC and angel network", "Open my dashboard"]) {
+      expect(html).toContain(copy);
+    }
+    expect(html).toContain(dashboardLink.replace(/&/g, "&amp;"));
+    expect(html).not.toContain("Verify my email");
+  });
+
+  it("contains mobile email rules and a desktop-safe fixed shell", () => {
+    const html = buildWaitlistWelcomeHtml({ dashboardLink, displayName: "A", role: "BUILDER" });
+    expect(html).toContain("@media only screen and (max-width:620px)");
+    expect(html).toContain('class="email-shell" width="600"');
+    expect(html).toContain("width:100% !important");
+    expect(html).toContain('class="dashboard-button"');
+  });
+
+  it("provides a concise plain-text fallback", () => {
+    const text = buildWaitlistWelcomeText({ dashboardLink, displayName: "Anshit Raj", role: "FOUNDER" });
+    expect(text).toContain("Hi Anshit Raj,");
+    expect(text).toContain("Your email is verified and your waitlist profile is active.");
+    expect(text).toContain(dashboardLink);
+    expect(text).toContain("- Product updates and early-access windows");
+    expect(text.length).toBeLessThan(1400);
+  });
+
+  it("escapes html-sensitive names", () => {
+    const html = buildWaitlistWelcomeHtml({ dashboardLink, displayName: '<img src=x onerror="1">', role: "ADVISOR" });
     expect(html).not.toContain('<img src=x onerror="1">');
     expect(html).toContain("&lt;img src=x onerror=");
   });

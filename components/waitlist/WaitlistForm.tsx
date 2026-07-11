@@ -1,11 +1,34 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, BadgeCheck, Gift, Loader2, ShieldCheck, TrendingUp } from "lucide-react";
-import { getExistingWaitlistAccess, joinWaitlist } from "@/app/actions/waitlist";
+import { getExistingWaitlistAccess, getPublicWaitlistPulse, joinWaitlist } from "@/app/actions/waitlist";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
+
+const PULSE_POLL_MS = 20_000;
+
+function useWaitlistPulse() {
+  const [pulse, setPulse] = useState<{ displayCount: number; recentMaskedEmail: string | null } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => {
+      getPublicWaitlistPulse().then((next) => {
+        if (!cancelled) setPulse(next);
+      });
+    };
+    load();
+    const id = setInterval(load, PULSE_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
+  return pulse;
+}
 
 type Role = "FOUNDER" | "BUILDER" | "INVESTOR" | "ADVISOR";
 
@@ -171,6 +194,7 @@ export function WaitlistForm({
   const [manualReferralCode, setManualReferralCode] = useState(referralCode ?? "");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const pulse = useWaitlistPulse();
 
   const goTo = (path: string) => {
     router.push(path);
@@ -275,13 +299,28 @@ export function WaitlistForm({
               </p>
             ) : null}
 
-            <div className="mt-3 grid gap-1.5 text-left sm:mt-4 sm:gap-2">
-              <p className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-2 text-[12px] font-semibold leading-5 max-lg:text-pretty sm:grid-cols-[22px_minmax(0,1fr)] sm:gap-2.5 sm:text-[15px] sm:leading-6" style={{ color: COLORS.textSecondary }}>
-                <ShieldCheck className="mt-0.5 size-4 shrink-0 sm:size-[18px]" style={{ color: COLORS.textMuted }} />
+            {pulse ? (
+              <div className="mt-3 flex items-center gap-1.5 text-[10.5px] font-medium sm:text-[11.5px]" style={{ color: COLORS.textMuted }}>
+                <span className="relative flex shrink-0 items-center justify-center">
+                  <span className="absolute inline-flex size-2.5 animate-ping rounded-full opacity-60" style={{ backgroundColor: COLORS.green }} />
+                  <span className="relative text-[13px] leading-none">🟢</span>
+                </span>
+                <span>
+                  <strong className="font-bold tabular-nums" style={{ color: COLORS.text }}>
+                    {pulse.displayCount.toLocaleString()}
+                  </strong>{" "}
+                  people just joined the waitlist
+                </span>
+              </div>
+            ) : null}
+
+            <div className="mt-2.5 grid gap-1 text-left sm:mt-3 sm:gap-1.5">
+              <p className="grid grid-cols-[16px_minmax(0,1fr)] items-start gap-2 text-[11px] font-semibold leading-4 max-lg:text-pretty sm:grid-cols-[18px_minmax(0,1fr)] sm:gap-2.5 sm:text-[12.5px] sm:leading-5" style={{ color: COLORS.textSecondary }}>
+                <ShieldCheck className="mt-0.5 size-3.5 shrink-0 sm:size-4" style={{ color: COLORS.textMuted }} />
                 <span>Verify your email and get a chance to unlock exclusive Founder and Builder Pass.</span>
               </p>
-              <p className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-2 text-[12px] font-medium leading-5 max-lg:text-pretty sm:grid-cols-[22px_minmax(0,1fr)] sm:gap-2.5 sm:text-[15px] sm:leading-6" style={{ color: COLORS.textSecondary }}>
-                <Gift className="mt-0.5 size-4 shrink-0 sm:size-[18px]" style={{ color: COLORS.textMuted }} />
+              <p className="grid grid-cols-[16px_minmax(0,1fr)] items-start gap-2 text-[11px] font-medium leading-4 max-lg:text-pretty sm:grid-cols-[18px_minmax(0,1fr)] sm:gap-2.5 sm:text-[12.5px] sm:leading-5" style={{ color: COLORS.textSecondary }}>
+                <Gift className="mt-0.5 size-3.5 shrink-0 sm:size-4" style={{ color: COLORS.textMuted }} />
                 <span>
                   Get{" "}
                   <span className="font-bold" style={{ color: COLORS.accentDeep }}>

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useAnimationFrame, useMotionValue, useReducedMotion, useTransform, type MotionValue } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { COLORS } from "@/lib/waitlist/tokens";
 
 const PARTNERS = [
@@ -14,112 +15,114 @@ const PARTNERS = [
   { name: "Drunk Robots", src: "/partners/Picsart_22-03-13_11-53-16-173-1024x1024-1-300x300-Photoroom.png" },
   { name: "Dreamboat Capital", src: "/partners/Picsart_22-03-16_20-30-40-335-1024x1024-1-Photoroom.png" },
   { name: "LaunchZone InnoX", src: "/partners/Picsart_22-03-21_18-56-15-533-1024x1024-1-Photoroom.png" },
-  { name: "HG", src: "/partners/Picsart_22-03-29_07-45-59-617-1024x1024-1-Photoroom.png" },
-  { name: "Solv", src: "/partners/Solv-Logo1.png" },
+  { name: "Solv", src: "/partners/Solv-Logo_Black.svg" },
   { name: "BitMart", src: "/partners/logo-black-h.png" },
   { name: "YZiLabs", src: "/partners/logo.png" },
   { name: "ArkStream Capital", src: "/partners/Logo+F+300.webp" },
   { name: "Deviation Capital", src: "/partners/Deviation-Lockup-Dark-Multi_Color-3-768x226.webp" },
   { name: "MH Ventures", src: "/partners/Screenshot_2026-07-11_031949-removebg-preview.png" },
+  { name: "Electric Capital", src: "/partners/wordmark%20black.svg" },
+  { name: "Maven", src: "/partners/maven-w.svg" },
+  { name: "Infinite", src: "/partners/6a1de1bce8bd04b9e05333b8_LogoGray-01.svg" },
+  { name: "Bybit", src: "/partners/bybit-logo.svg" },
+  { name: "Gate.io", src: "/partners/full-gate.io-logo.svg" },
+  { name: "MEXC", src: "/partners/full-mexc-logo.svg" },
 ] as const;
 
 const TECH_PARTNERS = [
   { name: "Google Cloud", src: "/partners/Google%20Cloud.svg" },
   { name: "NVIDIA", src: "/partners/NVIDIA_logo.svg.webp" },
+  { name: "Cloudflare", src: "/partners/cloudflare-seeklogo.svg" },
 ] as const;
 
 type Partner = (typeof PARTNERS)[number];
 
-const ORBIT_SECONDS = 46; // one full lap
-const RX = 47; // horizontal radius, % of container — flat, near full-bleed oval
-const RY = 33; // vertical radius, % of container — well under RX so it reads as an oval, not a circle
+const LOGO_SHADOW = "drop-shadow(0 3px 8px rgba(11,10,18,0.12))";
+const RIBBON_TILT = -8; // degrees — the "///" lean
 
-/**
- * Even-angle spacing on an ellipse bunches points at the left/right tips (where
- * dx/dtheta -> 0) and starves the top/bottom of items — that's the "empty middle,
- * clumped sides" bug from the last version. Fix: walk the ellipse's actual arc
- * length and pick angles that divide the PERIMETER evenly, not the angle. Rigidly
- * rotating this fixed set later preserves perfect spacing at every instant.
- */
-function evenAnglesByArcLength(n: number, rx: number, ry: number): number[] {
-  const STEPS = 1440;
-  const dTheta = (Math.PI * 2) / STEPS;
-  const cumulative = [0];
-  for (let i = 1; i <= STEPS; i++) {
-    const t = i * dTheta;
-    const dx = -rx * Math.sin(t);
-    const dy = ry * Math.cos(t);
-    cumulative.push(cumulative[i - 1] + Math.sqrt(dx * dx + dy * dy) * dTheta);
-  }
-  const total = cumulative[STEPS];
-  const angles: number[] = [];
-  for (let i = 0; i < n; i++) {
-    const target = (i / n) * total;
-    let lo = 0;
-    let hi = STEPS;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (cumulative[mid] < target) lo = mid + 1;
-      else hi = mid;
-    }
-    angles.push(lo * dTheta);
-  }
-  return angles;
+// Each column rotates its start point through the full partner list so the
+// two columns never show the same logo at the same height, and each moves
+// at a slightly different speed so they never fall into visible lockstep.
+const RIBBON_COLUMNS = [
+  { offset: 0, direction: "down" as const, duration: 38 },
+  { offset: 9, direction: "up" as const, duration: 44 },
+];
+
+function rotateArray<T>(arr: readonly T[], offset: number): T[] {
+  const at = offset % arr.length;
+  return [...arr.slice(at), ...arr.slice(0, at)];
 }
 
-const BASE_ANGLES = evenAnglesByArcLength(PARTNERS.length, RX, RY);
-// Small fixed per-card tilt so logos read as placed cards, not a rigid grid —
-// static personality, independent of the orbit motion itself.
-const CARD_TILT = PARTNERS.map((_, i) => ((i * 47) % 9) - 4);
-
-/** One logo card riding the oval track. Front (bottom of the ellipse) renders
- * big and fully opaque; the back (top) shrinks and fades — a simple 3D ring. */
-function OrbitCard({ partner, angleOffset, tilt, progress }: { partner: Partner; angleOffset: number; tilt: number; progress: MotionValue<number> }) {
-  const angle = useTransform(progress, (p) => p + angleOffset);
-  const left = useTransform(angle, (a) => `${50 + RX * Math.cos(a)}%`);
-  const top = useTransform(angle, (a) => `${50 + RY * Math.sin(a)}%`);
-  const depth = useTransform(angle, (a) => (Math.sin(a) + 1) / 2); // 0 = back, 1 = front
-  const scale = useTransform(depth, (d) => 0.58 + 0.52 * d);
-  const opacity = useTransform(depth, (d) => 0.45 + 0.55 * d);
-  const zIndex = useTransform(depth, (d) => Math.round(d * 20));
+function RibbonColumn({ items, direction, duration, reduce }: { items: Partner[]; direction: "up" | "down"; duration: number; reduce: boolean | null }) {
+  const loop = [...items, ...items];
+  const anim = direction === "down" ? { y: ["-50%", "0%"] } : { y: ["0%", "-50%"] };
 
   return (
-    <motion.div
-      className="absolute flex h-[74px] w-[124px] items-center justify-center"
-      style={{ left, top, translateX: "-50%", translateY: "-50%", scale, opacity, zIndex, rotate: tilt }}
-    >
-      <div
-        className="flex h-full w-full items-center justify-center rounded-2xl border bg-white px-4 py-3"
-        style={{ borderColor: COLORS.border, boxShadow: "0 10px 26px -14px rgba(11,10,18,0.28)" }}
+    <div className="h-full w-[148px] shrink-0 overflow-hidden">
+      <motion.div
+        className="flex flex-col gap-7 py-2"
+        animate={reduce ? undefined : anim}
+        transition={{ duration, repeat: Infinity, ease: "linear" }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={partner.src} alt={partner.name} className="max-h-full w-auto max-w-full object-contain" />
-      </div>
-    </motion.div>
+        {loop.map((partner, i) => (
+          <div key={`${partner.name}-${i}`} className="flex h-14 w-full items-center justify-center" style={{ transform: `rotate(${-RIBBON_TILT}deg)` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={partner.src} alt={partner.name} className="max-h-full w-auto max-w-full object-contain" style={{ filter: LOGO_SHADOW }} />
+          </div>
+        ))}
+      </motion.div>
+    </div>
   );
 }
 
-function OrbitCarousel() {
-  const reduce = useReducedMotion();
-  const progress = useMotionValue(0);
+/** Desktop: 3 tilted vertical marquee columns, each a straight infinite scroll
+ * (the same proven technique as the mobile ScrollingRow, just rotated 90°) —
+ * no per-item depth math, so there's no overlap or crowding to fight. */
+function NetworkRibbon() {
+  return (
+    <div
+      aria-hidden="true"
+      className="relative my-auto flex h-[292px] w-[86px] shrink-0 flex-col items-center overflow-hidden border border-slate-700 bg-slate-950 px-3 py-7 text-center text-white shadow-xl"
+      style={{ clipPath: "polygon(0 0, 100% 0, 100% 91%, 50% 100%, 0 91%)" }}
+    >
+      <div className="size-2 rounded-full bg-blue-400" />
+      <span className="mt-5 text-[10px] font-semibold uppercase leading-4 text-slate-300">The operator network</span>
+      <span className="mt-auto text-2xl font-semibold tabular-nums">100+</span>
+      <span className="mt-1 text-[9px] font-semibold uppercase leading-4 text-blue-300">Global partners</span>
+      <div className="mt-5 h-px w-8 bg-slate-700" />
+    </div>
+  );
+}
 
-  useAnimationFrame((t) => {
-    if (reduce) return;
-    progress.set((t / (ORBIT_SECONDS * 1000)) * Math.PI * 2);
-  });
+function RibbonWall() {
+  const wallRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(wallRef, { margin: "160px 0px" });
+  const reduce = useReducedMotion();
 
   return (
-    <div className="relative mx-auto hidden h-[300px] w-full overflow-hidden lg:block">
-      <div className="absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo/webcoin-mark-dark.webp" alt="" aria-hidden className="mx-auto h-9 w-auto opacity-70" />
-        <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: COLORS.textFaint }}>
-          Web3 ecosystem
-        </p>
+    <div
+      ref={wallRef}
+      className="relative hidden h-[420px] overflow-hidden lg:block"
+      style={{
+        maskImage: "linear-gradient(180deg, transparent 0%, black 14%, black 86%, transparent 100%)",
+        WebkitMaskImage: "linear-gradient(180deg, transparent 0%, black 14%, black 86%, transparent 100%)",
+      }}
+    >
+      <div className="absolute inset-[-14%] flex items-stretch justify-center gap-4" style={{ transform: `rotate(${RIBBON_TILT}deg)` }}>
+        <RibbonColumn
+          items={rotateArray(PARTNERS, RIBBON_COLUMNS[0].offset)}
+          direction={RIBBON_COLUMNS[0].direction}
+          duration={RIBBON_COLUMNS[0].duration}
+          reduce={reduce || !isInView}
+        />
+        <NetworkRibbon />
+        <RibbonColumn
+          items={rotateArray(PARTNERS, RIBBON_COLUMNS[1].offset)}
+          direction={RIBBON_COLUMNS[1].direction}
+          duration={RIBBON_COLUMNS[1].duration}
+          reduce={reduce || !isInView}
+        />
       </div>
-      {PARTNERS.map((partner, i) => (
-        <OrbitCard key={partner.name} partner={partner} angleOffset={BASE_ANGLES[i]} tilt={CARD_TILT[i]} progress={progress} />
-      ))}
     </div>
   );
 }
@@ -130,18 +133,14 @@ function ScrollingRow() {
   return (
     <div className="relative overflow-hidden lg:hidden" style={{ maskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)" }}>
       <motion.div
-        className="flex w-max items-center gap-3 py-2"
+        className="flex w-max items-center gap-9 py-2"
         animate={{ x: ["0%", "-50%"] }}
         transition={{ duration: 36, repeat: Infinity, ease: "linear" }}
       >
         {loop.map((partner, i) => (
-          <div
-            key={`${partner.name}-${i}`}
-            className="flex h-16 w-[124px] shrink-0 items-center justify-center rounded-2xl border bg-white px-3.5 py-2.5"
-            style={{ borderColor: COLORS.border, boxShadow: "0 6px 18px -12px rgba(11,10,18,0.22)" }}
-          >
+          <div key={`${partner.name}-${i}`} className="flex h-9 w-[110px] shrink-0 items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={partner.src} alt={partner.name} className="max-h-full w-auto max-w-full object-contain" />
+            <img src={partner.src} alt={partner.name} className="max-h-full w-auto max-w-full object-contain" style={{ filter: LOGO_SHADOW }} />
           </div>
         ))}
       </motion.div>
@@ -152,14 +151,36 @@ function ScrollingRow() {
 export function PartnerStrip() {
   return (
     <section className="overflow-hidden border-y py-9 sm:py-12" style={{ borderColor: COLORS.border, backgroundColor: COLORS.bgAlt }}>
-      <div className="container mx-auto max-w-6xl px-6 text-center">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: COLORS.textMuted }}>
-          Trusted across the Web3 ecosystem
-        </p>
+      <div className="container mx-auto max-w-6xl px-6">
+        <div className="text-center lg:hidden">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: COLORS.textMuted }}>
+            Trusted By Over 100+ Global Partners
+          </p>
+        </div>
+
+        <div className="hidden items-center gap-8 lg:grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.15fr)]">
+          <div className="relative py-12">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo/webcoin-wordmark-dark.webp" alt="Webcoin Labs" className="mb-8 h-14 w-auto object-contain" />
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: COLORS.textMuted }}>
+              Trusted by over 100+ global partners
+            </p>
+            <h2 className="mt-5 max-w-md text-balance text-4xl font-semibold leading-tight text-slate-950">
+              The network behind ambitious builders.
+            </h2>
+            <p className="mt-5 max-w-md text-pretty text-base leading-7" style={{ color: COLORS.textSecondary }}>
+              Exchanges, funds, studios, and ecosystems building alongside Webcoin Labs founders and builders.
+            </p>
+            <div className="mt-7 flex w-fit items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+              <span className="size-2 rounded-full bg-blue-500" />
+              <span className="text-xs font-semibold uppercase text-slate-700">Web3 ecosystem network</span>
+            </div>
+          </div>
+          <RibbonWall />
+        </div>
       </div>
 
       <div className="mt-5 sm:mt-6">
-        <OrbitCarousel />
         <ScrollingRow />
       </div>
 

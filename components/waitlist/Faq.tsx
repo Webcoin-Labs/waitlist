@@ -56,7 +56,7 @@ const FAQ_GROUPS: FaqGroup[] = [
         id: "how-webxp-works",
         question: "How are Credits awarded?",
         answer:
-          "Credits are awarded only after the relevant action is verified. During the first seven days, a verified signup gives +100 Credits and each verified referral gives +20 Credits. After that launch window, the standard amounts are +50 Credits for signup and +10 Credits per verified referral; joining later is still useful for dashboard and beta consideration.",
+          "Credits are awarded only after the relevant action is verified. During the first eight days, a verified signup gives +100 Credits and each verified referral gives +50 Credits. After that launch window, the standard amounts are +50 Credits for signup and +10 Credits per verified referral; joining later is still useful for dashboard and beta consideration.",
       },
       {
         id: "when-referrals-count",

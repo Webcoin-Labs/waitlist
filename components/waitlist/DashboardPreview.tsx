@@ -774,7 +774,7 @@ export function DashboardPreview() {
                         <div id="dashboard-notifications" className="absolute right-0 top-12 z-20 w-72 rounded-2xl border bg-white p-3 shadow-lg" style={{ borderColor: UI.line }}>
                           <p className="px-2 py-1 text-[11px] font-semibold uppercase" style={{ color: UI.faint }}>Notifications</p>
                           {[
-                            ["Referral verified", "+20 Credits added", UI.green],
+                            ["Referral verified", "+50 Credits added", UI.green],
                             ["Builder Pass", "Eligibility review opened", UI.cyan],
                             ["Pitch review", "Advisor notes are ready", UI.violet],
                           ].map(([title, detail, tone]) => (

@@ -20,15 +20,15 @@ const WINDOWS: Record<
   }
 > = {
   launch: {
-    label: "First 7 days",
+    label: "First 8 days",
     eyebrow: "Launch window",
     badge: "Launch boost",
     join: "+100 Credits",
-    referral: "+20 Credits",
+    referral: "+50 Credits",
     signal: "Highest signal",
   },
   after: {
-    label: "After 7 days",
+    label: "After 8 days",
     eyebrow: "Standard window",
     badge: "Still active",
     join: "+50 Credits",

@@ -23,6 +23,7 @@ It includes:
 - Launch tasks, including X sharing and verified-referral rewards.
 - Founder Pass / Builder Pass positioning and eligibility surfaces.
 - Admin dashboard for managing waitlist entries.
+- Public Vercel-style documentation with search, responsive navigation, Help, Terms, and Privacy.
 - Prisma schema and migrations for PostgreSQL.
 - Email delivery through Resend or webhook fallback.
 - Vitest tests for XP, ranking, tasks, Founder Pass direction, and display-name parsing.
@@ -128,6 +129,13 @@ Behavior:
 - On success, redirects to `/status?c=<statusToken>`.
 - On invalid/expired token, shows an error and optionally a resend panel.
 - If no token exists, shows `VerifyEmailPanel`, optionally with email from `?e=`.
+
+### `/docs` and `/docs/[[...slug]]`
+
+Public product documentation rendered from `lib/docs/content.ts` through
+`components/docs/DocsShell.tsx`. It includes 15 pages across Start, Platform,
+Access, Trust, Support, and Legal. `/terms`, `/privacy`, and `/help` redirect to
+their canonical docs pages.
 
 ### `/status`
 
@@ -954,6 +962,7 @@ Root/config files:
 - `.gitignore`: ignored files.
 - `README.md`: setup, stack, env, verification, database notes.
 - `middleware.ts`: anonymous fraud-control device cookie.
+- `app/sitemap.ts`: landing and documentation sitemap entries.
 - `next-env.d.ts`: Next TypeScript env declarations.
 - `next.config.mjs`: Next config.
 - `package.json`: scripts and dependencies.
@@ -974,9 +983,12 @@ App files:
 - `app/enter/page.tsx`: redirects legacy access-gate links to `/`.
 - `app/status/page.tsx`: status dashboard page.
 - `app/verify/page.tsx`: email verification page.
+- `app/docs/[[...slug]]/page.tsx`: searchable documentation routes.
+- `app/terms/page.tsx`, `app/privacy/page.tsx`, `app/help/page.tsx`: canonical docs redirects.
 
 Component files:
 
+- `components/docs/DocsShell.tsx`
 - `components/waitlist/AdminWaitlistTable.tsx`
 - `components/waitlist/BeforeAfter.tsx`
 - `components/waitlist/Brand.tsx`
@@ -1001,6 +1013,7 @@ Component files:
 
 Library files:
 
+- `lib/docs/content.ts`
 - `lib/adminAuth.ts`
 - `lib/logger.ts`
 - `lib/prisma.ts`

@@ -5,16 +5,16 @@
  * the launch-window / award / ordering rules are unit-testable in isolation.
  *
  * Rules:
- *   First 7 days from launch:  +100 join / +20 verified referral
- *   After 7 days:              +50  join / +10 verified referral
+ *   First 8 days from launch:  +100 join / +50 verified referral
+ *   After 8 days:              +50  join / +10 verified referral
  * XP is only ever awarded after email verification (enforced by the action).
  */
 
-export const LAUNCH_WINDOW_DAYS = 7;
+export const LAUNCH_WINDOW_DAYS = 8;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Fallback launch date if WAITLIST_LAUNCH_AT is unset/invalid. */
-const DEFAULT_LAUNCH_AT = new Date("2026-07-05T00:00:00.000Z");
+const DEFAULT_LAUNCH_AT = new Date("2026-07-11T00:00:00.000Z");
 
 export function getLaunchAt(): Date {
   const raw = process.env.WAITLIST_LAUNCH_AT;
@@ -37,7 +37,7 @@ export function joiningXp(joinedAt: Date, launchAt: Date): number {
 
 /** WebXP awarded to the referrer when a referred entry verifies. */
 export function referralXp(referredJoinedAt: Date, launchAt: Date): number {
-  return isWithinLaunchWindow(referredJoinedAt, launchAt) ? 20 : 10;
+  return isWithinLaunchWindow(referredJoinedAt, launchAt) ? 50 : 10;
 }
 
 /** Statuses that appear in the ranking. PENDING/BLOCKED never rank. */

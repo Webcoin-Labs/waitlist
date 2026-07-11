@@ -13,32 +13,32 @@ const LAUNCH = new Date("2026-07-05T00:00:00.000Z");
 const DAY = 24 * 60 * 60 * 1000;
 
 describe("launch window", () => {
-  it("is inside within 7 days", () => {
+  it("is inside within 8 days", () => {
     expect(isWithinLaunchWindow(new Date(LAUNCH.getTime() + 3 * DAY), LAUNCH)).toBe(true);
   });
-  it("is inside just before the 7-day edge", () => {
-    expect(isWithinLaunchWindow(new Date(LAUNCH.getTime() + 7 * DAY - 1), LAUNCH)).toBe(true);
+  it("is inside just before the 8-day edge", () => {
+    expect(isWithinLaunchWindow(new Date(LAUNCH.getTime() + 8 * DAY - 1), LAUNCH)).toBe(true);
   });
-  it("is outside at/after the 7-day edge", () => {
-    expect(isWithinLaunchWindow(new Date(LAUNCH.getTime() + 7 * DAY), LAUNCH)).toBe(false);
+  it("is outside at/after the 8-day edge", () => {
+    expect(isWithinLaunchWindow(new Date(LAUNCH.getTime() + 8 * DAY), LAUNCH)).toBe(false);
     expect(isWithinLaunchWindow(new Date(LAUNCH.getTime() + 10 * DAY), LAUNCH)).toBe(false);
   });
 });
 
 describe("joining XP", () => {
-  it("awards 100 in first 7 days", () => {
+  it("awards 100 in first 8 days", () => {
     expect(joiningXp(new Date(LAUNCH.getTime() + 2 * DAY), LAUNCH)).toBe(100);
   });
-  it("awards 50 after 7 days", () => {
-    expect(joiningXp(new Date(LAUNCH.getTime() + 8 * DAY), LAUNCH)).toBe(50);
+  it("awards 50 after 8 days", () => {
+    expect(joiningXp(new Date(LAUNCH.getTime() + 9 * DAY), LAUNCH)).toBe(50);
   });
 });
 
 describe("referral XP", () => {
-  it("awards 20 in first 7 days", () => {
-    expect(referralXp(new Date(LAUNCH.getTime() + 1 * DAY), LAUNCH)).toBe(20);
+  it("awards 50 in first 8 days", () => {
+    expect(referralXp(new Date(LAUNCH.getTime() + 1 * DAY), LAUNCH)).toBe(50);
   });
-  it("awards 10 after 7 days", () => {
+  it("awards 10 after 8 days", () => {
     expect(referralXp(new Date(LAUNCH.getTime() + 9 * DAY), LAUNCH)).toBe(10);
   });
 });

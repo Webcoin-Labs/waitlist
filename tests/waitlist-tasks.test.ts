@@ -15,6 +15,8 @@ describe("waitlist launch tasks", () => {
       X_SHARE: 200,
       THREE_VERIFIED_REFERRALS: 150,
       FOUNDER_PASS_ELIGIBILITY_CHECK: 5000,
+      CONNECT_X: 20,
+      CONNECT_DISCORD: 20,
     });
   });
 

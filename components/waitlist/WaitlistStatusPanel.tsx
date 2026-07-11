@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -21,6 +21,7 @@ import {
   Medal,
   Network,
   PieChart,
+  Rocket,
   Send,
   ShieldCheck,
   TrendingUp,
@@ -31,9 +32,28 @@ import {
 } from "lucide-react";
 import type { WaitlistLeaderboardRow, WaitlistTaskState } from "@/app/actions/waitlist";
 import { confirmXSharePosted, recordXShareOpened } from "@/app/actions/waitlist";
-import { COLORS } from "@/lib/waitlist/tokens";
+import { COLORS, GRAD } from "@/lib/waitlist/tokens";
 import { WAITLIST_TASK_REWARDS } from "@/lib/waitlist/share";
+import { cn } from "@/lib/utils";
 import { GlobalMap } from "./GlobalMap";
+
+type IconComponent = ComponentType<{ className?: string; strokeWidth?: number | string }>;
+
+function XLogoMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function DiscordLogoMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.522 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+    </svg>
+  );
+}
 
 type Props = {
   email: string;
@@ -157,7 +177,7 @@ export function WaitlistStatusPanel(props: Props) {
       />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
-        <div className="grid content-start gap-6">
+        <div className="flex flex-col gap-6">
           <Leaderboard
             rows={props.leaderboard}
             rankedTotal={props.rankedTotal}
@@ -172,6 +192,7 @@ export function WaitlistStatusPanel(props: Props) {
         <div className="grid content-start gap-6">
           <ReferralPanel
             referralLink={props.referralLink}
+            referralCode={props.referralCode}
             copied={copied}
             onCopy={copy}
             onShare={openXShare}
@@ -252,10 +273,14 @@ function StatusOverview({
   status: string;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border bg-white shadow-sm" style={{ borderColor: COLORS.border }}>
-      <div className="grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-        <div className="p-6 sm:p-8" style={{ backgroundColor: COLORS.darkBg }}>
-          <div className="flex items-center justify-between gap-4">
+    <section className="rounded-2xl border bg-white p-3 shadow-sm" style={{ borderColor: COLORS.border }}>
+      <div className="grid gap-3 lg:grid-cols-[minmax(280px,0.7fr)_minmax(0,1.3fr)]">
+        <div className="relative flex min-h-[280px] flex-col overflow-hidden rounded-xl p-6 sm:p-7" style={{ backgroundColor: COLORS.darkBg }}>
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px" style={{ backgroundImage: GRAD.brand }} />
+          <div aria-hidden className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full blur-3xl" style={{ backgroundColor: "rgba(124,58,237,0.28)" }} />
+          <Trophy aria-hidden className="pointer-events-none absolute -bottom-4 -right-4 size-28 opacity-[0.06]" style={{ color: COLORS.darkText }} />
+
+          <div className="relative flex items-center justify-between gap-4">
             <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase" style={{ color: "#c4b5fd" }}>
               <Trophy className="size-4" />
               Waitlist position
@@ -264,29 +289,63 @@ function StatusOverview({
               {accessTier}
             </span>
           </div>
-          <p className="mt-7 text-6xl font-semibold tracking-tight tabular-nums sm:text-7xl" style={{ color: COLORS.darkText }}>
+          <p className="relative mt-6 text-6xl font-semibold tabular-nums sm:text-7xl" style={{ color: COLORS.darkText }}>
             {rank ? `#${rank.toLocaleString()}` : "—"}
           </p>
-          <p className="mt-2 text-[13px]" style={{ color: COLORS.darkTextSecondary }}>
+          <p className="relative mt-1.5 text-sm" style={{ color: COLORS.darkTextSecondary }}>
             {rank ? `of ${rankedTotal.toLocaleString()} verified members` : "Your rank appears after verification."}
           </p>
-          <p className="mt-6 border-t pt-4 text-pretty text-[12px] leading-5" style={{ borderColor: COLORS.darkBorder, color: COLORS.darkTextMuted }}>
+
+          {rank && rankedTotal > 0 ? (
+            <div className="relative mt-5">
+              <div className="flex items-center justify-between text-[10px] font-semibold uppercase" style={{ color: COLORS.darkTextMuted }}>
+                <span>Percentile</span>
+                <span style={{ color: "#c4b5fd" }}>Ahead of {Math.max(0, Math.round(((rankedTotal - rank) / rankedTotal) * 100))}%</span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${Math.max(4, Math.round(((rankedTotal - rank + 1) / rankedTotal) * 100))}%`, backgroundImage: GRAD.brand }}
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <p className="relative mt-auto border-t pt-4 text-pretty text-xs leading-5" style={{ borderColor: COLORS.darkBorder, color: COLORS.darkTextMuted }}>
             Invite people you trust. Verified referrals improve your rank and add Credits.
           </p>
         </div>
 
-        <div className="p-6 sm:p-8">
-          <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
-            Early access snapshot
-          </p>
-          <h2 className="mt-2 text-balance text-2xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
-            Your account is active and ready for the next step.
-          </h2>
-          <div className="mt-6 grid grid-cols-2 border-t sm:grid-cols-4" style={{ borderColor: COLORS.border }}>
+        <div className="flex min-w-0 flex-col rounded-xl border p-6 sm:p-7" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+                Early access snapshot
+              </p>
+              <h2 className="mt-2 max-w-2xl text-balance text-2xl font-semibold leading-tight" style={{ color: COLORS.text }}>
+                Your account is active and ready for the next step.
+              </h2>
+            </div>
+            <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-xs font-semibold" style={{ borderColor: COLORS.border, color: COLORS.green }}>
+              <CheckCircle2 className="size-4" />
+              Verified
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
             <OverviewStat label="Credits" value={webXp.toLocaleString()} />
             <OverviewStat label="Referrals" value={String(referrals)} />
             <OverviewStat label="Tier" value={accessTier} />
             <OverviewStat label="Status" value={titleCase(status)} />
+          </div>
+
+          <div className="mt-5 flex items-center gap-3 border-t pt-4" style={{ borderColor: COLORS.border }}>
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white" style={{ color: COLORS.accentDeep }}>
+              <TrendingUp className="size-4" />
+            </div>
+            <p className="text-pretty text-xs leading-5" style={{ color: COLORS.textSecondary }}>
+              Keep inviting verified members to strengthen your position and unlock more Credits.
+            </p>
           </div>
         </div>
       </div>
@@ -296,11 +355,11 @@ function StatusOverview({
 
 function OverviewStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-b border-r px-0 py-4 pr-4 last:border-r-0 sm:border-b-0 sm:px-4 first:sm:pl-0" style={{ borderColor: COLORS.border }}>
+    <div className="min-w-0 rounded-xl border bg-white p-4" style={{ borderColor: COLORS.border }}>
       <p className="text-[10px] font-semibold uppercase" style={{ color: COLORS.textMuted }}>
         {label}
       </p>
-      <p className="mt-1 truncate text-[15px] font-semibold tabular-nums" style={{ color: COLORS.text }}>
+      <p className="mt-2 line-clamp-2 text-sm font-semibold leading-5 tabular-nums" style={{ color: COLORS.text }} title={value}>
         {value}
       </p>
     </div>
@@ -309,17 +368,31 @@ function OverviewStat({ label, value }: { label: string; value: string }) {
 
 function ReferralPanel({
   referralLink,
+  referralCode,
   copied,
   onCopy,
   onShare,
   shareClaimed,
 }: {
   referralLink: string;
+  referralCode: string;
   copied: boolean;
   onCopy: () => void;
   onShare: () => void;
   shareClaimed: boolean;
 }) {
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(referralCode);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 1800);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
+
   return (
     <section className="rounded-2xl border bg-white p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
       <div className="flex items-start justify-between gap-4">
@@ -368,16 +441,45 @@ function ReferralPanel({
           {copied ? "Copied" : "Copy link"}
         </button>
       </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em]" style={{ color: COLORS.textMuted }}>
+            Referral code
+          </p>
+          <code className="mt-0.5 block text-[13px] font-semibold tracking-[0.06em]" style={{ color: COLORS.text }}>
+            {referralCode}
+          </code>
+        </div>
+        <button
+          type="button"
+          onClick={copyCode}
+          aria-label="Copy referral code"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-3 py-2 text-[11px] font-semibold hover:bg-[#f4f3f8]"
+          style={{ borderColor: COLORS.border, color: COLORS.text }}
+        >
+          {codeCopied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+          {codeCopied ? "Copied" : "Copy code"}
+        </button>
+      </div>
     </section>
   );
 }
 
+const PERKS_DESCRIPTION: Record<string, string> = {
+  FOUNDER: "Access opens in stages as verification, review, and beta availability allow.",
+  BUILDER: "Proof-based access — the more you ship on Arc or Base, the more these unlock.",
+  INVESTOR: "Curated deal-flow access, unlocked as the founder directory grows.",
+  ADVISOR: "Matching and visibility access, unlocked as advisor demand grows.",
+};
+
 function PerksCard({ role }: { role: string }) {
   const perks = PERKS_BY_ROLE[role] ?? PERKS_BY_ROLE.FOUNDER;
   const roleLabel = ROLE_LABEL[role] ?? "Founder";
+  const description = PERKS_DESCRIPTION[role] ?? PERKS_DESCRIPTION.FOUNDER;
 
   return (
-    <section className="rounded-2xl border bg-white p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
+    <section className="flex min-h-0 flex-1 flex-col rounded-2xl border bg-white p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
@@ -386,8 +488,11 @@ function PerksCard({ role }: { role: string }) {
           <h2 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
             {roleLabel} perks
           </h2>
+          <p className="mt-2 max-w-md text-pretty text-[12.5px] leading-5" style={{ color: COLORS.textSecondary }}>
+            {description}
+          </p>
         </div>
-        <Gift className="size-5" style={{ color: COLORS.accentDeep }} />
+        <Gift className="size-5 shrink-0" style={{ color: COLORS.accentDeep }} />
       </div>
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2">
@@ -405,6 +510,10 @@ function PerksCard({ role }: { role: string }) {
           );
         })}
       </div>
+
+      <p className="mt-auto border-t pt-4 text-pretty text-[11px] leading-5" style={{ borderColor: COLORS.border, color: COLORS.textMuted }}>
+        Perks are access signals, not guarantees. Availability depends on verification, fit, and current beta capacity.
+      </p>
     </section>
   );
 }
@@ -435,11 +544,11 @@ function LaunchTasks({
 
   return (
     <section className="overflow-hidden rounded-xl border bg-white shadow-sm" style={{ borderColor: COLORS.border }}>
-      <div className="flex items-start justify-between gap-5 border-b px-5 py-6 sm:px-6" style={{ borderColor: COLORS.border, backgroundColor: "#fffdf9" }}>
+      <div className="flex items-start justify-between gap-5 border-b px-5 py-6 sm:px-6" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
         <div className="flex min-w-0 items-start gap-4">
-          <TaskEmoji src="/emoji/launch-rocket.svg" />
+          <TaskIcon icon={Rocket} featured />
           <div>
-            <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentWarm }}>
+            <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
               Launch tasks
             </p>
             <h2 className="mt-2 text-balance text-xl font-semibold tracking-tight" style={{ color: COLORS.text }}>
@@ -458,7 +567,7 @@ function LaunchTasks({
       <div>
         <TaskRow
           number="01"
-          emojiSrc="/emoji/launch-megaphone.svg"
+          icon={Send}
           title="Share your access link"
           description="Post your referral link on X and invite people you would genuinely recommend."
           reward={formatReward(WAITLIST_TASK_REWARDS.X_SHARE)}
@@ -469,7 +578,7 @@ function LaunchTasks({
         />
         <TaskRow
           number="02"
-          emojiSrc="/emoji/invite-handshake.svg"
+          icon={Users}
           title="Invite three verified people"
           description="Referrals count only after each person verifies their email."
           reward={formatReward(WAITLIST_TASK_REWARDS.THREE_VERIFIED_REFERRALS)}
@@ -480,11 +589,31 @@ function LaunchTasks({
         />
         <TaskRow
           number="03"
-          emojiSrc="/emoji/pass-id.svg"
+          icon={IdCard}
           title="Check Founder Pass eligibility"
           description="Eligibility review will open in a future beta phase."
           reward={formatReward(WAITLIST_TASK_REWARDS.FOUNDER_PASS_ELIGIBILITY_CHECK)}
           task={lockedEligibility}
+          actionLabel="Coming soon"
+          onAction={() => undefined}
+          disabled
+        />
+        <TaskRow
+          number="04"
+          icon={XLogoMark}
+          title="Connect X"
+          description="Link your X account to verify your access link posts automatically."
+          reward={formatReward(WAITLIST_TASK_REWARDS.CONNECT_X)}
+          actionLabel="Coming soon"
+          onAction={() => undefined}
+          disabled
+        />
+        <TaskRow
+          number="05"
+          icon={DiscordLogoMark}
+          title="Connect Discord"
+          description="Join the Webcoin Labs Discord to unlock community-only updates."
+          reward={formatReward(WAITLIST_TASK_REWARDS.CONNECT_DISCORD)}
           actionLabel="Coming soon"
           onAction={() => undefined}
           disabled
@@ -500,7 +629,7 @@ function LaunchTasks({
 
 function TaskRow({
   number,
-  emojiSrc,
+  icon,
   title,
   description,
   reward,
@@ -510,7 +639,7 @@ function TaskRow({
   disabled,
 }: {
   number: string;
-  emojiSrc: string;
+  icon: IconComponent;
   title: string;
   description: string;
   reward: string;
@@ -527,7 +656,7 @@ function TaskRow({
         {number}
       </span>
       <div className="flex min-w-0 items-start gap-3">
-        <TaskEmoji src={emojiSrc} />
+        <TaskIcon icon={icon} />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-[13px] font-semibold" style={{ color: COLORS.text }}>
@@ -560,12 +689,13 @@ function TaskRow({
   );
 }
 
-function TaskEmoji({ src }: { src: string }) {
+function TaskIcon({ icon: Icon, featured = false }: { icon: IconComponent; featured?: boolean }) {
   return (
-    <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#fff7ed" }}>
-      {/* Twemoji graphics: CC-BY 4.0. See public/emoji/ATTRIBUTION.md. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" aria-hidden className="size-5 object-contain" />
+    <span
+      className={cn("inline-flex shrink-0 items-center justify-center rounded-lg border bg-white", featured ? "size-11" : "size-9")}
+      style={{ borderColor: COLORS.border, color: COLORS.accentDeep }}
+    >
+      <Icon className={cn(featured ? "size-5" : "size-4")} strokeWidth={1.8} />
     </span>
   );
 }
@@ -729,20 +859,18 @@ function LeaderboardRow({ row, index, reduce }: { row: WaitlistLeaderboardRow; i
       whileInView={reduce ? undefined : { opacity: 1, x: 0 }}
       viewport={{ once: true, margin: "-20px" }}
       transition={{ duration: 0.28, delay: Math.min(index * 0.035, 0.2), ease: "easeOut" }}
-      className="grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 border-t px-4 py-3 first:border-t-0"
+      className="grid grid-cols-[32px_minmax(0,1fr)_auto_auto] items-center gap-3 border-t px-4 py-3 first:border-t-0"
       style={{ borderColor: COLORS.border, backgroundColor: row.isCurrent ? "rgba(124,58,237,0.07)" : "#fff" }}
     >
       <span className="text-[12px] font-semibold tabular-nums" style={{ color: row.isCurrent ? COLORS.accentDeep : COLORS.textMuted }}>
         #{row.rank}
       </span>
-      <div className="min-w-0">
-        <p className="truncate text-[13px] font-semibold" style={{ color: COLORS.text }}>
-          {row.label}
-        </p>
-        <p className="mt-0.5 text-[11px]" style={{ color: COLORS.textMuted }}>
-          {row.verifiedReferralCount} verified referrals
-        </p>
-      </div>
+      <p className="min-w-0 truncate text-[13px] font-semibold" style={{ color: COLORS.text }}>
+        {row.label}
+      </p>
+      <span className="text-[11px] tabular-nums" style={{ color: COLORS.textMuted }}>
+        {row.verifiedReferralCount} verified {row.verifiedReferralCount === 1 ? "referral" : "referrals"}
+      </span>
       <span className="text-[12px] font-semibold tabular-nums" style={{ color: COLORS.text }}>
         {row.webXp.toLocaleString()} Credits
       </span>

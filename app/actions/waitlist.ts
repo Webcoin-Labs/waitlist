@@ -1,6 +1,6 @@
 "use server";
 
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomInt } from "node:crypto";
 import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import {
@@ -17,7 +17,7 @@ import { z } from "zod";
 import { db } from "@/lib/prisma";
 import { rateLimitAsync, rateLimitKey } from "@/lib/rateLimit";
 import { logger } from "@/lib/logger";
-import { dispatchWaitlistVerificationEmail } from "@/lib/notifications/waitlistVerification";
+import { dispatchWaitlistVerificationEmail, dispatchWaitlistWelcomeEmail } from "@/lib/notifications/waitlistVerification";
 import { isAdminSession } from "@/lib/adminAuth";
 import {
   getLaunchAt,
@@ -58,8 +58,17 @@ function newStatusToken() {
   return randomBytes(24).toString("base64url");
 }
 
+const REFERRAL_CODE_LENGTH = 7;
+const REFERRAL_CODE_ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const REFERRAL_CODE_DIGITS = "0123456789";
+
+/** 7-character alphanumeric referral code, guaranteed to include at least one digit. */
 function newReferralCode() {
-  return randomBytes(6).toString("base64url").replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase();
+  const chars = Array.from({ length: REFERRAL_CODE_LENGTH }, () => REFERRAL_CODE_ALPHANUMERIC[randomInt(REFERRAL_CODE_ALPHANUMERIC.length)]);
+  if (!chars.some((c) => REFERRAL_CODE_DIGITS.includes(c))) {
+    chars[randomInt(REFERRAL_CODE_LENGTH)] = REFERRAL_CODE_DIGITS[randomInt(REFERRAL_CODE_DIGITS.length)];
+  }
+  return chars.join("");
 }
 
 function normalizeReferralCodeInput(value: FormDataEntryValue | null): string {
@@ -112,6 +121,40 @@ function titleCase(s: string) {
 
 function displayNameFor(entry: { name: string | null; email: string }) {
   return entry.name?.trim() || getDisplayNameFromEmail(entry.email) || "Founder";
+}
+
+/** Masks an email for the public leaderboard, e.g. "anshitraj4@gmail.com" -> "an*****4@gmail.com". */
+function maskEmailForLeaderboard(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  if (local.length <= 3) return `${local[0] ?? ""}*****@${domain}`;
+  return `${local.slice(0, 2)}*****${local.slice(-1)}@${domain}`;
+}
+
+/**
+ * Public, unauthenticated social-proof pulse for the landing-page email step:
+ * a growing headline count (100 + verified signups) and the most recent
+ * verified joiner's masked email. No PII beyond what the leaderboard already
+ * exposes to any visitor.
+ */
+export async function getPublicWaitlistPulse(): Promise<{ displayCount: number; recentMaskedEmail: string | null }> {
+  try {
+    const [verifiedCount, recent] = await Promise.all([
+      db.waitlistEntry.count({ where: { emailVerifiedAt: { not: null } } }),
+      db.waitlistEntry.findFirst({
+        where: { emailVerifiedAt: { not: null } },
+        orderBy: { emailVerifiedAt: "desc" },
+        select: { email: true },
+      }),
+    ]);
+    return {
+      displayCount: 100 + verifiedCount,
+      recentMaskedEmail: recent ? maskEmailForLeaderboard(recent.email) : null,
+    };
+  } catch (error) {
+    await logger.captureError({ scope: "waitlist.getPublicWaitlistPulse", message: "Failed to load public waitlist pulse.", error });
+    return { displayCount: 100, recentMaskedEmail: null };
+  }
 }
 
 function isMissingTaskTable(error: unknown) {
@@ -399,6 +442,21 @@ export async function verifyWaitlistEmail(token: string): Promise<VerifyResult> 
   });
 
   const statusToken = entry.statusToken ?? (await backfillStatusToken(entry.id));
+  try {
+    await dispatchWaitlistWelcomeEmail({
+      toEmail: entry.email,
+      dashboardLink: `${baseUrl()}/status?c=${encodeURIComponent(statusToken)}`,
+      name: entry.name,
+      role: entry.role,
+    });
+  } catch (error) {
+    await logger.captureError({
+      scope: "waitlist.verify",
+      message: "Verification succeeded, but the welcome email could not be dispatched.",
+      data: { recipientDomain: entry.email.split("@")[1] ?? "unknown" },
+      error,
+    });
+  }
   return { success: true, statusToken, alreadyVerified: false };
 }
 
@@ -582,7 +640,7 @@ export async function getWaitlistStatus(statusToken: string): Promise<WaitlistSt
     rank = idx >= 0 ? idx + 1 : null;
     leaderboard = sorted.slice(0, 10).map((item, i) => ({
         rank: i + 1,
-        label: item.id === entry.id ? "You" : displayNameFor(item),
+        label: item.id === entry.id ? "You" : maskEmailForLeaderboard(item.email),
         webXp: item.webXp,
         verifiedReferralCount: item.verifiedReferralCount,
         isCurrent: item.id === entry.id,

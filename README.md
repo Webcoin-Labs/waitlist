@@ -1,6 +1,6 @@
 # Webcoin Labs Waitlist
 
-Production-ready Next.js waitlist microsite for Webcoin Labs early access, WebXP, referrals, Founder Pass eligibility, and email verification.
+Production-ready Next.js waitlist and documentation site for Webcoin Labs early access, Credits, referrals, Founder Pass eligibility, and email verification.
 
 ## Stack
 
@@ -68,6 +68,16 @@ pnpm test
 pnpm build
 ```
 
+## Documentation
+
+The public documentation is available at `/docs` and includes getting started,
+dashboard, Credits, referrals, Founder Pass, Builder Pass, founder tools,
+network access, security, help, Terms, and Privacy. `/terms`, `/privacy`, and
+`/help` redirect to their canonical documentation pages.
+
+Public Webcoin Labs tools are planned to begin rolling out at the start of Q4
+2026. This is a roadmap target and may change as the beta develops.
+
 ## Database
 
 This app uses the waitlist-related tables in the shared Webcoin Labs PostgreSQL database.
@@ -80,4 +90,4 @@ pnpm prisma migrate deploy
 
 ## Notes
 
-WebXP and Founder Pass are access/reward signals only. They have no monetary value, token value, airdrop value, ownership rights, investment rights, or financial rights.
+Credits and Founder Pass are access/reward signals only. They have no monetary value, token value, airdrop value, ownership rights, investment rights, or financial rights.

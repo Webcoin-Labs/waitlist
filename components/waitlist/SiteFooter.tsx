@@ -1,10 +1,43 @@
+"use client";
+
+import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 import { Wordmark } from "./Brand";
 import { COLORS, GRAD } from "@/lib/waitlist/tokens";
+
+const CONTACT_EMAIL = "contact@webcoinlabs.com";
+
+function CopyEmailChip() {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="mt-4 inline-flex items-center gap-2.5 rounded-full border px-4 py-2 text-[13px] font-medium transition-colors hover:bg-white/[0.06]"
+      style={{ borderColor: COLORS.darkBorder, color: COLORS.darkText, backgroundColor: "rgba(255,255,255,0.04)" }}
+    >
+      {CONTACT_EMAIL}
+      {copied ? <Check className="size-3.5" style={{ color: "#34d399" }} /> : <Copy className="size-3.5" style={{ color: COLORS.darkTextSecondary }} />}
+    </button>
+  );
+}
 
 type FooterLink = {
   label: string;
   href: string;
   external?: boolean;
+  comingSoon?: boolean;
 };
 
 type FooterLinkGroup = {
@@ -16,19 +49,20 @@ const FOOTER_LINKS: FooterLinkGroup[] = [
   {
     title: "Build",
     links: [
-      { label: "Founder Tools", href: "#join" },
-      { label: "Builder Proof", href: "#join" },
-      { label: "Pitch Deck Review", href: "#join" },
-      { label: "Tokenomics Support", href: "#join" },
+      { label: "Founder Tools", href: "#join", comingSoon: true },
+      { label: "Builder Proof", href: "#join", comingSoon: true },
+      { label: "Pitch Deck Review", href: "#join", comingSoon: true },
+      { label: "Tokenomics Support", href: "#join", comingSoon: true },
     ],
   },
   {
     title: "Explore",
     links: [
-      { label: "Dashboard", href: "#join" },
-      { label: "Builder Pass", href: "#join" },
-      { label: "Credits", href: "#join" },
-      { label: "Private Network", href: "#join" },
+      { label: "Documentation", href: "/docs" },
+      { label: "Founder Pass", href: "/docs/access/founder-pass" },
+      { label: "Builder Pass", href: "/docs/access/builder-pass" },
+      { label: "Credits", href: "/docs/platform/credits" },
+      { label: "Brand Assets", href: "/docs/brand-assets" },
     ],
   },
   {
@@ -51,6 +85,7 @@ export function SiteFooter() {
             <p className="mt-3 max-w-[280px] text-[13px] leading-6" style={{ color: COLORS.darkTextSecondary }}>
               The operating system for founders.
             </p>
+            <CopyEmailChip />
           </div>
 
           <div className="grid grid-cols-2 gap-7 sm:grid-cols-3 sm:gap-8">
@@ -66,10 +101,18 @@ export function SiteFooter() {
                       href={link.href}
                       target={link.external ? "_blank" : undefined}
                       rel={link.external ? "noopener noreferrer" : undefined}
-                      className="text-[13px] font-medium transition-colors"
+                      className="inline-flex items-center gap-2 text-[13px] font-medium transition-colors"
                       style={{ color: COLORS.darkTextSecondary }}
                     >
                       {link.label}
+                      {link.comingSoon ? (
+                        <span
+                          className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+                          style={{ backgroundColor: "rgba(255,255,255,0.08)", color: COLORS.darkTextMuted }}
+                        >
+                          Soon
+                        </span>
+                      ) : null}
                     </a>
                   ))}
                 </div>
@@ -83,12 +126,10 @@ export function SiteFooter() {
             © 2026 Webcoin Labs. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-4 text-[12px] font-medium" style={{ color: COLORS.darkTextSecondary }}>
-            <a href="https://www.webcoinlabs.com/terms" target="_blank" rel="noopener noreferrer">
-              Terms
-            </a>
-            <a href="https://www.webcoinlabs.com/privacy" target="_blank" rel="noopener noreferrer">
-              Privacy
-            </a>
+            <a href="/docs">Docs</a>
+            <a href="/docs/help">Help</a>
+            <a href="/docs/legal/terms">Terms</a>
+            <a href="/docs/legal/privacy">Privacy</a>
             <a href="mailto:contact@webcoinlabs.com">Contact</a>
           </div>
         </div>

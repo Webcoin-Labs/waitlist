@@ -10,3 +10,9 @@ node_modules
 next-env.d.ts
 .claude
 SKILL.md
+
+# Local Codex attachments and generated preview artifacts
+.codex-remote-attachments/
+email-verification-desktop-preview.png
+email-verification-mobile-preview.png
+mobile-waitlist-preview.png
