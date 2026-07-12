@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Lock, ShieldCheck } from "lucide-react";
 import { TiltCard } from "./TiltCard";
-import { GradientText } from "./Brand";
 import { COLORS, EASE, GRAD } from "@/lib/waitlist/tokens";
 
 export const TIERS = [
@@ -20,10 +19,6 @@ const TRACKS = ["Arc", "Base"] as const;
 const TRACK_LOGO_LIGHT: Record<(typeof TRACKS)[number], string> = {
   Arc: "/logo/Arc_Logo_NavyGradient.svg",
   Base: "/logo/baselogoblackcolor.svg",
-};
-const TRACK_LOGO_DARK: Partial<Record<(typeof TRACKS)[number], string>> = {
-  Arc: "/logo/circle-logo-ondark.svg",
-  Base: "/logo/Base_lockup_white.svg",
 };
 const TRACK_DETAIL: Record<(typeof TRACKS)[number], string> = {
   Arc: "Mini apps, contracts, and ecosystem activity.",
@@ -172,16 +167,7 @@ export function FounderPassSection() {
                           Network
                         </p>
                         <div className="mt-0.5 flex items-center gap-3">
-                          {TRACKS.map((track) => (
-                            <span key={track} className="inline-flex items-center gap-1.5">
-                              <img
-                                src={TRACK_LOGO_DARK[track] ?? `/logo/${track.toLowerCase()}.webp`}
-                                alt=""
-                                className="h-3.5 w-auto object-contain"
-                              />
-                              <GradientText className="text-[12.5px] font-semibold">{track}</GradientText>
-                            </span>
-                          ))}
+                          <img src="/logo/circle-logo-ondark.svg" alt="" className="h-8 w-auto object-contain" />
                         </div>
                       </div>
                       <PassField label="Tier" value="Gold" gold />

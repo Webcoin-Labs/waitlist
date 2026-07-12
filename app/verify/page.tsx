@@ -17,7 +17,7 @@ export default async function VerifyPage({
   const email = typeof sp.e === "string" ? sp.e : undefined;
 
   if (token) {
-    const result = await verifyWaitlistEmail(token);
+    const result = await verifyWaitlistEmail(token, email);
     if (result.success) {
       redirect(`/status?c=${result.statusToken}`);
     }

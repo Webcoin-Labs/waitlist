@@ -417,7 +417,7 @@ export function WaitlistForm({
                   <span className="font-semibold" style={{ color: COLORS.text }}>
                     you@yourcompany.com
                   </span>
-                  ) — personal inboxes aren&apos;t accepted for this role, so we can confirm a real company.
+                  ) — personal inboxes aren&apos;t accepted for this role, so we can confirm a real company. Prefer a personal email? Choose Builder instead.
                 </p>
               ) : null}
 

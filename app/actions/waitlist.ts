@@ -260,7 +260,7 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
   if (role === "FOUNDER") {
     const domain = email.split("@")[1];
     if (domain && FREE_EMAIL_DOMAINS.has(domain)) {
-      return { success: false, error: "Please use your company email (e.g. you@yourcompany.com), not a personal inbox." };
+      return { success: false, error: "We detected you're using a personal email. Please use your company email (e.g. you@yourcompany.com) — you can use a personal email if you join as a Builder instead." };
     }
   }
 
@@ -355,7 +355,7 @@ export async function joinWaitlist(formData: FormData): Promise<JoinWaitlistResu
 }
 
 async function sendVerification(email: string, token: string, name?: string | null, role?: WaitlistRole) {
-  const verifyLink = `${baseUrl()}/verify?token=${token}`;
+  const verifyLink = `${baseUrl()}/verify?token=${token}&e=${encodeURIComponent(email)}`;
   return dispatchWaitlistVerificationEmail({ toEmail: email, verifyLink, name, role });
 }
 
@@ -388,11 +388,34 @@ export type VerifyResult =
   | { success: true; statusToken: string; alreadyVerified: boolean }
   | { success: false; error: string; email?: string };
 
-export async function verifyWaitlistEmail(token: string): Promise<VerifyResult> {
+export async function verifyWaitlistEmail(token: string, email?: string): Promise<VerifyResult> {
   if (!token || token.length < 16) return { success: false, error: "Invalid verification link." };
 
   const entry = await db.waitlistEntry.findUnique({ where: { verificationToken: token } });
-  if (!entry) return { success: false, error: "This verification link is invalid or has already been used." };
+  if (!entry) {
+    // The token is single-use and cleared once verification succeeds. Email
+    // security scanners (Outlook Safe Links, Gmail, corporate gateways) often
+    // pre-fetch links before the user ever clicks them, which silently
+    // completes verification first — the user's genuine first click then
+    // finds no token and would otherwise see a false "invalid link" error
+    // even though their account is already verified. Fall back to the email
+    // on the link to recognize that case instead of hard-failing.
+    if (email) {
+      const parsedEmail = emailOnlySchema.safeParse({ email });
+      if (parsedEmail.success) {
+        const meta = await requestMeta();
+        const limiter = await rateLimitAsync(rateLimitKey(meta.ipHash ?? parsedEmail.data.email, "waitlist-verify-fallback"), 10, 60_000);
+        if (limiter.ok) {
+          const byEmail = await db.waitlistEntry.findUnique({ where: { email: parsedEmail.data.email } });
+          if (byEmail && byEmail.status !== "BLOCKED" && byEmail.emailVerifiedAt) {
+            const statusToken = byEmail.statusToken ?? (await backfillStatusToken(byEmail.id));
+            return { success: true, statusToken, alreadyVerified: true };
+          }
+        }
+      }
+    }
+    return { success: false, error: "This verification link is invalid or has already been used." };
+  }
   if (entry.status === "BLOCKED") return { success: false, error: "This entry is not eligible." };
   if (entry.emailVerifiedAt) {
     const statusToken = entry.statusToken ?? (await backfillStatusToken(entry.id));

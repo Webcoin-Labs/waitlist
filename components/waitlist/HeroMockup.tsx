@@ -362,10 +362,7 @@ function FloatingFounderPassPreview({ reduce }: { reduce: boolean | null }) {
       <div aria-hidden className="absolute -right-10 -top-12 h-28 w-28 rounded-full blur-2xl" style={{ backgroundColor: "rgba(124,58,237,0.28)" }} />
       <div className="relative flex items-start justify-between gap-4">
         <div>
-          <p className="text-[8px] font-black uppercase tracking-[0.24em]" style={{ color: COLORS.darkTextMuted }}>
-            Webcoin Labs
-          </p>
-          <p className="mt-1 text-[17px] font-black tracking-tight" style={{ color: COLORS.darkText }}>
+          <p className="text-[17px] font-black tracking-tight" style={{ color: COLORS.darkText }}>
             Builder Pass
           </p>
         </div>

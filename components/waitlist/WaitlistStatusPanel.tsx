@@ -21,7 +21,6 @@ import {
   Medal,
   Network,
   PieChart,
-  Rocket,
   Send,
   ShieldCheck,
   TrendingUp,
@@ -38,6 +37,20 @@ import { cn } from "@/lib/utils";
 import { GlobalMap } from "./GlobalMap";
 
 type IconComponent = ComponentType<{ className?: string; strokeWidth?: number | string }>;
+
+/**
+ * There's no standalone "W" icon asset — every logo file in /public/logo is
+ * the full "Webcoin Labs" wordmark. Its aspect ratio (~5.4:1) happens to make
+ * the leading "W" glyph almost exactly as wide as the wordmark is tall, so a
+ * square, overflow-hidden crop from the left isolates just the W.
+ */
+function WebcoinMarkIcon({ className }: { className?: string }) {
+  return (
+    <span className={cn("relative block overflow-hidden", className)}>
+      <img src="/logo/webcoin-mark-dark.webp" alt="Webcoin Labs" className="absolute left-0 top-0 h-full w-auto max-w-none" />
+    </span>
+  );
+}
 
 function XLogoMark({ className }: { className?: string }) {
   return (
@@ -283,7 +296,7 @@ function StatusOverview({
           <div className="relative flex items-center justify-between gap-4">
             <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase" style={{ color: "#c4b5fd" }}>
               <Trophy className="size-4" />
-              Waitlist position
+              Your position
             </span>
             <span className="rounded-full border px-2.5 py-1 text-[10px] font-semibold" style={{ borderColor: COLORS.darkBorder, color: COLORS.darkTextSecondary }}>
               {accessTier}
@@ -292,9 +305,11 @@ function StatusOverview({
           <p className="relative mt-6 text-6xl font-semibold tabular-nums sm:text-7xl" style={{ color: COLORS.darkText }}>
             {rank ? `#${rank.toLocaleString()}` : "—"}
           </p>
-          <p className="relative mt-1.5 text-sm" style={{ color: COLORS.darkTextSecondary }}>
-            {rank ? `of ${rankedTotal.toLocaleString()} verified members` : "Your rank appears after verification."}
-          </p>
+          {!rank ? (
+            <p className="relative mt-1.5 text-sm" style={{ color: COLORS.darkTextSecondary }}>
+              Your rank appears after verification.
+            </p>
+          ) : null}
 
           {rank && rankedTotal > 0 ? (
             <div className="relative mt-5">
@@ -316,34 +331,51 @@ function StatusOverview({
           </p>
         </div>
 
-        <div className="flex min-w-0 flex-col rounded-xl border p-6 sm:p-7" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="relative flex min-w-0 flex-col overflow-hidden rounded-xl p-6 sm:p-7" style={{ backgroundColor: COLORS.darkBg }}>
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px" style={{ backgroundImage: GRAD.brand }} />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.14]"
+            style={{
+              backgroundImage: "radial-gradient(circle, #a78bfa 1px, transparent 1.5px)",
+              backgroundSize: "9px 9px",
+              WebkitMaskImage: "url(/maps/simplemaps-world.svg)",
+              maskImage: "url(/maps/simplemaps-world.svg)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "cover",
+              maskSize: "cover",
+            }}
+          />
+
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
+              <p className="text-[11px] font-semibold uppercase" style={{ color: "#c4b5fd" }}>
                 Early access snapshot
               </p>
-              <h2 className="mt-2 max-w-2xl text-balance text-2xl font-semibold leading-tight" style={{ color: COLORS.text }}>
+              <h2 className="mt-2 max-w-2xl text-balance text-2xl font-semibold leading-tight" style={{ color: COLORS.darkText }}>
                 Your account is active and ready for the next step.
               </h2>
             </div>
-            <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-xs font-semibold" style={{ borderColor: COLORS.border, color: COLORS.green }}>
+            <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.06)", color: "#6ee7b7" }}>
               <CheckCircle2 className="size-4" />
               Verified
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
+          <div className="relative mt-6 grid grid-cols-3 gap-3">
             <OverviewStat label="Credits" value={webXp.toLocaleString()} />
             <OverviewStat label="Referrals" value={String(referrals)} />
             <OverviewStat label="Tier" value={accessTier} />
-            <OverviewStat label="Status" value={titleCase(status)} />
           </div>
 
-          <div className="mt-5 flex items-center gap-3 border-t pt-4" style={{ borderColor: COLORS.border }}>
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white" style={{ color: COLORS.accentDeep }}>
+          <div className="relative mt-5 flex items-center gap-3 border-t pt-4" style={{ borderColor: COLORS.darkBorder }}>
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "#c4b5fd" }}>
               <TrendingUp className="size-4" />
             </div>
-            <p className="text-pretty text-xs leading-5" style={{ color: COLORS.textSecondary }}>
+            <p className="text-pretty text-xs leading-5" style={{ color: COLORS.darkTextSecondary }}>
               Keep inviting verified members to strengthen your position and unlock more Credits.
             </p>
           </div>
@@ -355,11 +387,11 @@ function StatusOverview({
 
 function OverviewStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-xl border bg-white p-4" style={{ borderColor: COLORS.border }}>
-      <p className="text-[10px] font-semibold uppercase" style={{ color: COLORS.textMuted }}>
+    <div className="min-w-0 rounded-xl border p-4" style={{ borderColor: COLORS.darkBorder, backgroundColor: "rgba(255,255,255,0.03)" }}>
+      <p className="text-[10px] font-semibold uppercase" style={{ color: COLORS.darkTextMuted }}>
         {label}
       </p>
-      <p className="mt-2 line-clamp-2 text-sm font-semibold leading-5 tabular-nums" style={{ color: COLORS.text }} title={value}>
+      <p className="mt-2 line-clamp-2 text-sm font-semibold leading-5 tabular-nums" style={{ color: COLORS.darkText }} title={value}>
         {value}
       </p>
     </div>
@@ -546,7 +578,7 @@ function LaunchTasks({
     <section className="overflow-hidden rounded-xl border bg-white shadow-sm" style={{ borderColor: COLORS.border }}>
       <div className="flex items-start justify-between gap-5 border-b px-5 py-6 sm:px-6" style={{ borderColor: COLORS.border, backgroundColor: COLORS.surfaceMuted }}>
         <div className="flex min-w-0 items-start gap-4">
-          <TaskIcon icon={Rocket} featured />
+          <TaskIcon icon={WebcoinMarkIcon} featured />
           <div>
             <p className="text-[11px] font-semibold uppercase" style={{ color: COLORS.accentDeep }}>
               Launch tasks
@@ -620,7 +652,10 @@ function LaunchTasks({
         />
       </div>
 
-      <p className="border-t px-5 py-4 text-pretty text-[11px] leading-5 sm:px-6" style={{ borderColor: COLORS.border, color: COLORS.textMuted }}>
+      <p className="border-t px-5 pt-4 text-pretty text-[11px] leading-5 sm:px-6" style={{ borderColor: COLORS.border, color: COLORS.textMuted }}>
+        More tasks are coming soon after the beta launch.
+      </p>
+      <p className="px-5 pb-4 pt-1.5 text-pretty text-[11px] leading-5 sm:px-6" style={{ color: COLORS.textMuted }}>
         Credits are a promotional access signal only. They have no monetary, token, airdrop, ownership, investment, or financial value.
       </p>
     </section>
